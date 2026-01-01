@@ -2,15 +2,13 @@ import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { UnderDevelopment } from "@/components/shared/UnderDevelopment";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, MapPin, Send, Facebook, Instagram, Twitter, Youtube } from "lucide-react";
+import { Mail, Phone, MapPin, Send, Facebook, Instagram } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 const socialLinks = [
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: Instagram, href: "#", label: "Instagram" },
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Youtube, href: "#", label: "YouTube" },
+  { icon: Instagram, href: "https://www.instagram.com/rithinitiative/", label: "Instagram" },
+  { icon: Facebook, href: "https://www.facebook.com/p/The-Rith-Initiative-61580213405598/", label: "Facebook" },
 ];
 
 export default function Contact() {
