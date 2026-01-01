@@ -1,0 +1,275 @@
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft, Save } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+interface PostFormData {
+  title: string;
+  content: string;
+  excerpt: string;
+  author_name: string;
+  category: string;
+  is_published: boolean;
+}
+
+export default function AdminPostForm() {
+  const { id } = useParams();
+  const isEditing = Boolean(id);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(isEditing);
+
+  const [formData, setFormData] = useState<PostFormData>({
+    title: '',
+    content: '',
+    excerpt: '',
+    author_name: '',
+    category: '',
+    is_published: false,
+  });
+
+  useEffect(() => {
+    if (isEditing && id) {
+      const fetchPost = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('blog_posts')
+            .select('*')
+            .eq('id', id)
+            .maybeSingle();
+
+          if (error) throw error;
+
+          if (data) {
+            setFormData({
+              title: data.title || '',
+              content: data.content || '',
+              excerpt: data.excerpt || '',
+              author_name: data.author_name || '',
+              category: data.category || '',
+              is_published: data.is_published || false,
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching post:', error);
+          toast({
+            title: 'Error',
+            description: 'Failed to load post.',
+            variant: 'destructive',
+          });
+        } finally {
+          setIsFetching(false);
+        }
+      };
+
+      fetchPost();
+    }
+  }, [id, isEditing, toast]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.title || !formData.content) {
+      toast({
+        title: 'Missing required fields',
+        description: 'Please fill in the title and content.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const postData = {
+        title: formData.title,
+        content: formData.content,
+        excerpt: formData.excerpt || null,
+        author_name: formData.author_name || null,
+        category: formData.category || null,
+        is_published: formData.is_published,
+        published_at: formData.is_published ? new Date().toISOString() : null,
+        created_by: user?.id,
+      };
+
+      if (isEditing && id) {
+        const { error } = await supabase
+          .from('blog_posts')
+          .update(postData)
+          .eq('id', id);
+
+        if (error) throw error;
+
+        toast({
+          title: 'Post updated',
+          description: 'The post has been updated successfully.',
+        });
+      } else {
+        const { error } = await supabase.from('blog_posts').insert([postData]);
+
+        if (error) throw error;
+
+        toast({
+          title: 'Post created',
+          description: 'The post has been created successfully.',
+        });
+      }
+
+      navigate('/admin/posts');
+    } catch (error) {
+      console.error('Error saving post:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save post. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isFetching) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link to="/admin/posts">
+            <ArrowLeft size={18} />
+          </Link>
+        </Button>
+        <div>
+          <h1 className="font-heading text-2xl font-semibold text-foreground">
+            {isEditing ? 'Edit Post' : 'Create Post'}
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            {isEditing ? 'Update post details' : 'Write a new blog post'}
+          </p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Title *</Label>
+            <Input
+              id="title"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              placeholder="Post title"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="excerpt">Excerpt</Label>
+            <Textarea
+              id="excerpt"
+              name="excerpt"
+              value={formData.excerpt}
+              onChange={handleChange}
+              placeholder="A brief summary of the post..."
+              rows={2}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="content">Content *</Label>
+            <Textarea
+              id="content"
+              name="content"
+              value={formData.content}
+              onChange={handleChange}
+              placeholder="Write your post content here..."
+              rows={12}
+              required
+            />
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="author_name">Author Name</Label>
+              <Input
+                id="author_name"
+                name="author_name"
+                value={formData.author_name}
+                onChange={handleChange}
+                placeholder="Author name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <Input
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                placeholder="e.g., News, Events, Community"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-4 rounded-lg bg-secondary/30">
+            <Switch
+              id="is_published"
+              checked={formData.is_published}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({ ...prev, is_published: checked }))
+              }
+            />
+            <div>
+              <Label htmlFor="is_published" className="cursor-pointer">
+                Publish immediately
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                {formData.is_published
+                  ? 'This post will be visible on the website.'
+                  : 'This post will be saved as a draft.'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-4">
+          <Button type="submit" variant="hero" disabled={isLoading}>
+            {isLoading ? (
+              'Saving...'
+            ) : (
+              <>
+                <Save size={18} />
+                {isEditing ? 'Update Post' : 'Create Post'}
+              </>
+            )}
+          </Button>
+          <Button type="button" variant="outline" asChild>
+            <Link to="/admin/posts">Cancel</Link>
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
