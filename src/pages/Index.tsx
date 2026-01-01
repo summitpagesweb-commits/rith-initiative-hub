@@ -5,6 +5,7 @@ import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
 import { UnderDevelopment } from "@/components/shared/UnderDevelopment";
+import { SectionDivider } from "@/components/shared/SectionDivider";
 
 // Hero Section
 function HeroSection() {
@@ -245,10 +246,15 @@ function GalleryPreview() {
 const Index = () => {
   return <Layout>
       <HeroSection />
+      <SectionDivider />
       <MissionPreview />
+      <SectionDivider />
       <StatsSection />
+      <SectionDivider />
       <EventsPreviewSection />
+      <SectionDivider />
       <BlogPreviewSection />
+      <SectionDivider />
       <GalleryPreview />
       <CTASection />
     </Layout>;
