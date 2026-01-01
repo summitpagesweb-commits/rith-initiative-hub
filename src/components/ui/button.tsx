@@ -16,10 +16,10 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         // Custom variants for the nonprofit site
-        hero: "bg-accent text-accent-foreground hover:bg-accent/90 shadow-elevated hover:shadow-glow hover:-translate-y-0.5 font-semibold",
+        hero: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-elevated hover:shadow-glow hover:-translate-y-0.5 font-semibold",
         heroOutline: "border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground font-semibold",
         accent: "bg-accent text-accent-foreground hover:bg-accent/90 shadow-soft",
-        warm: "bg-gradient-to-r from-accent to-accent/80 text-accent-foreground hover:from-accent/90 hover:to-accent/70 shadow-elevated",
+        warm: "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70 shadow-elevated",
         subtle: "bg-secondary/50 text-secondary-foreground hover:bg-secondary border border-border/50",
       },
       size: {

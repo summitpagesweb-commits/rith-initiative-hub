@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Menu, X, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NewsletterPopup } from "@/components/shared/NewsletterPopup";
-import logo from "@/assets/logo.png";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -24,12 +23,13 @@ export function Header() {
         <div className="container-wide">
           <nav className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group">
-              <img 
-                src={logo} 
-                alt="The Rith Initiative Logo" 
-                className="h-12 md:h-14 w-auto transition-transform group-hover:scale-105"
-              />
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary flex items-center justify-center transition-transform group-hover:scale-105">
+                <span className="text-primary-foreground font-heading font-bold text-lg md:text-xl">R</span>
+              </div>
+              <span className="font-heading text-lg md:text-xl font-semibold text-foreground hidden sm:block">
+                The Rith Initiative
+              </span>
             </Link>
 
             {/* Desktop Navigation */}

@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Youtube, Mail } from "lucide-react";
-import logo from "@/assets/logo.png";
 
 const footerLinks = {
   navigation: [
@@ -20,19 +19,20 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="bg-primary text-primary-foreground">
+    <footer className="bg-foreground text-background">
       <div className="container-wide section-padding">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link to="/" className="inline-block mb-6">
-              <img 
-                src={logo} 
-                alt="The Rith Initiative Logo" 
-                className="h-20 w-auto bg-background/95 rounded-lg p-2"
-              />
+            <Link to="/" className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
+                <span className="text-primary-foreground font-heading font-bold text-xl">R</span>
+              </div>
+              <span className="font-heading text-xl font-semibold">
+                The Rith Initiative
+              </span>
             </Link>
-            <p className="text-primary-foreground/80 max-w-md mb-6 leading-relaxed">
+            <p className="text-background/70 max-w-md mb-6 leading-relaxed">
               A 501(c)(3) nonprofit organization dedicated to sharing and preserving Indian culture 
               through community events, arts, and cultural programming in Central Virginia.
             </p>
@@ -41,7 +41,7 @@ export function Footer() {
                 <a
                   key={social.label}
                   href={social.href}
-                  className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center transition-all hover:bg-accent hover:text-accent-foreground hover:scale-110"
+                  className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center transition-all hover:bg-primary hover:scale-110"
                   aria-label={social.label}
                 >
                   <social.icon size={18} />
@@ -58,7 +58,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     to={link.href}
-                    className="text-primary-foreground/70 hover:text-accent transition-colors"
+                    className="text-background/70 hover:text-primary transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -70,11 +70,11 @@ export function Footer() {
           {/* Contact */}
           <div>
             <h4 className="font-heading text-lg font-semibold mb-6">Get in Touch</h4>
-            <div className="space-y-4 text-primary-foreground/70">
+            <div className="space-y-4 text-background/70">
               <p>Central Virginia, USA</p>
               <a
                 href="mailto:info@therithinitiative.org"
-                className="flex items-center gap-2 hover:text-accent transition-colors"
+                className="flex items-center gap-2 hover:text-primary transition-colors"
               >
                 <Mail size={16} />
                 info@therithinitiative.org
@@ -84,11 +84,11 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-16 pt-8 border-t border-primary-foreground/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-primary-foreground/50 text-sm">
+        <div className="mt-16 pt-8 border-t border-background/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-background/50 text-sm">
             © {new Date().getFullYear()} The Rith Initiative. All rights reserved.
           </p>
-          <p className="text-primary-foreground/50 text-sm">
+          <p className="text-background/50 text-sm">
             501(c)(3) Nonprofit Organization
           </p>
         </div>
