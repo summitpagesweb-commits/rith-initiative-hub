@@ -169,6 +169,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_admin_by_email: { Args: { _email: string }; Returns: Json }
+      get_all_admins: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          full_name: string
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -177,6 +187,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin_or_moderator: { Args: { _user_id: string }; Returns: boolean }
+      remove_admin_by_email: { Args: { _email: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "moderator"
