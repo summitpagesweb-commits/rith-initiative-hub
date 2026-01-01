@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Twitter, Youtube, Mail } from "lucide-react";
+import { Facebook, Instagram, Mail } from "lucide-react";
 
 const footerLinks = {
   navigation: [
@@ -10,10 +10,8 @@ const footerLinks = {
     { href: "/contact", label: "Contact" },
   ],
   social: [
-    { icon: Facebook, href: "#", label: "Facebook" },
-    { icon: Instagram, href: "#", label: "Instagram" },
-    { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Youtube, href: "#", label: "YouTube" },
+    { icon: Instagram, href: "https://www.instagram.com/rithinitiative/", label: "Instagram" },
+    { icon: Facebook, href: "https://www.facebook.com/p/The-Rith-Initiative-61580213405598/", label: "Facebook" },
   ],
 };
 
