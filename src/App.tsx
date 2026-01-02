@@ -19,6 +19,7 @@ import AdminEventForm from "./pages/admin/AdminEventForm";
 import AdminPosts from "./pages/admin/AdminPosts";
 import AdminPostForm from "./pages/admin/AdminPostForm";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminSubscribers from "./pages/admin/AdminSubscribers";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
               <Route path="posts/new" element={<AdminPostForm />} />
               <Route path="posts/:id" element={<AdminPostForm />} />
               <Route path="users" element={<AdminUsers />} />
+              <Route path="subscribers" element={<AdminSubscribers />} />
             </Route>
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
