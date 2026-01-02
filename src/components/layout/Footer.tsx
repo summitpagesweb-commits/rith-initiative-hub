@@ -8,6 +8,7 @@ const footerLinks = {
     { href: "/events", label: "Events" },
     { href: "/donate", label: "Donate" },
     { href: "/contact", label: "Contact" },
+    { href: "/admin/login", label: "Admin" },
   ],
   social: [
     { icon: Instagram, href: "https://www.instagram.com/rithinitiative/", label: "Instagram" },
