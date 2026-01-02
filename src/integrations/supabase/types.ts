@@ -116,6 +116,45 @@ export type Database = {
         }
         Relationships: []
       }
+      media: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          display_order: number | null
+          entity_id: string
+          entity_type: string
+          id: string
+          media_type: string
+          title: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          media_type: string
+          title?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          media_type?: string
+          title?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

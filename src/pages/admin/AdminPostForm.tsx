@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,6 +10,8 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Save } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ImageUpload } from '@/components/admin/ImageUpload';
+import { MediaManager, MediaItem } from '@/components/admin/MediaManager';
 
 interface PostFormData {
   title: string;
@@ -18,6 +20,7 @@ interface PostFormData {
   author_name: string;
   category: string;
   is_published: boolean;
+  featured_image_url: string;
 }
 
 export default function AdminPostForm() {
@@ -28,6 +31,7 @@ export default function AdminPostForm() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(isEditing);
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
 
   const [formData, setFormData] = useState<PostFormData>({
     title: '',
@@ -36,6 +40,7 @@ export default function AdminPostForm() {
     author_name: '',
     category: '',
     is_published: false,
+    featured_image_url: '',
   });
 
   useEffect(() => {
@@ -58,6 +63,7 @@ export default function AdminPostForm() {
               author_name: data.author_name || '',
               category: data.category || '',
               is_published: data.is_published || false,
+              featured_image_url: data.featured_image_url || '',
             });
           }
         } catch (error) {
@@ -83,6 +89,10 @@ export default function AdminPostForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleMediaChange = useCallback((media: MediaItem[]) => {
+    setMediaItems(media);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -106,8 +116,11 @@ export default function AdminPostForm() {
         category: formData.category || null,
         is_published: formData.is_published,
         published_at: formData.is_published ? new Date().toISOString() : null,
+        featured_image_url: formData.featured_image_url || null,
         created_by: user?.id,
       };
+
+      let postId = id;
 
       if (isEditing && id) {
         const { error } = await supabase
@@ -116,21 +129,65 @@ export default function AdminPostForm() {
           .eq('id', id);
 
         if (error) throw error;
-
-        toast({
-          title: 'Post updated',
-          description: 'The post has been updated successfully.',
-        });
       } else {
-        const { error } = await supabase.from('blog_posts').insert([postData]);
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .insert([postData])
+          .select('id')
+          .single();
 
         if (error) throw error;
-
-        toast({
-          title: 'Post created',
-          description: 'The post has been created successfully.',
-        });
+        postId = data.id;
       }
+
+      // Save media items
+      if (postId) {
+        // Get existing media to compare
+        const { data: existingMedia } = await supabase
+          .from('media')
+          .select('id')
+          .eq('entity_type', 'blog_post')
+          .eq('entity_id', postId);
+
+        const existingIds = new Set((existingMedia || []).map(m => m.id));
+        const currentIds = new Set(mediaItems.filter(m => m.id).map(m => m.id));
+
+        // Delete removed media
+        const toDelete = [...existingIds].filter(id => !currentIds.has(id));
+        if (toDelete.length > 0) {
+          await supabase.from('media').delete().in('id', toDelete);
+        }
+
+        // Insert/update media items
+        for (const item of mediaItems) {
+          if (!item.url) continue;
+
+          const mediaData = {
+            entity_type: 'blog_post' as const,
+            entity_id: postId,
+            media_type: item.media_type,
+            url: item.url,
+            title: item.title || null,
+            description: item.description || null,
+            display_order: item.display_order,
+            created_by: user?.id,
+          };
+
+          if (item.id) {
+            await supabase
+              .from('media')
+              .update(mediaData)
+              .eq('id', item.id);
+          } else {
+            await supabase.from('media').insert([mediaData]);
+          }
+        }
+      }
+
+      toast({
+        title: isEditing ? 'Post updated' : 'Post created',
+        description: `The post has been ${isEditing ? 'updated' : 'created'} successfully.`,
+      });
 
       navigate('/admin/posts');
     } catch (error) {
@@ -197,6 +254,13 @@ export default function AdminPostForm() {
             />
           </div>
 
+          {/* Featured Image Upload */}
+          <ImageUpload
+            value={formData.featured_image_url}
+            onChange={(url) => setFormData(prev => ({ ...prev, featured_image_url: url }))}
+            label="Featured Image"
+          />
+
           <div className="space-y-2">
             <Label htmlFor="content">Content *</Label>
             <Textarea
@@ -251,6 +315,15 @@ export default function AdminPostForm() {
                   : 'This post will be saved as a draft.'}
               </p>
             </div>
+          </div>
+
+          {/* Additional Media Section */}
+          <div className="pt-4 border-t border-border">
+            <MediaManager
+              entityType="blog_post"
+              entityId={id}
+              onMediaChange={handleMediaChange}
+            />
           </div>
         </div>
 

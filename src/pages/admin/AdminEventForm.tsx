@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -7,8 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, Calendar } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ImageUpload } from '@/components/admin/ImageUpload';
+import { MediaManager, MediaItem } from '@/components/admin/MediaManager';
 
 interface EventFormData {
   title: string;
@@ -20,6 +22,7 @@ interface EventFormData {
   category: string;
   registration_link: string;
   capacity: string;
+  featured_image_url: string;
 }
 
 export default function AdminEventForm() {
@@ -30,6 +33,7 @@ export default function AdminEventForm() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(isEditing);
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
 
   const [formData, setFormData] = useState<EventFormData>({
     title: '',
@@ -41,6 +45,7 @@ export default function AdminEventForm() {
     category: '',
     registration_link: '',
     capacity: '',
+    featured_image_url: '',
   });
 
   useEffect(() => {
@@ -66,6 +71,7 @@ export default function AdminEventForm() {
               category: data.category || '',
               registration_link: data.registration_link || '',
               capacity: data.capacity?.toString() || '',
+              featured_image_url: data.featured_image_url || '',
             });
           }
         } catch (error) {
@@ -91,6 +97,16 @@ export default function AdminEventForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleMediaChange = useCallback((media: MediaItem[]) => {
+    setMediaItems(media);
+  }, []);
+
+  // Helper function to convert date string to ISO without timezone shift
+  const dateToISO = (dateStr: string): string => {
+    // Append T12:00:00 to avoid timezone boundary issues
+    return new Date(`${dateStr}T12:00:00`).toISOString();
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -109,15 +125,18 @@ export default function AdminEventForm() {
       const eventData = {
         title: formData.title,
         description: formData.description || null,
-        start_date: new Date(formData.start_date).toISOString(),
-        end_date: formData.end_date ? new Date(formData.end_date).toISOString() : null,
+        start_date: dateToISO(formData.start_date),
+        end_date: formData.end_date ? dateToISO(formData.end_date) : null,
         time: formData.time || null,
         location: formData.location || null,
         category: formData.category || null,
         registration_link: formData.registration_link || null,
         capacity: formData.capacity ? parseInt(formData.capacity) : null,
+        featured_image_url: formData.featured_image_url || null,
         created_by: user?.id,
       };
+
+      let eventId = id;
 
       if (isEditing && id) {
         const { error } = await supabase
@@ -126,21 +145,65 @@ export default function AdminEventForm() {
           .eq('id', id);
 
         if (error) throw error;
-
-        toast({
-          title: 'Event updated',
-          description: 'The event has been updated successfully.',
-        });
       } else {
-        const { error } = await supabase.from('events').insert([eventData]);
+        const { data, error } = await supabase
+          .from('events')
+          .insert([eventData])
+          .select('id')
+          .single();
 
         if (error) throw error;
-
-        toast({
-          title: 'Event created',
-          description: 'The event has been created successfully.',
-        });
+        eventId = data.id;
       }
+
+      // Save media items
+      if (eventId) {
+        // Get existing media to compare
+        const { data: existingMedia } = await supabase
+          .from('media')
+          .select('id')
+          .eq('entity_type', 'event')
+          .eq('entity_id', eventId);
+
+        const existingIds = new Set((existingMedia || []).map(m => m.id));
+        const currentIds = new Set(mediaItems.filter(m => m.id).map(m => m.id));
+
+        // Delete removed media
+        const toDelete = [...existingIds].filter(id => !currentIds.has(id));
+        if (toDelete.length > 0) {
+          await supabase.from('media').delete().in('id', toDelete);
+        }
+
+        // Insert/update media items
+        for (const item of mediaItems) {
+          if (!item.url) continue;
+
+          const mediaData = {
+            entity_type: 'event' as const,
+            entity_id: eventId,
+            media_type: item.media_type,
+            url: item.url,
+            title: item.title || null,
+            description: item.description || null,
+            display_order: item.display_order,
+            created_by: user?.id,
+          };
+
+          if (item.id) {
+            await supabase
+              .from('media')
+              .update(mediaData)
+              .eq('id', item.id);
+          } else {
+            await supabase.from('media').insert([mediaData]);
+          }
+        }
+      }
+
+      toast({
+        title: isEditing ? 'Event updated' : 'Event created',
+        description: `The event has been ${isEditing ? 'updated' : 'created'} successfully.`,
+      });
 
       navigate('/admin/events');
     } catch (error) {
@@ -206,6 +269,13 @@ export default function AdminEventForm() {
               rows={4}
             />
           </div>
+
+          {/* Featured Image Upload */}
+          <ImageUpload
+            value={formData.featured_image_url}
+            onChange={(url) => setFormData(prev => ({ ...prev, featured_image_url: url }))}
+            label="Featured Image (Hero Image)"
+          />
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -285,6 +355,15 @@ export default function AdminEventForm() {
               value={formData.capacity}
               onChange={handleChange}
               placeholder="Maximum attendees"
+            />
+          </div>
+
+          {/* Additional Media Section */}
+          <div className="pt-4 border-t border-border">
+            <MediaManager
+              entityType="event"
+              entityId={id}
+              onMediaChange={handleMediaChange}
             />
           </div>
         </div>
