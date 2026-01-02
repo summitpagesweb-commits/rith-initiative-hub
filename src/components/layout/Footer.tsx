@@ -74,13 +74,12 @@ export function Footer() {
           <div>
             <h4 className="font-heading text-lg font-semibold mb-6">Get in Touch</h4>
             <div className="space-y-4 text-background/70">
-              <p>Central Virginia, USA</p>
               <a
-                href="mailto:info@therithinitiative.org"
+                href="mailto:rithinitiative@gmail.com"
                 className="flex items-center gap-2 hover:text-primary transition-colors"
               >
                 <Mail size={16} />
-                info@therithinitiative.org
+                rithinitiative@gmail.com
               </a>
             </div>
           </div>

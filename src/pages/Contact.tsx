@@ -1,10 +1,10 @@
 import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
-import { UnderDevelopment } from "@/components/shared/UnderDevelopment";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, MapPin, Send, Facebook, Instagram } from "lucide-react";
+import { Mail, Phone, Send, Facebook, Instagram } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const socialLinks = [
   { icon: Instagram, href: "https://www.instagram.com/rithinitiative/", label: "Instagram" },
@@ -24,12 +24,30 @@ export default function Contact() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast.success("Message sent! We'll get back to you soon.");
-    setFormData({ name: "", email: "", subject: "", message: "" });
-    setIsSubmitting(false);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+        },
+      });
+
+      if (error) {
+        console.error("Error sending message:", error);
+        toast.error("Failed to send message. Please try again.");
+        return;
+      }
+
+      toast.success("Message sent! We'll get back to you soon.");
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("Failed to send message. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -51,7 +69,6 @@ export default function Contact() {
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed animate-fade-up stagger-1">
               Have questions about our programs? Want to get involved? We'd love to hear from you.
             </p>
-            <UnderDevelopment className="mt-4 animate-fade-up stagger-2" />
           </div>
         </div>
       </section>
@@ -112,12 +129,12 @@ export default function Contact() {
                     className="w-full h-12 px-4 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                   >
                     <option value="">Select a subject</option>
-                    <option value="general">General Inquiry</option>
-                    <option value="events">Events & Programs</option>
-                    <option value="volunteer">Volunteering</option>
-                    <option value="donation">Donations & Sponsorship</option>
-                    <option value="partnership">Partnership Opportunities</option>
-                    <option value="other">Other</option>
+                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="Events & Programs">Events & Programs</option>
+                    <option value="Volunteering">Volunteering</option>
+                    <option value="Donations & Sponsorship">Donations & Sponsorship</option>
+                    <option value="Partnership Opportunities">Partnership Opportunities</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
                 <div>
@@ -146,7 +163,6 @@ export default function Contact() {
                   <Send size={18} />
                 </Button>
               </form>
-              <UnderDevelopment className="mt-6" />
             </div>
 
             {/* Contact Information */}
@@ -163,10 +179,10 @@ export default function Contact() {
                   <div>
                     <h4 className="font-heading text-lg font-semibold text-foreground mb-1">Email</h4>
                     <a 
-                      href="mailto:info@therithinitiative.org" 
+                      href="mailto:rithinitiative@gmail.com" 
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
-                      info@therithinitiative.org
+                      rithinitiative@gmail.com
                     </a>
                   </div>
                 </div>
@@ -184,21 +200,6 @@ export default function Contact() {
                       (123) 456-7890
                     </a>
                     <p className="text-sm text-muted-foreground mt-1">Mon-Fri, 9am-5pm EST</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="font-heading text-lg font-semibold text-foreground mb-1">Location</h4>
-                    <p className="text-muted-foreground">
-                      Central Virginia, USA
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Serving the greater Central Virginia community
-                    </p>
                   </div>
                 </div>
 
@@ -223,7 +224,6 @@ export default function Contact() {
                   </div>
                 </div>
               </div>
-              <UnderDevelopment className="mt-8" />
             </div>
           </div>
         </div>
@@ -266,7 +266,6 @@ export default function Contact() {
               </div>
             ))}
           </div>
-          <UnderDevelopment className="text-center mt-6" />
         </div>
       </section>
     </Layout>
