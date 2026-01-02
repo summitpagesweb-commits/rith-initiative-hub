@@ -174,59 +174,44 @@ export function BlogDetailModal({ post, open, onOpenChange }: BlogDetailModalPro
           </p>
         </div>
 
-        {/* Media Gallery - Clean masonry-style grid */}
+        {/* Media Gallery - Compact thumbnails */}
         {media.length > 0 && (
           <div className="px-6 pb-4">
-            <div className={`grid gap-2 ${
-              media.length === 1 ? 'grid-cols-1' : 
-              media.length === 2 ? 'grid-cols-2' : 
-              'grid-cols-2 md:grid-cols-3'
-            }`}>
-              {media.map((item, index) => (
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {media.slice(0, 4).map((item) => (
                 <div 
                   key={item.id} 
-                  className={`relative rounded-xl overflow-hidden bg-secondary/30 ${
-                    media.length === 1 ? 'aspect-video' :
-                    media.length === 2 ? 'aspect-square' :
-                    index === 0 && media.length > 2 ? 'col-span-2 aspect-video' : 'aspect-square'
-                  }`}
+                  className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-secondary/30"
                 >
                   {item.media_type === 'image' && (
                     <img
                       src={item.url}
                       alt={item.title || 'Blog media'}
-                      className="w-full h-full object-contain bg-secondary/20"
+                      className="w-full h-full object-cover"
                     />
                   )}
                   {item.media_type === 'video' && (
-                    <video
-                      src={item.url}
-                      controls
-                      className="w-full h-full object-contain bg-black"
-                    />
+                    <div className="w-full h-full flex items-center justify-center bg-secondary">
+                      <Play size={16} className="text-muted-foreground" />
+                    </div>
                   )}
                   {item.media_type === 'link' && (
                     <a
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex flex-col items-center justify-center h-full gap-2 p-4 hover:bg-secondary/50 transition-colors"
+                      className="w-full h-full flex items-center justify-center hover:bg-secondary/50 transition-colors"
                     >
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <ExternalLink size={18} className="text-primary" />
-                      </div>
-                      <span className="text-xs text-center text-muted-foreground line-clamp-2">
-                        {item.title || 'View Link'}
-                      </span>
+                      <ExternalLink size={16} className="text-muted-foreground" />
                     </a>
-                  )}
-                  {item.title && item.media_type !== 'link' && (
-                    <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
-                      <p className="text-xs text-white truncate">{item.title}</p>
-                    </div>
                   )}
                 </div>
               ))}
+              {media.length > 4 && (
+                <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-secondary/50 flex items-center justify-center">
+                  <span className="text-xs text-muted-foreground font-medium">+{media.length - 4}</span>
+                </div>
+              )}
             </div>
           </div>
         )}
