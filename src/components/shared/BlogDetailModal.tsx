@@ -142,94 +142,115 @@ export function BlogDetailModal({ post, open, onOpenChange }: BlogDetailModalPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              {post.category && (
-                <span className="text-xs font-medium text-primary uppercase tracking-wide">
-                  {post.category}
+      <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden">
+        {/* Header */}
+        <div className="p-6 pb-4">
+          <DialogHeader>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                {post.category && (
+                  <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                    {post.category}
+                  </span>
+                )}
+                <span className="text-xs text-muted-foreground">
+                  {format(new Date(post.published_at || post.created_at), 'MMM d, yyyy')}
                 </span>
-              )}
-              <DialogTitle className="text-2xl font-heading mt-1">
+              </div>
+              <DialogTitle className="text-xl font-heading leading-tight">
                 {post.title}
               </DialogTitle>
-              <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
-                {post.author_name && <span>By {post.author_name}</span>}
-                <span>
-                  {format(new Date(post.published_at || post.created_at), 'MMMM d, yyyy')}
-                </span>
-              </div>
+              {post.author_name && (
+                <p className="text-sm text-muted-foreground">By {post.author_name}</p>
+              )}
+            </div>
+          </DialogHeader>
+        </div>
+
+        {/* Content - Compact excerpt style */}
+        <div className="px-6 pb-4">
+          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
+            {post.excerpt || post.content.substring(0, 200)}
+          </p>
+        </div>
+
+        {/* Media Gallery - Clean masonry-style grid */}
+        {media.length > 0 && (
+          <div className="px-6 pb-4">
+            <div className={`grid gap-2 ${
+              media.length === 1 ? 'grid-cols-1' : 
+              media.length === 2 ? 'grid-cols-2' : 
+              'grid-cols-2 md:grid-cols-3'
+            }`}>
+              {media.map((item, index) => (
+                <div 
+                  key={item.id} 
+                  className={`relative rounded-xl overflow-hidden bg-secondary/30 ${
+                    media.length === 1 ? 'aspect-video' :
+                    media.length === 2 ? 'aspect-square' :
+                    index === 0 && media.length > 2 ? 'col-span-2 aspect-video' : 'aspect-square'
+                  }`}
+                >
+                  {item.media_type === 'image' && (
+                    <img
+                      src={item.url}
+                      alt={item.title || 'Blog media'}
+                      className="w-full h-full object-contain bg-secondary/20"
+                    />
+                  )}
+                  {item.media_type === 'video' && (
+                    <video
+                      src={item.url}
+                      controls
+                      className="w-full h-full object-contain bg-black"
+                    />
+                  )}
+                  {item.media_type === 'link' && (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex flex-col items-center justify-center h-full gap-2 p-4 hover:bg-secondary/50 transition-colors"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <ExternalLink size={18} className="text-primary" />
+                      </div>
+                      <span className="text-xs text-center text-muted-foreground line-clamp-2">
+                        {item.title || 'View Link'}
+                      </span>
+                    </a>
+                  )}
+                  {item.title && item.media_type !== 'link' && (
+                    <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+                      <p className="text-xs text-white truncate">{item.title}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
-        </DialogHeader>
+        )}
 
-        <div className="space-y-6 mt-4">
-          {/* Content */}
-          <div className="prose prose-sm max-w-none text-foreground">
-            {post.content.split('\n').map((paragraph, index) => (
-              <p key={index} className="mb-4 text-muted-foreground leading-relaxed">
-                {paragraph}
-              </p>
-            ))}
-          </div>
-
-          {/* Media Gallery */}
-          {media.length > 0 && (
-            <div className="space-y-4 pt-4 border-t border-border">
-              <h4 className="font-medium text-foreground">Media</h4>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {media.map((item) => (
-                  <div key={item.id} className="space-y-2">
-                    {item.media_type === 'image' && (
-                      <img
-                        src={item.url}
-                        alt={item.title || 'Blog media'}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
-                    )}
-                    {item.media_type === 'video' && (
-                      <video
-                        src={item.url}
-                        controls
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
-                    )}
-                    {item.media_type === 'link' && (
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors"
-                      >
-                        <ExternalLink size={16} className="text-primary" />
-                        <span className="text-sm truncate">
-                          {item.title || item.url}
-                        </span>
-                      </a>
-                    )}
-                    {item.title && item.media_type !== 'link' && (
-                      <p className="text-xs text-muted-foreground truncate">{item.title}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Like Button */}
-          <div className="flex items-center gap-4 pt-4 border-t border-border">
-            <Button
-              variant={hasLiked ? "default" : "outline"}
-              size="sm"
-              onClick={handleLike}
-              disabled={isLiking}
-              className="gap-2"
-            >
-              <Heart size={16} className={hasLiked ? "fill-current" : ""} />
-              {likesCount} {likesCount === 1 ? 'Like' : 'Likes'}
-            </Button>
-          </div>
+        {/* Footer with Like */}
+        <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-secondary/20">
+          <Button
+            variant={hasLiked ? "default" : "ghost"}
+            size="sm"
+            onClick={handleLike}
+            disabled={isLiking}
+            className={`gap-2 ${hasLiked ? '' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            <Heart size={16} className={hasLiked ? "fill-current" : ""} />
+            <span className="text-sm">{likesCount}</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onOpenChange(false)}
+            className="text-muted-foreground"
+          >
+            Close
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
