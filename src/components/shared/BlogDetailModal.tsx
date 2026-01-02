@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
-import { Heart, Play, ExternalLink, Image, X } from 'lucide-react';
+import { Heart, Play, ExternalLink, Image, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -50,6 +50,8 @@ export function BlogDetailModal({ post, open, onOpenChange }: BlogDetailModalPro
   const [likesCount, setLikesCount] = useState(0);
   const [hasLiked, setHasLiked] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
     if (post && open) {
@@ -130,114 +132,200 @@ export function BlogDetailModal({ post, open, onOpenChange }: BlogDetailModalPro
     }
   };
 
-  const getMediaIcon = (type: string) => {
-    switch (type) {
-      case 'video': return <Play size={16} />;
-      case 'link': return <ExternalLink size={16} />;
-      default: return <Image size={16} />;
-    }
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const nextSlide = () => {
+    setLightboxIndex((prev) => (prev + 1) % media.length);
+  };
+
+  const prevSlide = () => {
+    setLightboxIndex((prev) => (prev - 1 + media.length) % media.length);
   };
 
   if (!post) return null;
 
+  const currentMedia = media[lightboxIndex];
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden">
-        {/* Header */}
-        <div className="p-6 pb-4">
-          <DialogHeader>
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                {post.category && (
-                  <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                    {post.category}
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden">
+          {/* Header */}
+          <div className="p-6 pb-4">
+            <DialogHeader>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  {post.category && (
+                    <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                      {post.category}
+                    </span>
+                  )}
+                  <span className="text-xs text-muted-foreground">
+                    {format(new Date(post.published_at || post.created_at), 'MMM d, yyyy')}
                   </span>
+                </div>
+                <DialogTitle className="text-xl font-heading leading-tight">
+                  {post.title}
+                </DialogTitle>
+                {post.author_name && (
+                  <p className="text-sm text-muted-foreground">By {post.author_name}</p>
                 )}
-                <span className="text-xs text-muted-foreground">
-                  {format(new Date(post.published_at || post.created_at), 'MMM d, yyyy')}
-                </span>
               </div>
-              <DialogTitle className="text-xl font-heading leading-tight">
-                {post.title}
-              </DialogTitle>
-              {post.author_name && (
-                <p className="text-sm text-muted-foreground">By {post.author_name}</p>
-              )}
-            </div>
-          </DialogHeader>
-        </div>
-
-        {/* Content - Compact excerpt style */}
-        <div className="px-6 pb-4">
-          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
-            {post.excerpt || post.content.substring(0, 200)}
-          </p>
-        </div>
-
-        {/* Media Gallery - Compact thumbnails */}
-        {media.length > 0 && (
-          <div className="px-6 pb-4">
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {media.slice(0, 4).map((item) => (
-                <div 
-                  key={item.id} 
-                  className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-secondary/30"
-                >
-                  {item.media_type === 'image' && (
-                    <img
-                      src={item.url}
-                      alt={item.title || 'Blog media'}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                  {item.media_type === 'video' && (
-                    <div className="w-full h-full flex items-center justify-center bg-secondary">
-                      <Play size={16} className="text-muted-foreground" />
-                    </div>
-                  )}
-                  {item.media_type === 'link' && (
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full h-full flex items-center justify-center hover:bg-secondary/50 transition-colors"
-                    >
-                      <ExternalLink size={16} className="text-muted-foreground" />
-                    </a>
-                  )}
-                </div>
-              ))}
-              {media.length > 4 && (
-                <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-secondary/50 flex items-center justify-center">
-                  <span className="text-xs text-muted-foreground font-medium">+{media.length - 4}</span>
-                </div>
-              )}
-            </div>
+            </DialogHeader>
           </div>
-        )}
 
-        {/* Footer with Like */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-secondary/20">
-          <Button
-            variant={hasLiked ? "default" : "ghost"}
-            size="sm"
-            onClick={handleLike}
-            disabled={isLiking}
-            className={`gap-2 ${hasLiked ? '' : 'text-muted-foreground hover:text-foreground'}`}
+          {/* Content - Compact excerpt style */}
+          <div className="px-6 pb-4">
+            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
+              {post.excerpt || post.content.substring(0, 200)}
+            </p>
+          </div>
+
+          {/* Media Gallery - Compact thumbnails */}
+          {media.length > 0 && (
+            <div className="px-6 pb-4">
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {media.slice(0, 4).map((item, index) => (
+                  <button 
+                    key={item.id}
+                    onClick={() => item.media_type !== 'link' && openLightbox(index)}
+                    className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-secondary/30 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                  >
+                    {item.media_type === 'image' && (
+                      <img
+                        src={item.url}
+                        alt={item.title || 'Blog media'}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                    {item.media_type === 'video' && (
+                      <div className="w-full h-full flex items-center justify-center bg-secondary">
+                        <Play size={16} className="text-muted-foreground" />
+                      </div>
+                    )}
+                    {item.media_type === 'link' && (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full h-full flex items-center justify-center hover:bg-secondary/50 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ExternalLink size={16} className="text-muted-foreground" />
+                      </a>
+                    )}
+                  </button>
+                ))}
+                {media.length > 4 && (
+                  <button
+                    onClick={() => openLightbox(4)}
+                    className="flex-shrink-0 w-16 h-16 rounded-lg bg-secondary/50 flex items-center justify-center hover:bg-secondary transition-colors"
+                  >
+                    <span className="text-xs text-muted-foreground font-medium">+{media.length - 4}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Footer with Like */}
+          <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-secondary/20">
+            <Button
+              variant={hasLiked ? "default" : "ghost"}
+              size="sm"
+              onClick={handleLike}
+              disabled={isLiking}
+              className={`gap-2 ${hasLiked ? '' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              <Heart size={16} className={hasLiked ? "fill-current" : ""} />
+              <span className="text-sm">{likesCount}</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onOpenChange(false)}
+              className="text-muted-foreground"
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Lightbox Modal */}
+      {lightboxOpen && currentMedia && (
+        <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center">
+          {/* Close button */}
+          <button
+            onClick={() => setLightboxOpen(false)}
+            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
           >
-            <Heart size={16} className={hasLiked ? "fill-current" : ""} />
-            <span className="text-sm">{likesCount}</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onOpenChange(false)}
-            className="text-muted-foreground"
-          >
-            Close
-          </Button>
+            <X size={24} className="text-white" />
+          </button>
+
+          {/* Navigation arrows */}
+          {media.length > 1 && (
+            <>
+              <button
+                onClick={prevSlide}
+                className="absolute left-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <ChevronLeft size={28} className="text-white" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <ChevronRight size={28} className="text-white" />
+              </button>
+            </>
+          )}
+
+          {/* Media content */}
+          <div className="max-w-4xl max-h-[80vh] w-full h-full flex items-center justify-center p-8">
+            {currentMedia.media_type === 'image' && (
+              <img
+                src={currentMedia.url}
+                alt={currentMedia.title || 'Blog media'}
+                className="max-w-full max-h-full object-contain rounded-lg"
+              />
+            )}
+            {currentMedia.media_type === 'video' && (
+              <video
+                src={currentMedia.url}
+                controls
+                autoPlay
+                className="max-w-full max-h-full rounded-lg"
+              />
+            )}
+          </div>
+
+          {/* Slide indicators */}
+          {media.length > 1 && (
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+              {media.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setLightboxIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    index === lightboxIndex ? 'bg-white' : 'bg-white/40'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Title */}
+          {currentMedia.title && (
+            <div className="absolute bottom-14 left-1/2 -translate-x-1/2 text-white text-sm">
+              {currentMedia.title}
+            </div>
+          )}
         </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </>
   );
 }
