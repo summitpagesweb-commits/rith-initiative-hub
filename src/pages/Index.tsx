@@ -6,6 +6,7 @@ import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
 import { UnderDevelopment } from "@/components/shared/UnderDevelopment";
 import { SectionDivider } from "@/components/shared/SectionDivider";
+import { BlogDetailModal } from "@/components/shared/BlogDetailModal";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -21,7 +22,10 @@ interface Event {
 interface BlogPost {
   id: string;
   title: string;
+  content: string;
   excerpt: string | null;
+  author_name: string | null;
+  category: string | null;
   published_at: string | null;
   created_at: string;
 }
@@ -133,17 +137,19 @@ function StatsSection() {
 function BlogPreviewSection() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const { data, error } = await supabase
           .from('blog_posts')
-          .select('id, title, excerpt, published_at, created_at')
+          .select('id, title, content, excerpt, author_name, category, published_at, created_at')
           .eq('is_published', true)
           .eq('is_archived', false)
-          .order('published_at', { ascending: false })
-          .limit(3);
+          .order('published_at', { ascending: false });
 
         if (error) throw error;
         setPosts(data || []);
@@ -157,17 +163,24 @@ function BlogPreviewSection() {
     fetchPosts();
   }, []);
 
+  const displayedPosts = showAll ? posts : posts.slice(0, 3);
+
+  const handlePostClick = (post: BlogPost) => {
+    setSelectedPost(post);
+    setIsModalOpen(true);
+  };
+
   return (
     <section className="section-padding bg-secondary/30">
       <div className="container-wide">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <SectionHeading title="Latest Updates" subtitle="Stories and news from our community" className="mb-0" />
-          <Button variant="subtle" asChild>
-            <Link to="/blog">
-              View All Posts
-              <ArrowRight size={16} />
-            </Link>
-          </Button>
+          {posts.length > 3 && (
+            <Button variant="subtle" onClick={() => setShowAll(!showAll)}>
+              {showAll ? 'Show Less' : 'View All Posts'}
+              <ArrowRight size={16} className={showAll ? 'rotate-90' : ''} />
+            </Button>
+          )}
         </div>
         
         {isLoading ? (
@@ -176,11 +189,20 @@ function BlogPreviewSection() {
           </div>
         ) : posts.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post) => (
-              <article key={post.id} className="group bg-card rounded-2xl overflow-hidden border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300">
+            {displayedPosts.map((post) => (
+              <article 
+                key={post.id} 
+                className="group bg-card rounded-2xl overflow-hidden border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300 cursor-pointer"
+                onClick={() => handlePostClick(post)}
+              >
                 <PlaceholderImage aspectRatio="video" label="Blog post image" className="rounded-none" />
                 <div className="p-6">
-                  <p className="text-sm text-primary font-medium mb-2">
+                  {post.category && (
+                    <span className="text-xs font-medium text-primary uppercase tracking-wide">
+                      {post.category}
+                    </span>
+                  )}
+                  <p className="text-sm text-muted-foreground mt-1 mb-2">
                     {format(new Date(post.published_at || post.created_at), 'MMMM d, yyyy')}
                   </p>
                   <h3 className="font-heading text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
@@ -198,6 +220,12 @@ function BlogPreviewSection() {
             <p className="text-muted-foreground">No updates yet. Check back soon!</p>
           </div>
         )}
+
+        <BlogDetailModal 
+          post={selectedPost}
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+        />
       </div>
     </section>
   );
