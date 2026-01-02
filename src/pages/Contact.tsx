@@ -1,6 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { SectionDivider } from "@/components/shared/SectionDivider";
+import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, Send, Facebook, Instagram } from "lucide-react";
 import { useState } from "react";
@@ -70,12 +71,16 @@ export default function Contact() {
       <section className="section-padding bg-gradient-to-b from-secondary/30 to-background">
         <div className="container-wide">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground mb-6 animate-fade-up">
-              Get in Touch
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed animate-fade-up stagger-1">
-              Have questions about our programs? Want to get involved? We'd love to hear from you.
-            </p>
+            <ScrollReveal variant="fade-up">
+              <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground mb-6">
+                Get in Touch
+              </h1>
+            </ScrollReveal>
+            <ScrollReveal variant="fade-up" delay={100}>
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+                Have questions about our programs? Want to get involved? We'd love to hear from you.
+              </p>
+            </ScrollReveal>
           </div>
         </div>
       </section>
@@ -87,153 +92,157 @@ export default function Contact() {
         <div className="container-wide">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
             {/* Contact Form */}
-            <div>
-              <SectionHeading 
-                title="Send Us a Message"
-                subtitle="Fill out the form below and we'll respond as soon as possible"
-              />
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
-                      Your Name *
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      required
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="w-full h-12 px-4 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-                      placeholder="John Doe"
-                    />
+            <ScrollReveal variant="slide-left">
+              <div>
+                <SectionHeading 
+                  title="Send Us a Message"
+                  subtitle="Fill out the form below and we'll respond as soon as possible"
+                />
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+                        Your Name *
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        required
+                        value={formData.name}
+                        onChange={handleChange}
+                        className="w-full h-12 px-4 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                        placeholder="John Doe"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+                        Email Address *
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="w-full h-12 px-4 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                        placeholder="john@example.com"
+                      />
+                    </div>
                   </div>
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-                      Email Address *
+                    <label htmlFor="subject" className="block text-sm font-medium text-foreground mb-2">
+                      Subject *
                     </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
+                    <select
+                      id="subject"
+                      name="subject"
                       required
-                      value={formData.email}
+                      value={formData.subject}
                       onChange={handleChange}
                       className="w-full h-12 px-4 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-                      placeholder="john@example.com"
+                    >
+                      <option value="">Select a subject</option>
+                      <option value="General Inquiry">General Inquiry</option>
+                      <option value="Events & Programs">Events & Programs</option>
+                      <option value="Volunteering">Volunteering</option>
+                      <option value="Donations & Sponsorship">Donations & Sponsorship</option>
+                      <option value="Partnership Opportunities">Partnership Opportunities</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-foreground mb-2">
+                      Message *
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      required
+                      rows={6}
+                      value={formData.message}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-none"
+                      placeholder="How can we help you?"
                     />
                   </div>
-                </div>
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-foreground mb-2">
-                    Subject *
-                  </label>
-                  <select
-                    id="subject"
-                    name="subject"
-                    required
-                    value={formData.subject}
-                    onChange={handleChange}
-                    className="w-full h-12 px-4 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                  <Button 
+                    type="submit" 
+                    variant="hero" 
+                    size="lg"
+                    disabled={isSubmitting}
+                    className="w-full sm:w-auto"
                   >
-                    <option value="">Select a subject</option>
-                    <option value="General Inquiry">General Inquiry</option>
-                    <option value="Events & Programs">Events & Programs</option>
-                    <option value="Volunteering">Volunteering</option>
-                    <option value="Donations & Sponsorship">Donations & Sponsorship</option>
-                    <option value="Partnership Opportunities">Partnership Opportunities</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-foreground mb-2">
-                    Message *
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    required
-                    rows={6}
-                    value={formData.message}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-none"
-                    placeholder="How can we help you?"
-                  />
-                </div>
-                <Button 
-                  type="submit" 
-                  variant="hero" 
-                  size="lg"
-                  disabled={isSubmitting}
-                  className="w-full sm:w-auto"
-                >
-                  {isSubmitting ? "Sending..." : "Send Message"}
-                  <Send size={18} />
-                </Button>
-              </form>
-            </div>
+                    {isSubmitting ? "Sending..." : "Send Message"}
+                    <Send size={18} />
+                  </Button>
+                </form>
+              </div>
+            </ScrollReveal>
 
             {/* Contact Information */}
-            <div>
-              <SectionHeading 
-                title="Contact Information"
-                subtitle="Reach out through any of these channels"
-              />
-              <div className="space-y-8">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="font-heading text-lg font-semibold text-foreground mb-1">Email</h4>
-                    <a 
-                      href="mailto:rithinitiative@gmail.com" 
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      rithinitiative@gmail.com
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="font-heading text-lg font-semibold text-foreground mb-1">Phone</h4>
-                    <a 
-                      href="tel:+1234567890" 
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      (123) 456-7890
-                    </a>
-                    <p className="text-sm text-muted-foreground mt-1">Mon-Fri, 9am-5pm EST</p>
-                  </div>
-                </div>
-
-                {/* Social Links */}
-                <div className="pt-6 border-t border-border">
-                  <h4 className="font-heading text-lg font-semibold text-foreground mb-4">
-                    Follow Us
-                  </h4>
-                  <div className="flex gap-4">
-                    {socialLinks.map((social) => (
-                      <a
-                        key={social.label}
-                        href={social.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-200"
-                        aria-label={social.label}
+            <ScrollReveal variant="slide-right" delay={100}>
+              <div>
+                <SectionHeading 
+                  title="Contact Information"
+                  subtitle="Reach out through any of these channels"
+                />
+                <div className="space-y-8">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-heading text-lg font-semibold text-foreground mb-1">Email</h4>
+                      <a 
+                        href="mailto:rithinitiative@gmail.com" 
+                        className="text-muted-foreground hover:text-primary transition-colors"
                       >
-                        <social.icon size={20} />
+                        rithinitiative@gmail.com
                       </a>
-                    ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-heading text-lg font-semibold text-foreground mb-1">Phone</h4>
+                      <a 
+                        href="tel:+1234567890" 
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        (123) 456-7890
+                      </a>
+                      <p className="text-sm text-muted-foreground mt-1">Mon-Fri, 9am-5pm EST</p>
+                    </div>
+                  </div>
+
+                  {/* Social Links */}
+                  <div className="pt-6 border-t border-border">
+                    <h4 className="font-heading text-lg font-semibold text-foreground mb-4">
+                      Follow Us
+                    </h4>
+                    <div className="flex gap-4">
+                      {socialLinks.map((social) => (
+                        <a
+                          key={social.label}
+                          href={social.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-200"
+                          aria-label={social.label}
+                        >
+                          <social.icon size={20} />
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
@@ -243,44 +252,48 @@ export default function Contact() {
       {/* FAQ Section */}
       <section className="section-padding bg-secondary/30">
         <div className="container-narrow">
-          <SectionHeading 
-            title="Frequently Asked Questions"
-            subtitle="Quick answers to common questions"
-            centered
-          />
-          <Accordion type="single" collapsible className="space-y-4">
-            {[
-              {
-                q: "How can I volunteer with The Rith Initiative?",
-                a: "Answers Coming Soon"
-              },
-              {
-                q: "Are donations tax-deductible?",
-                a: "Answers Coming Soon"
-              },
-              {
-                q: "How can I stay updated on upcoming events?",
-                a: "Answers Coming Soon"
-              },
-              {
-                q: "Do you offer programs for children?",
-                a: "Answers Coming Soon"
-              }
-            ].map((faq, index) => (
-              <AccordionItem 
-                key={index} 
-                value={`faq-${index}`}
-                className="bg-card rounded-xl px-6 border border-border/50"
-              >
-                <AccordionTrigger className="font-heading text-lg font-semibold text-foreground hover:no-underline">
-                  {faq.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-sm leading-relaxed">
-                  {faq.a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+          <ScrollReveal variant="fade-up">
+            <SectionHeading 
+              title="Frequently Asked Questions"
+              subtitle="Quick answers to common questions"
+              centered
+            />
+          </ScrollReveal>
+          <ScrollReveal variant="fade-up" delay={100}>
+            <Accordion type="single" collapsible className="space-y-4">
+              {[
+                {
+                  q: "How can I volunteer with The Rith Initiative?",
+                  a: "Answers Coming Soon"
+                },
+                {
+                  q: "Are donations tax-deductible?",
+                  a: "Answers Coming Soon"
+                },
+                {
+                  q: "How can I stay updated on upcoming events?",
+                  a: "Answers Coming Soon"
+                },
+                {
+                  q: "Do you offer programs for children?",
+                  a: "Answers Coming Soon"
+                }
+              ].map((faq, index) => (
+                <AccordionItem 
+                  key={index} 
+                  value={`faq-${index}`}
+                  className="bg-card rounded-xl px-6 border border-border/50"
+                >
+                  <AccordionTrigger className="font-heading text-lg font-semibold text-foreground hover:no-underline">
+                    {faq.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground text-sm leading-relaxed">
+                    {faq.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </ScrollReveal>
         </div>
       </section>
     </Layout>
