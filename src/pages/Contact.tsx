@@ -5,6 +5,12 @@ import { Mail, Phone, Send, Facebook, Instagram } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const socialLinks = [
   { icon: Instagram, href: "https://www.instagram.com/rithinitiative/", label: "Instagram" },
@@ -237,7 +243,7 @@ export default function Contact() {
             subtitle="Quick answers to common questions"
             centered
           />
-          <div className="space-y-4">
+          <Accordion type="single" collapsible className="space-y-4">
             {[
               {
                 q: "How can I volunteer with The Rith Initiative?",
@@ -256,16 +262,20 @@ export default function Contact() {
                 a: "Answers Coming Soon"
               }
             ].map((faq, index) => (
-              <div key={index} className="bg-card rounded-xl p-6 border border-border/50">
-                <h4 className="font-heading text-lg font-semibold text-foreground mb-2">
+              <AccordionItem 
+                key={index} 
+                value={`faq-${index}`}
+                className="bg-card rounded-xl px-6 border border-border/50"
+              >
+                <AccordionTrigger className="font-heading text-lg font-semibold text-foreground hover:no-underline">
                   {faq.q}
-                </h4>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-sm leading-relaxed">
                   {faq.a}
-                </p>
-              </div>
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </div>
+          </Accordion>
         </div>
       </section>
     </Layout>
