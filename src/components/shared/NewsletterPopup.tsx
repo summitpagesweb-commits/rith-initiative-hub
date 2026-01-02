@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { X, Mail } from "lucide-react";
+import { X, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export function NewsletterPopup() {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,7 +11,7 @@ export function NewsletterPopup() {
 
   useEffect(() => {
     // Show popup after 5 seconds, only if not dismissed before
-    const dismissed = localStorage.getItem("newsletter-dismissed");
+    const dismissed = localStorage.getItem("updates-popup-dismissed");
     if (!dismissed) {
       const timer = setTimeout(() => {
         setIsOpen(true);
@@ -21,20 +22,36 @@ export function NewsletterPopup() {
 
   const handleClose = () => {
     setIsOpen(false);
-    localStorage.setItem("newsletter-dismissed", "true");
+    localStorage.setItem("updates-popup-dismissed", "true");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast.success("Thanks for subscribing! Check your email for confirmation.");
-    setEmail("");
-    handleClose();
-    setIsSubmitting(false);
+    try {
+      const { error } = await supabase
+        .from('email_subscribers')
+        .insert({ email, source: 'popup' });
+
+      if (error) {
+        if (error.code === '23505') {
+          toast.info("You're already subscribed!");
+        } else {
+          throw error;
+        }
+      } else {
+        toast.success("Thanks for signing up! We'll keep you updated.");
+      }
+      
+      setEmail("");
+      handleClose();
+    } catch (error) {
+      console.error("Error subscribing:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -52,13 +69,13 @@ export function NewsletterPopup() {
 
         <div className="text-center mb-6">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-            <Mail className="w-8 h-8 text-primary" />
+            <Bell className="w-8 h-8 text-primary" />
           </div>
           <h3 className="font-heading text-2xl font-semibold text-foreground mb-2">
-            Stay Connected
+            Stay in the Loop
           </h3>
           <p className="text-muted-foreground">
-            Get updates on events, cultural programs, and community news delivered to your inbox.
+            Share your email to receive updates about new events, cultural programs, and community initiatives.
           </p>
         </div>
 
@@ -78,7 +95,7 @@ export function NewsletterPopup() {
             className="w-full"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Subscribing..." : "Subscribe to Newsletter"}
+            {isSubmitting ? "Signing up..." : "Get Updates"}
           </Button>
         </form>
 
