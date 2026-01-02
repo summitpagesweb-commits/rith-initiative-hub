@@ -10,7 +10,6 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Save } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ImageUpload } from '@/components/admin/ImageUpload';
 import { MediaManager, MediaItem } from '@/components/admin/MediaManager';
 
 interface PostFormData {
@@ -20,7 +19,6 @@ interface PostFormData {
   author_name: string;
   category: string;
   is_published: boolean;
-  featured_image_url: string;
 }
 
 export default function AdminPostForm() {
@@ -40,7 +38,6 @@ export default function AdminPostForm() {
     author_name: '',
     category: '',
     is_published: false,
-    featured_image_url: '',
   });
 
   useEffect(() => {
@@ -63,7 +60,6 @@ export default function AdminPostForm() {
               author_name: data.author_name || '',
               category: data.category || '',
               is_published: data.is_published || false,
-              featured_image_url: data.featured_image_url || '',
             });
           }
         } catch (error) {
@@ -116,7 +112,6 @@ export default function AdminPostForm() {
         category: formData.category || null,
         is_published: formData.is_published,
         published_at: formData.is_published ? new Date().toISOString() : null,
-        featured_image_url: formData.featured_image_url || null,
         created_by: user?.id,
       };
 
@@ -254,12 +249,6 @@ export default function AdminPostForm() {
             />
           </div>
 
-          {/* Featured Image Upload */}
-          <ImageUpload
-            value={formData.featured_image_url}
-            onChange={(url) => setFormData(prev => ({ ...prev, featured_image_url: url }))}
-            label="Featured Image"
-          />
 
           <div className="space-y-2">
             <Label htmlFor="content">Content *</Label>
