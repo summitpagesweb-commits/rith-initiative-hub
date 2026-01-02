@@ -2,8 +2,11 @@ import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { UnderDevelopment } from "@/components/shared/UnderDevelopment";
 import { Button } from "@/components/ui/button";
-import { Heart, Gift, Users, BookOpen, Check } from "lucide-react";
+import { Heart, Gift, Users, BookOpen, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
+
+// TODO: Replace with actual donation link when received
+const DONATION_LINK = "#";
 
 const impactAreas = [
   {
@@ -28,32 +31,6 @@ const impactAreas = [
   }
 ];
 
-const donationLevels = [
-  {
-    amount: "$25",
-    name: "Friend",
-    description: "Provides supplies for one workshop participant",
-    benefits: ["Newsletter updates", "Event announcements"]
-  },
-  {
-    amount: "$50",
-    name: "Supporter",
-    description: "Sponsors a child's participation in cultural camp",
-    benefits: ["Newsletter updates", "Event announcements", "Recognition on website"]
-  },
-  {
-    amount: "$100",
-    name: "Patron",
-    description: "Funds materials for a community art project",
-    benefits: ["Newsletter updates", "Event announcements", "Recognition on website", "VIP event seating"]
-  },
-  {
-    amount: "$250",
-    name: "Benefactor",
-    description: "Supports a full workshop series",
-    benefits: ["Newsletter updates", "Event announcements", "Recognition on website", "VIP event seating", "Exclusive donor events"]
-  }
-];
 
 export default function Donate() {
   return (
@@ -108,73 +85,48 @@ export default function Donate() {
         </div>
       </section>
 
-      {/* Donation Levels */}
-      <section className="section-padding bg-secondary/30">
-        <div className="container-wide">
-          <SectionHeading
-            title="Ways to Give"
-            subtitle="Choose a giving level that's right for you"
-            centered
-          />
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {donationLevels.map((level, index) => (
-              <div
-                key={index}
-                className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300 flex flex-col"
-              >
-                <div className="text-center mb-6">
-                  <p className="font-heading text-4xl font-bold text-primary mb-2">{level.amount}</p>
-                  <p className="font-heading text-lg font-semibold text-foreground">{level.name}</p>
-                </div>
-                <p className="text-muted-foreground text-sm text-center mb-6 flex-grow">
-                  {level.description}
-                </p>
-                <ul className="space-y-2 mb-6">
-                  {level.benefits.map((benefit, i) => (
-                    <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Check size={16} className="text-primary flex-shrink-0" />
-                      {benefit}
-                    </li>
-                  ))}
-                </ul>
-                <Button variant="hero" className="w-full">
-                  Donate {level.amount}
-                </Button>
-              </div>
-            ))}
-          </div>
-          <UnderDevelopment className="text-center mt-6" />
-        </div>
-      </section>
-
-      {/* Custom Amount */}
-      <section className="section-padding">
+      {/* Donate Now CTA */}
+      <section className="section-padding bg-gradient-to-br from-primary/10 via-secondary/20 to-primary/5">
         <div className="container-narrow">
-          <div className="bg-card rounded-2xl p-8 md:p-12 border border-border/50 shadow-elevated text-center">
-            <h2 className="font-heading text-2xl md:text-3xl font-semibold text-foreground mb-4">
-              Make a Custom Donation
-            </h2>
-            <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-              No amount is too small. Every contribution helps us continue our mission of
-              cultural preservation and community building.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <div className="w-full sm:w-auto">
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-lg">$</span>
-                  <input
-                    type="number"
-                    placeholder="Enter amount"
-                    className="w-full sm:w-48 h-14 pl-8 pr-4 rounded-lg border border-border bg-background text-foreground text-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
+          <div className="bg-card rounded-3xl p-8 md:p-12 lg:p-16 border border-border/50 shadow-elevated text-center relative overflow-hidden">
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+            
+            <div className="relative z-10">
+              <div className="w-20 h-20 mx-auto mb-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Heart className="w-10 h-10 text-primary" />
               </div>
-              <Button variant="hero" size="xl">
-                Donate Now
-                <Heart size={20} />
+              
+              <h2 className="font-heading text-3xl md:text-4xl font-semibold text-foreground mb-4">
+                Make a Donation
+              </h2>
+              <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto leading-relaxed">
+                Every contribution, no matter the size, helps us continue our mission of
+                cultural preservation and community building in Central Virginia.
+              </p>
+              
+              <Button 
+                variant="hero" 
+                size="xl" 
+                asChild
+                className="min-w-[240px] text-lg"
+              >
+                <a 
+                  href={DONATION_LINK} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3"
+                >
+                  Donate Now
+                  <ExternalLink size={20} />
+                </a>
               </Button>
+              
+              <p className="text-sm text-muted-foreground mt-6">
+                You will be redirected to our secure donation platform
+              </p>
             </div>
-            <UnderDevelopment className="mt-6" />
           </div>
         </div>
       </section>
