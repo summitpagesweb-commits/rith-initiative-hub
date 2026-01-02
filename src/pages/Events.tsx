@@ -1,6 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
+import { SectionDivider } from "@/components/shared/SectionDivider";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Clock, ArrowRight, ChevronDown, Play, ExternalLink, Image } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -196,6 +197,8 @@ export default function Events() {
         </div>
       </section>
 
+      <SectionDivider />
+
       {/* Upcoming Events */}
       <section className="section-padding">
         <div className="container-wide">
@@ -304,6 +307,8 @@ export default function Events() {
         </div>
       </section>
 
+      <SectionDivider />
+
       {/* Past Events */}
       <section className="section-padding bg-secondary/30">
         <div className="container-wide">
@@ -379,6 +384,8 @@ export default function Events() {
         </div>
       </section>
 
+      <SectionDivider />
+
       {/* Video Section Placeholder */}
       <section className="section-padding">
         <div className="container-wide">
@@ -401,6 +408,8 @@ export default function Events() {
           </div>
         </div>
       </section>
+
+      <SectionDivider />
 
       {/* CTA Section */}
       <section className="section-padding bg-foreground text-background">

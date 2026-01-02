@@ -1,6 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { UnderDevelopment } from "@/components/shared/UnderDevelopment";
+import { SectionDivider } from "@/components/shared/SectionDivider";
 import { Button } from "@/components/ui/button";
 import { Heart, Gift, Users, BookOpen, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -55,6 +56,8 @@ export default function Donate() {
         </div>
       </section>
 
+      <SectionDivider />
+
       {/* Impact Section */}
       <section className="section-padding">
         <div className="container-wide">
@@ -84,6 +87,8 @@ export default function Donate() {
           <UnderDevelopment className="text-center mt-6" />
         </div>
       </section>
+
+      <SectionDivider />
 
       {/* Donate Now CTA */}
       <section className="section-padding bg-gradient-to-br from-primary/10 via-secondary/20 to-primary/5">
@@ -131,6 +136,8 @@ export default function Donate() {
         </div>
       </section>
 
+      <SectionDivider />
+
       {/* Other Ways to Help */}
       <section className="section-padding bg-secondary/30">
         <div className="container-wide">
@@ -171,6 +178,8 @@ export default function Donate() {
           <UnderDevelopment className="text-center mt-6" />
         </div>
       </section>
+
+      <SectionDivider />
 
       {/* Trust Section */}
       <section className="section-padding">
