@@ -241,19 +241,19 @@ export default function Contact() {
             {[
               {
                 q: "How can I volunteer with The Rith Initiative?",
-                a: "We welcome volunteers for events, educational programs, and administrative support. Fill out our contact form and select 'Volunteering' as the subject, and we'll be in touch with current opportunities."
+                a: "Answers Coming Soon"
               },
               {
                 q: "Are donations tax-deductible?",
-                a: "Yes! The Rith Initiative is a registered 501(c)(3) nonprofit organization. All donations are tax-deductible to the fullest extent allowed by law."
+                a: "Answers Coming Soon"
               },
               {
                 q: "How can I stay updated on upcoming events?",
-                a: "Sign up for our newsletter using the form in our website header or footer. We send regular updates about upcoming events, programs, and community news."
+                a: "Answers Coming Soon"
               },
               {
                 q: "Do you offer programs for children?",
-                a: "Yes, we offer various youth programs including cultural workshops, dance classes, language lessons, and summer camps. Check our Events page for current offerings."
+                a: "Answers Coming Soon"
               }
             ].map((faq, index) => (
               <div key={index} className="bg-card rounded-xl p-6 border border-border/50">
