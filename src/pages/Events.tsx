@@ -2,10 +2,17 @@ import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Clock, ArrowRight, ChevronDown } from "lucide-react";
+import { Calendar, MapPin, Clock, ArrowRight, ChevronDown, Play, ExternalLink, Image } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface Event {
   id: string;
@@ -20,11 +27,21 @@ interface Event {
   featured_image_url: string | null;
 }
 
+interface MediaItem {
+  id: string;
+  url: string;
+  media_type: string;
+  title: string | null;
+  description: string | null;
+}
+
 export default function Events() {
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [pastEvents, setPastEvents] = useState<Event[]>([]);
+  const [eventMedia, setEventMedia] = useState<Record<string, MediaItem[]>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [showAllPast, setShowAllPast] = useState(false);
+  const [expandedDescriptions, setExpandedDescriptions] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -51,8 +68,31 @@ export default function Events() {
 
         if (pastError) throw pastError;
 
+        const allEvents = [...(upcoming || []), ...(past || [])];
         setUpcomingEvents(upcoming || []);
         setPastEvents(past || []);
+
+        // Fetch media for all events
+        if (allEvents.length > 0) {
+          const eventIds = allEvents.map(e => e.id);
+          const { data: media, error: mediaError } = await supabase
+            .from('media')
+            .select('*')
+            .eq('entity_type', 'event')
+            .in('entity_id', eventIds)
+            .order('display_order', { ascending: true });
+
+          if (!mediaError && media) {
+            const mediaByEvent: Record<string, MediaItem[]> = {};
+            media.forEach((m) => {
+              if (!mediaByEvent[m.entity_id]) {
+                mediaByEvent[m.entity_id] = [];
+              }
+              mediaByEvent[m.entity_id].push(m);
+            });
+            setEventMedia(mediaByEvent);
+          }
+        }
       } catch (error) {
         console.error('Error fetching events:', error);
       } finally {
@@ -64,6 +104,80 @@ export default function Events() {
   }, []);
 
   const displayedPastEvents = showAllPast ? pastEvents : pastEvents.slice(0, 2);
+
+  const toggleDescription = (eventId: string) => {
+    setExpandedDescriptions(prev => {
+      const next = new Set(prev);
+      if (next.has(eventId)) {
+        next.delete(eventId);
+      } else {
+        next.add(eventId);
+      }
+      return next;
+    });
+  };
+
+  const renderMediaGallery = (eventId: string, eventTitle: string) => {
+    const media = eventMedia[eventId];
+    if (!media || media.length === 0) return null;
+
+    return (
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm" className="gap-2">
+            <Image size={16} />
+            View Media ({media.length})
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{eventTitle} - Media Gallery</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            {media.map((item) => (
+              <div key={item.id} className="rounded-lg overflow-hidden border border-border bg-muted/30">
+                {item.media_type === 'image' && (
+                  <img 
+                    src={item.url} 
+                    alt={item.title || 'Event media'} 
+                    className="w-full h-48 object-cover"
+                  />
+                )}
+                {item.media_type === 'video' && (
+                  <div className="relative">
+                    <video 
+                      src={item.url} 
+                      controls 
+                      className="w-full h-48 object-cover"
+                    />
+                  </div>
+                )}
+                {item.media_type === 'link' && (
+                  <a 
+                    href={item.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 p-4 hover:bg-muted transition-colors"
+                  >
+                    <ExternalLink size={20} className="text-primary" />
+                    <span className="text-sm font-medium truncate">{item.title || item.url}</span>
+                  </a>
+                )}
+                {item.title && item.media_type !== 'link' && (
+                  <div className="p-2">
+                    <p className="text-sm font-medium text-foreground">{item.title}</p>
+                    {item.description && (
+                      <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  };
 
   return (
     <Layout>
@@ -96,77 +210,89 @@ export default function Events() {
             </div>
           ) : upcomingEvents.length > 0 ? (
             <div className="space-y-6">
-              {upcomingEvents.map((event) => (
-                <div 
-                  key={event.id}
-                  className="group grid md:grid-cols-[300px_1fr] gap-6 p-6 rounded-2xl bg-card border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300"
-                >
-                  {event.featured_image_url ? (
-                    <img 
-                      src={event.featured_image_url} 
-                      alt={event.title}
-                      className="w-full h-auto aspect-video object-cover rounded-xl"
-                    />
-                  ) : (
-                    <PlaceholderImage 
-                      aspectRatio="video" 
-                      label={`${event.title} image`}
-                      className="rounded-xl"
-                    />
-                  )}
-                  <div className="flex flex-col">
-                    <div className="flex flex-wrap items-center gap-3 mb-3">
-                      {event.category && (
-                        <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                          {event.category}
-                        </span>
-                      )}
-                    </div>
-                    <h3 className="font-heading text-xl md:text-2xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
-                      {event.title}
-                    </h3>
-                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4">
-                      <span className="flex items-center gap-2">
-                        <Calendar size={16} className="text-primary" />
-                        {format(new Date(event.start_date), 'MMMM d, yyyy')}
-                      </span>
-                      {event.time && (
-                        <span className="flex items-center gap-2">
-                          <Clock size={16} className="text-primary" />
-                          {event.time}
-                        </span>
-                      )}
-                      {event.location && (
-                        <span className="flex items-center gap-2">
-                          <MapPin size={16} className="text-primary" />
-                          {event.location}
-                        </span>
-                      )}
-                    </div>
-                    {event.description && (
-                      <p className="text-muted-foreground text-sm leading-relaxed mb-4 flex-grow">
-                        {event.description}
-                      </p>
+              {upcomingEvents.map((event) => {
+                const isExpanded = expandedDescriptions.has(event.id);
+                const hasLongDescription = event.description && event.description.length > 200;
+                
+                return (
+                  <div 
+                    key={event.id}
+                    className="group grid md:grid-cols-[300px_1fr] gap-6 p-6 rounded-2xl bg-card border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300 overflow-hidden"
+                  >
+                    {event.featured_image_url ? (
+                      <img 
+                        src={event.featured_image_url} 
+                        alt={event.title}
+                        className="w-full h-auto aspect-video object-cover rounded-xl"
+                      />
+                    ) : (
+                      <PlaceholderImage 
+                        aspectRatio="video" 
+                        label={`${event.title} image`}
+                        className="rounded-xl"
+                      />
                     )}
-                    <div>
-                      {event.registration_link ? (
-                        <Button 
-                          variant="hero" 
-                          size="sm"
-                          onClick={() => window.open(event.registration_link!, '_blank')}
-                        >
-                          Register Now
-                          <ArrowRight size={16} />
-                        </Button>
-                      ) : (
-                        <Button variant="hero" size="sm" disabled>
-                          Coming Soon
-                        </Button>
+                    <div className="flex flex-col min-w-0">
+                      <div className="flex flex-wrap items-center gap-3 mb-3">
+                        {event.category && (
+                          <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                            {event.category}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="font-heading text-xl md:text-2xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
+                        {event.title}
+                      </h3>
+                      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4">
+                        <span className="flex items-center gap-2">
+                          <Calendar size={16} className="text-primary flex-shrink-0" />
+                          {format(new Date(event.start_date), 'MMMM d, yyyy')}
+                        </span>
+                        {event.time && (
+                          <span className="flex items-center gap-2">
+                            <Clock size={16} className="text-primary flex-shrink-0" />
+                            {event.time}
+                          </span>
+                        )}
+                        {event.location && (
+                          <span className="flex items-center gap-2">
+                            <MapPin size={16} className="text-primary flex-shrink-0" />
+                            <span className="break-words">{event.location}</span>
+                          </span>
+                        )}
+                      </div>
+                      {event.description && (
+                        <div className="mb-4 flex-grow">
+                          <p className={`text-muted-foreground text-sm leading-relaxed break-words ${!isExpanded && hasLongDescription ? 'line-clamp-3' : ''}`}>
+                            {event.description}
+                          </p>
+                          {hasLongDescription && (
+                            <button 
+                              onClick={() => toggleDescription(event.id)}
+                              className="text-primary text-sm font-medium mt-1 hover:underline"
+                            >
+                              {isExpanded ? 'Show less' : 'Read more'}
+                            </button>
+                          )}
+                        </div>
                       )}
+                      <div className="flex flex-wrap gap-3">
+                        {event.registration_link && (
+                          <Button 
+                            variant="hero" 
+                            size="sm"
+                            onClick={() => window.open(event.registration_link!, '_blank')}
+                          >
+                            Register Now
+                            <ArrowRight size={16} />
+                          </Button>
+                        )}
+                        {renderMediaGallery(event.id, event.title)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-12 bg-card rounded-2xl border border-border/50">
@@ -222,14 +348,15 @@ export default function Events() {
                       {event.location && (
                         <p className="text-muted-foreground text-sm mb-3">
                           <MapPin size={14} className="inline mr-1" />
-                          {event.location}
+                          <span className="break-words">{event.location}</span>
                         </p>
                       )}
                       {event.description && (
-                        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">
+                        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3 break-words mb-4">
                           {event.description}
                         </p>
                       )}
+                      {renderMediaGallery(event.id, event.title)}
                     </div>
                   </div>
                 ))}
