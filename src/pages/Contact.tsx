@@ -1,5 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
+import { SectionDivider } from "@/components/shared/SectionDivider";
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, Send, Facebook, Instagram } from "lucide-react";
 import { useState } from "react";
@@ -78,6 +79,8 @@ export default function Contact() {
           </div>
         </div>
       </section>
+
+      <SectionDivider />
 
       {/* Contact Form & Info */}
       <section className="section-padding">
@@ -234,6 +237,8 @@ export default function Contact() {
           </div>
         </div>
       </section>
+
+      <SectionDivider />
 
       {/* FAQ Section */}
       <section className="section-padding bg-secondary/30">

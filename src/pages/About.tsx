@@ -2,6 +2,7 @@ import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
 import { UnderDevelopment } from "@/components/shared/UnderDevelopment";
+import { SectionDivider } from "@/components/shared/SectionDivider";
 import { Heart, Users, Globe, BookOpen } from "lucide-react";
 
 const values = [
@@ -53,6 +54,8 @@ export default function About() {
         </div>
       </section>
 
+      <SectionDivider />
+
       {/* Mission Section */}
       <section className="section-padding">
         <div className="container-wide">
@@ -96,6 +99,8 @@ export default function About() {
         </div>
       </section>
 
+      <SectionDivider />
+
       {/* Story Section */}
       <section className="section-padding bg-secondary/30">
         <div className="container-wide">
@@ -133,6 +138,8 @@ export default function About() {
         </div>
       </section>
 
+      <SectionDivider />
+
       {/* Values Section */}
       <section className="section-padding">
         <div className="container-wide">
@@ -163,6 +170,8 @@ export default function About() {
         </div>
       </section>
 
+      <SectionDivider />
+
       {/* Team Section */}
       <section className="section-padding bg-secondary/30">
         <div className="container-wide">
@@ -189,6 +198,8 @@ export default function About() {
           <UnderDevelopment className="text-center mt-6" />
         </div>
       </section>
+
+      <SectionDivider />
 
       {/* Impact Section */}
       <section className="section-padding">
