@@ -24,9 +24,11 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-heading font-bold text-xl">R</span>
-              </div>
+              <img 
+                src="/favicon.png" 
+                alt="The Rith Initiative Logo" 
+                className="w-12 h-12 rounded-full object-cover"
+              />
               <span className="font-heading text-xl font-semibold">
                 The Rith Initiative
               </span>
