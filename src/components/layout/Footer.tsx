@@ -11,7 +11,7 @@ const footerLinks = {
     { href: "/admin/login", label: "Admin" },
   ],
   social: [
-    { icon: Instagram, href: "https://www.instagram.com/rithinitiative/", label: "Instagram" },
+    { icon: Instagram, href: "https://instagram.com/rithinitiative", label: "Instagram" },
     { icon: Facebook, href: "https://www.facebook.com/p/The-Rith-Initiative-61580213405598/", label: "Facebook" },
   ],
 };
