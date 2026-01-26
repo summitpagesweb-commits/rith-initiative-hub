@@ -189,7 +189,7 @@ export default function About() {
         <div className="container-wide">
           <ScrollReveal variant="fade-up">
             <SectionHeading 
-              title="Our Team"
+              title="Friends of Rith"
               subtitle="Dedicated volunteers making a difference"
               centered
             />
@@ -229,9 +229,9 @@ export default function About() {
           </ScrollReveal>
           <div className="grid grid-cols-3 gap-8 mb-8">
             {[
-              { value: "5,000+", label: "Community Members" },
-              { value: "50+", label: "Events Hosted" },
-              { value: "10+", label: "Partner Organizations" },
+              { value: "25+", label: "Volunteers" },
+              { value: "1,200+", label: "Community Engagements" },
+              { value: "100%", label: "Volunteer Driven" },
             ].map((stat, index) => (
               <ScrollReveal key={index} variant="scale" delay={index * 100}>
                 <div>
