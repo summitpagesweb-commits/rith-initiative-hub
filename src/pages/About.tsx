@@ -229,8 +229,8 @@ export default function About() {
           </ScrollReveal>
           <div className="grid grid-cols-3 gap-8 mb-8">
             {[
-              { value: "25+", label: "Volunteers" },
-              { value: "1,200+", label: "Community Engagements" },
+              { value: "XXX", label: "Volunteers" },
+              { value: "XXX", label: "Community Engagements" },
               { value: "100%", label: "Volunteer Driven" },
             ].map((stat, index) => (
               <ScrollReveal key={index} variant="scale" delay={index * 100}>
