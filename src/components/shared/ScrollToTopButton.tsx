@@ -35,7 +35,7 @@ export function ScrollToTopButton() {
       aria-label="Scroll to top"
     >
       <ArrowUp 
-        size={20} 
+        size={24} 
         className="animate-[bounce_2s_ease-in-out_infinite]" 
       />
     </button>

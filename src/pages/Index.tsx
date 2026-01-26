@@ -115,8 +115,8 @@ function MissionPreview() {
 // Stats Section
 function StatsSection() {
   const stats = [
-    { icon: Users, value: "5,000+", label: "Community Members" },
-    { icon: Calendar, value: "50+", label: "Events Hosted" },
+    { icon: Users, value: "XXX", label: "Volunteers" },
+    { icon: Calendar, value: "XXX", label: "Community Engagements" },
     { icon: Heart, value: "100%", label: "Volunteer Driven" },
   ];
   
