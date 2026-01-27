@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { Heart, Play, ExternalLink, Image, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { BlogFormDisplay } from './BlogFormDisplay';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -177,59 +178,67 @@ export function BlogDetailModal({ post, open, onOpenChange }: BlogDetailModalPro
             </DialogHeader>
           </div>
 
-          {/* Content - Compact excerpt style */}
-          <div className="px-6 pb-4">
-            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
-              {post.excerpt || post.content.substring(0, 200)}
-            </p>
-          </div>
-
-          {/* Media Gallery - Compact thumbnails */}
-          {media.length > 0 && (
+          {/* Scrollable Content Area */}
+          <div className="max-h-[60vh] overflow-y-auto">
+            {/* Content - Compact excerpt style */}
             <div className="px-6 pb-4">
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {media.slice(0, 4).map((item, index) => (
-                  <button 
-                    key={item.id}
-                    onClick={() => item.media_type !== 'link' && openLightbox(index)}
-                    className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-secondary/30 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
-                  >
-                    {item.media_type === 'image' && (
-                      <img
-                        src={item.url}
-                        alt={item.title || 'Blog media'}
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                    {item.media_type === 'video' && (
-                      <div className="w-full h-full flex items-center justify-center bg-secondary">
-                        <Play size={16} className="text-muted-foreground" />
-                      </div>
-                    )}
-                    {item.media_type === 'link' && (
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full h-full flex items-center justify-center hover:bg-secondary/50 transition-colors"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ExternalLink size={16} className="text-muted-foreground" />
-                      </a>
-                    )}
-                  </button>
-                ))}
-                {media.length > 4 && (
-                  <button
-                    onClick={() => openLightbox(4)}
-                    className="flex-shrink-0 w-16 h-16 rounded-lg bg-secondary/50 flex items-center justify-center hover:bg-secondary transition-colors"
-                  >
-                    <span className="text-xs text-muted-foreground font-medium">+{media.length - 4}</span>
-                  </button>
-                )}
-              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
+                {post.excerpt || post.content.substring(0, 200)}
+              </p>
             </div>
-          )}
+
+            {/* Media Gallery - Compact thumbnails */}
+            {media.length > 0 && (
+              <div className="px-6 pb-4">
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {media.slice(0, 4).map((item, index) => (
+                    <button 
+                      key={item.id}
+                      onClick={() => item.media_type !== 'link' && openLightbox(index)}
+                      className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-secondary/30 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                    >
+                      {item.media_type === 'image' && (
+                        <img
+                          src={item.url}
+                          alt={item.title || 'Blog media'}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                      {item.media_type === 'video' && (
+                        <div className="w-full h-full flex items-center justify-center bg-secondary">
+                          <Play size={16} className="text-muted-foreground" />
+                        </div>
+                      )}
+                      {item.media_type === 'link' && (
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full h-full flex items-center justify-center hover:bg-secondary/50 transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <ExternalLink size={16} className="text-muted-foreground" />
+                        </a>
+                      )}
+                    </button>
+                  ))}
+                  {media.length > 4 && (
+                    <button
+                      onClick={() => openLightbox(4)}
+                      className="flex-shrink-0 w-16 h-16 rounded-lg bg-secondary/50 flex items-center justify-center hover:bg-secondary transition-colors"
+                    >
+                      <span className="text-xs text-muted-foreground font-medium">+{media.length - 4}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Interactive Form */}
+            <div className="px-6">
+              <BlogFormDisplay postId={post.id} />
+            </div>
+          </div>
 
           {/* Footer with Like */}
           <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-secondary/20">

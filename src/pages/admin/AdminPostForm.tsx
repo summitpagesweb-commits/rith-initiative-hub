@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Save } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MediaManager, MediaItem } from '@/components/admin/MediaManager';
+import { FormBuilder, FormData as BlogFormData } from '@/components/admin/FormBuilder';
 
 interface PostFormData {
   title: string;
@@ -30,6 +31,7 @@ export default function AdminPostForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(isEditing);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const [blogFormData, setBlogFormData] = useState<BlogFormData | null>(null);
 
   const [formData, setFormData] = useState<PostFormData>({
     title: '',
@@ -87,6 +89,10 @@ export default function AdminPostForm() {
 
   const handleMediaChange = useCallback((media: MediaItem[]) => {
     setMediaItems(media);
+  }, []);
+
+  const handleFormChange = useCallback((form: BlogFormData | null) => {
+    setBlogFormData(form);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -176,6 +182,92 @@ export default function AdminPostForm() {
           } else {
             await supabase.from('media').insert([mediaData]);
           }
+        }
+
+        // Save form if present
+        if (postId && blogFormData) {
+          // Check if form exists
+          const { data: existingForm } = await supabase
+            .from('blog_post_forms')
+            .select('id')
+            .eq('post_id', postId)
+            .maybeSingle();
+
+          let formId = existingForm?.id || blogFormData.id;
+
+          if (formId) {
+            // Update existing form
+            await supabase
+              .from('blog_post_forms')
+              .update({
+                title: blogFormData.title,
+                description: blogFormData.description || null,
+                is_active: blogFormData.is_active,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', formId);
+          } else {
+            // Create new form
+            const { data: newForm, error: formError } = await supabase
+              .from('blog_post_forms')
+              .insert({
+                post_id: postId,
+                title: blogFormData.title,
+                description: blogFormData.description || null,
+                is_active: blogFormData.is_active,
+                created_by: user?.id,
+              })
+              .select('id')
+              .single();
+
+            if (formError) throw formError;
+            formId = newForm.id;
+          }
+
+          if (formId) {
+            // Get existing fields
+            const { data: existingFields } = await supabase
+              .from('blog_form_fields')
+              .select('id')
+              .eq('form_id', formId);
+
+            const existingFieldIds = new Set((existingFields || []).map(f => f.id));
+            const currentFieldIds = new Set(blogFormData.fields.filter(f => f.id).map(f => f.id));
+
+            // Delete removed fields
+            const fieldsToDelete = [...existingFieldIds].filter(id => !currentFieldIds.has(id));
+            if (fieldsToDelete.length > 0) {
+              await supabase.from('blog_form_fields').delete().in('id', fieldsToDelete);
+            }
+
+            // Insert/update fields
+            for (const field of blogFormData.fields) {
+              const fieldData = {
+                form_id: formId,
+                field_type: field.field_type,
+                label: field.label,
+                description: field.description || null,
+                options: field.options || null,
+                is_required: field.is_required,
+                display_order: field.display_order,
+              };
+
+              if (field.id) {
+                await supabase
+                  .from('blog_form_fields')
+                  .update(fieldData)
+                  .eq('id', field.id);
+              } else {
+                await supabase.from('blog_form_fields').insert([fieldData]);
+              }
+            }
+          }
+        } else if (postId && !blogFormData) {
+          // Delete form if it was removed
+          await supabase
+            .from('blog_post_forms')
+            .delete()
+            .eq('post_id', postId);
         }
       }
 
@@ -312,6 +404,14 @@ export default function AdminPostForm() {
               entityType="blog_post"
               entityId={id}
               onMediaChange={handleMediaChange}
+            />
+          </div>
+
+          {/* Interactive Form Section */}
+          <div className="pt-4 border-t border-border">
+            <FormBuilder
+              postId={id}
+              onFormChange={handleFormChange}
             />
           </div>
         </div>

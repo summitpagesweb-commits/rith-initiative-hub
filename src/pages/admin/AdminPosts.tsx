@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, FileText, Edit, Archive, Trash2, RotateCcw, Eye, EyeOff } from 'lucide-react';
+import { FormSubmissionsViewer } from '@/components/admin/FormSubmissionsViewer';
 import { format } from 'date-fns';
 import {
   AlertDialog,
@@ -195,6 +196,8 @@ export default function AdminPosts() {
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
+          <FormSubmissionsViewer postId={post.id} postTitle={post.title} />
+          
           <Button variant="ghost" size="icon" asChild>
             <Link to={`/admin/posts/${post.id}`}>
               <Edit size={16} />
