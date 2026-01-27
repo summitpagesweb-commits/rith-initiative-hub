@@ -14,6 +14,85 @@ export type Database = {
   }
   public: {
     Tables: {
+      blog_form_fields: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          field_type: string
+          form_id: string
+          id: string
+          is_required: boolean
+          label: string
+          options: Json | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          field_type: string
+          form_id: string
+          id?: string
+          is_required?: boolean
+          label: string
+          options?: Json | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          field_type?: string
+          form_id?: string
+          id?: string
+          is_required?: boolean
+          label?: string
+          options?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_form_fields_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "blog_post_forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_form_submissions: {
+        Row: {
+          created_at: string
+          form_id: string
+          id: string
+          responses: Json
+          session_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          form_id: string
+          id?: string
+          responses?: Json
+          session_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          form_id?: string
+          id?: string
+          responses?: Json
+          session_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_form_submissions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "blog_post_forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_likes: {
         Row: {
           created_at: string
@@ -38,6 +117,47 @@ export type Database = {
             foreignKeyName: "blog_likes_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_post_forms: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          post_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          post_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          post_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_post_forms_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
             referencedRelation: "blog_posts"
             referencedColumns: ["id"]
           },
