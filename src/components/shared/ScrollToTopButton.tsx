@@ -36,7 +36,7 @@ export function ScrollToTopButton() {
     >
       <ArrowUp 
         size={24} 
-        className="animate-[bounce_2s_ease-in-out_infinite]" 
+        className="animate-[bounce-up_2s_ease-in-out_infinite]" 
       />
     </button>
   );

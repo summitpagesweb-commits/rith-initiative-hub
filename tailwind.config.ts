@@ -97,6 +97,12 @@ export default {
           from: { opacity: "0", transform: "scale(0.95)" },
           to: { opacity: "1", transform: "scale(1)" },
         },
+        "bounce-up": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "40%": { transform: "translateY(-35%)" },
+          "50%": { transform: "translateY(-30%)" },
+          "60%": { transform: "translateY(-35%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
