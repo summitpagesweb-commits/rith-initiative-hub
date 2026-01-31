@@ -10,6 +10,7 @@ import About from "./pages/About";
 import Events from "./pages/Events";
 import Donate from "./pages/Donate";
 import Stories from "./pages/Stories";
+import Shop from "./pages/Shop";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/events" element={<Events />} />
             <Route path="/stories" element={<Stories />} />
+            <Route path="/shop" element={<Shop />} />
             <Route path="/donate" element={<Donate />} />
             <Route path="/contact" element={<Contact />} />
             
