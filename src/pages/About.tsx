@@ -6,6 +6,7 @@ import { SectionDivider } from "@/components/shared/SectionDivider";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { Heart, Users, Globe, BookOpen } from "lucide-react";
 import missionCelebrationImage from "@/assets/mission-celebration.jpg";
+import ourStoryFoundingImage from "@/assets/our-story-founding.jpg";
 
 const values = [
   {
@@ -116,10 +117,10 @@ export default function About() {
         <div className="container-wide">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <ScrollReveal variant="slide-left" className="order-2 lg:order-1">
-              <PlaceholderImage 
-                aspectRatio="video" 
-                label="Our story - Founding moment"
-                className="rounded-2xl shadow-soft"
+              <img 
+                src={ourStoryFoundingImage} 
+                alt="Traditional Indian dancers performing at Virginia Museum of History & Culture"
+                className="rounded-2xl shadow-soft w-full h-auto object-cover aspect-video"
               />
             </ScrollReveal>
             <ScrollReveal variant="slide-right" className="order-1 lg:order-2">
