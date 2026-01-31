@@ -248,19 +248,19 @@ export default function Contact() {
               {[
                 {
                   q: "How can I volunteer with The Rith Initiative?",
-                  a: "Answers Coming Soon"
+                  a: "We welcome volunteers for our events and programs! The best way to get involved is to reach out through our contact form above or send us an email at rithinitiative@gmail.com. Let us know your interests and availability, and we'll connect you with upcoming opportunities."
                 },
                 {
                   q: "Are donations tax-deductible?",
-                  a: "Answers Coming Soon"
+                  a: "Yes! The Rith Initiative is a registered 501(c)(3) nonprofit organization. All donations are tax-deductible to the fullest extent allowed by law. You will receive a receipt for your records."
                 },
                 {
                   q: "How can I stay updated on upcoming events?",
-                  a: "Answers Coming Soon"
+                  a: "Follow us on Instagram and Facebook to stay in the loop! You can also sign up for our newsletter to receive updates directly in your inbox about upcoming events, programs, and community gatherings."
                 },
                 {
                   q: "Do you offer programs for children?",
-                  a: "Answers Coming Soon"
+                  a: "Yes, we offer family-friendly events and programs that welcome participants of all ages. Our festivals and cultural celebrations are designed to be engaging and educational for children while celebrating Indian heritage and traditions."
                 }
               ].map((faq, index) => (
                 <AccordionItem 

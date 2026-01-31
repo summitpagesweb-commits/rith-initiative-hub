@@ -32,10 +32,9 @@ const values = [
 ];
 
 const team = [
-  { name: "Team Member 1", role: "Founder & Director" },
-  { name: "Team Member 2", role: "Programs Coordinator" },
-  { name: "Team Member 3", role: "Community Outreach" },
-  { name: "Team Member 4", role: "Events Manager" },
+  { name: "Ruchi Gupta", role: "Founder & Board Member" },
+  { name: "Prabir Gupta", role: "Founder & Board Member" },
+  { name: "Priti Patil", role: "Advisory" },
 ];
 
 export default function About() {
@@ -75,25 +74,22 @@ export default function About() {
                 />
                 <div className="space-y-6 text-muted-foreground leading-relaxed">
                   <p>
-                    The Rith Initiative was founded with a deep belief that cultural heritage is a 
-                    treasure meant to be shared. Our mission is to bring the beauty, wisdom, and 
-                    vibrancy of Indian culture to communities across Central Virginia, creating 
-                    opportunities for people of all backgrounds to experience and appreciate this 
-                    rich heritage.
+                    Rith Initiative exists to preserve, share, and evolve Indian culture through 
+                    the arts. We believe creativity is a bridge — connecting generations, fostering 
+                    understanding, and deepening a sense of belonging.
                   </p>
                   <p>
-                    Through festivals, workshops, performances, and community gatherings, we 
-                    celebrate traditions that have been passed down through generations while 
-                    adapting them for modern audiences. We believe that by sharing our culture, 
-                    we strengthen the fabric of our entire community.
+                    Our mission is to create spaces where Indian traditions meet contemporary 
+                    expression, inviting artists and audiences alike to explore heritage with 
+                    openness and curiosity. Through exhibitions, performances, storytelling, and 
+                    community engagement, we aim to spark dialogue, nurture collaboration, and 
+                    celebrate the many ways culture continues to grow and transform.
                   </p>
                   <p>
-                    Whether you're exploring Indian culture for the first time or reconnecting 
-                    with your roots, The Rith Initiative welcomes you to join our growing family 
-                    of cultural ambassadors and community builders.
+                    At the heart of our work is the conviction that art can shape more connected, 
+                    compassionate communities — rhythm by rhythm, story by story.
                   </p>
                 </div>
-                <UnderDevelopment className="mt-4" />
               </div>
             </ScrollReveal>
             <ScrollReveal variant="slide-right" delay={100}>
@@ -131,20 +127,33 @@ export default function About() {
                 />
                 <div className="space-y-6 text-muted-foreground leading-relaxed">
                   <p>
-                    The Rith Initiative began as a small gathering of families who wanted to 
-                    share their cultural traditions with their children and neighbors. What 
-                    started as informal celebrations in living rooms and backyards has grown 
-                    into a recognized nonprofit organization serving thousands of community 
-                    members.
+                    Rith Initiative emerged from a simple but powerful intention — to celebrate 
+                    India through the arts in a way that feels authentic, accessible, and rooted 
+                    in community. Founded in Richmond, Virginia, by artists Ruchi Gupta and 
+                    Prabir Mehta, Rith Initiative was born at the intersection of culture, 
+                    creativity, and public engagement.
                   </p>
                   <p>
-                    Our founders envisioned a place where the next generation could learn 
-                    about their heritage while their neighbors could discover the richness 
-                    of Indian culture. Today, that vision has become a reality, with programs 
-                    that reach across Central Virginia.
+                    Years earlier, their paths crossed at Mother India, an event hosted by 
+                    Mehta at Gallery5 that explored Indian identity through performance and 
+                    visual art. That moment planted the seed of collaboration. In 2024, that 
+                    seed blossomed into the first Diwali Festival at Lewis Ginter Botanical 
+                    Garden, a community‑driven celebration that brought together families, 
+                    artists, dancers, musicians, and volunteers from across the region — 
+                    revealing a shared desire for spaces where Indian culture could be 
+                    experienced with depth, joy, and openness.
+                  </p>
+                  <p>
+                    In 2025, the vision expanded with the second Diwali Music and Arts 
+                    Festival, hosted in partnership with the Virginia Museum of History and 
+                    Culture. This event introduced new dimensions of sustainability and 
+                    environmental consciousness — from composting food waste to installing 
+                    refillable water stations — showing how cultural celebration and 
+                    ecological care can move in rhythm together. That same year, Rith 
+                    Initiative became a 501(c)(3) nonprofit dedicated to preserving and 
+                    sharing Indian culture through the arts.
                   </p>
                 </div>
-                <UnderDevelopment className="mt-4" />
               </div>
             </ScrollReveal>
           </div>
@@ -191,12 +200,12 @@ export default function About() {
         <div className="container-wide">
           <ScrollReveal variant="fade-up">
             <SectionHeading 
-              title="Friends of Rith"
-              subtitle="Dedicated volunteers making a difference"
+              title="Rith Team"
+              subtitle="The people behind the initiative"
               centered
             />
           </ScrollReveal>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
             {team.map((member, index) => (
               <ScrollReveal key={index} variant="fade-up" delay={index * 100}>
                 <div className="text-center">
@@ -217,35 +226,6 @@ export default function About() {
         </div>
       </section>
 
-      <SectionDivider />
-
-      {/* Impact Section */}
-      <section className="section-padding">
-        <div className="container-narrow text-center">
-          <ScrollReveal variant="fade-up">
-            <SectionHeading 
-              title="Our Impact"
-              subtitle="Making a difference in Central Virginia"
-              centered
-            />
-          </ScrollReveal>
-          <div className="grid grid-cols-3 gap-8 mb-8">
-            {[
-              { value: "XXX", label: "Volunteers" },
-              { value: "XXX", label: "Community Engagements" },
-              { value: "100%", label: "Volunteer Driven" },
-            ].map((stat, index) => (
-              <ScrollReveal key={index} variant="scale" delay={index * 100}>
-                <div>
-                  <p className="font-heading text-4xl md:text-5xl font-bold text-primary">{stat.value}</p>
-                  <p className="text-muted-foreground">{stat.label}</p>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-          <UnderDevelopment />
-        </div>
-      </section>
     </Layout>
   );
 }

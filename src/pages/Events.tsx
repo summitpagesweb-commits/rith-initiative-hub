@@ -430,47 +430,6 @@ export default function Events() {
 
       <SectionDivider />
 
-      {/* Video Section */}
-      <section className="section-padding">
-        <div className="container-wide">
-          <ScrollReveal variant="fade-up">
-            <SectionHeading 
-              title="Event Highlights"
-              subtitle="Watch moments from our celebrations"
-              centered
-            />
-          </ScrollReveal>
-          <ScrollReveal variant="scale" delay={100}>
-            <div className="max-w-4xl mx-auto">
-              {highlightsVideoUrl ? (
-                <div className="aspect-video rounded-2xl overflow-hidden border border-border shadow-elevated">
-                  <iframe
-                    src={highlightsVideoUrl}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    title="Event Highlights"
-                  />
-                </div>
-              ) : (
-                <div className="aspect-video bg-muted rounded-2xl flex items-center justify-center border-2 border-dashed border-border">
-                  <div className="text-center p-8">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                      <svg className="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </div>
-                    <p className="text-muted-foreground">Video highlights coming soon</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      <SectionDivider />
-
       {/* CTA Section */}
       <section className="section-padding bg-foreground text-background">
         <div className="container-narrow text-center">

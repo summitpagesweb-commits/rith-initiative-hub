@@ -65,39 +65,6 @@ export default function Donate() {
 
       <SectionDivider />
 
-      {/* Impact Section */}
-      <section className="section-padding">
-        <div className="container-wide">
-          <ScrollReveal variant="fade-up">
-            <SectionHeading
-              title="Where Your Donation Goes"
-              subtitle="Supporting cultural preservation and community building"
-              centered
-            />
-          </ScrollReveal>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {impactAreas.map((area, index) => (
-              <ScrollReveal key={index} variant="fade-up" delay={index * 100}>
-                <div className="text-center p-8 rounded-2xl bg-card border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300 h-full">
-                  <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
-                    <area.icon className="w-7 h-7 text-primary" />
-                  </div>
-                  <h3 className="font-heading text-xl font-semibold text-foreground mb-3">
-                    {area.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    {area.description}
-                  </p>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-          <UnderDevelopment className="text-center mt-6" />
-        </div>
-      </section>
-
-      <SectionDivider />
-
       {/* Donate Now CTA */}
       <section className="section-padding bg-gradient-to-br from-primary/10 via-secondary/20 to-primary/5">
         <div className="container-narrow">
@@ -158,11 +125,10 @@ export default function Donate() {
               centered
             />
           </ScrollReveal>
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
             {[
               { title: "Volunteer", desc: "Share your time and talents at our events and programs.", link: "/contact", cta: "Learn More" },
               { title: "Corporate Sponsorship", desc: "Partner with us to make a larger community impact.", link: "/contact", cta: "Contact Us" },
-              { title: "In-Kind Donations", desc: "Contribute supplies, equipment, or services.", link: "/contact", cta: "Get in Touch" },
             ].map((item, index) => (
               <ScrollReveal key={index} variant="fade-up" delay={index * 100}>
                 <div className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft text-center h-full flex flex-col">
@@ -188,13 +154,10 @@ export default function Donate() {
             <h2 className="font-heading text-2xl md:text-3xl font-semibold text-foreground mb-6">
               Your Trust Matters
             </h2>
-            <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-8">
+            <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
               The Rith Initiative is a registered 501(c)(3) nonprofit organization. All donations
               are tax-deductible to the fullest extent allowed by law. We are committed to
               transparency and responsible stewardship of every contribution.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              EIN: XX-XXXXXXX (placeholder)
             </p>
             <UnderDevelopment className="mt-4" />
           </ScrollReveal>

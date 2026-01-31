@@ -49,8 +49,8 @@ function HeroSection() {
                 <span className="text-primary">Indian Culture</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
-                The Rith Initiative brings the richness of Indian heritage to Central Virginia through 
-                community events, arts programs, and cultural celebrations that unite people of all backgrounds.
+                Rith means cosmic rhythms, calling us to listen deeply — to the echoes of our ancestors, 
+                the voices around us and the unfolding possibilities before us.
               </p>
               <UnderDevelopment />
               <div className="flex flex-col sm:flex-row gap-4">
@@ -85,8 +85,8 @@ function HeroSection() {
   );
 }
 
-// Mission Preview Section
-function MissionPreview() {
+// Vision Preview Section
+function VisionPreview() {
   return (
     <section className="section-padding bg-secondary/30">
       <div className="container-wide">
@@ -100,12 +100,10 @@ function MissionPreview() {
           </ScrollReveal>
           <ScrollReveal variant="slide-right" className="order-1 lg:order-2">
             <div className="space-y-6">
-              <SectionHeading title="Our Mission" subtitle="Building bridges through culture, art, and community" />
+              <SectionHeading title="Our Vision" subtitle="Art as a bridge for connection" />
               <p className="text-muted-foreground leading-relaxed">
-                The Rith Initiative is dedicated to sharing the beauty and depth of Indian culture 
-                with communities across Central Virginia. Through vibrant festivals, educational 
-                workshops, and artistic performances, we create spaces where traditions are honored, 
-                stories are shared, and connections are forged.
+                Our vision is a world where art nurtures connection — bridging cultures, generations, 
+                and ideas — fostering creativity, sustainability, and conscious living in harmony with the earth.
               </p>
               <UnderDevelopment />
               <Button variant="subtle" size="lg" asChild>
@@ -122,35 +120,6 @@ function MissionPreview() {
   );
 }
 
-// Stats Section
-function StatsSection() {
-  const stats = [
-    { icon: Users, value: "XXX", label: "Volunteers" },
-    { icon: Calendar, value: "XXX", label: "Community Engagements" },
-    { icon: Heart, value: "100%", label: "Volunteer Driven" },
-  ];
-  
-  return (
-    <section className="section-padding">
-      <div className="container-wide">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {stats.map((stat, index) => (
-            <ScrollReveal key={index} variant="fade-up" delay={index * 100}>
-              <div className="text-center p-8 rounded-2xl bg-card border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                  <stat.icon className="w-7 h-7 text-primary" />
-                </div>
-                <p className="font-heading text-4xl font-bold text-foreground mb-2">{stat.value}</p>
-                <p className="text-muted-foreground">{stat.label}</p>
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
-        <UnderDevelopment className="text-center mt-6" />
-      </div>
-    </section>
-  );
-}
 
 // Featured Blog Posts Section
 function BlogPreviewSection() {
@@ -509,9 +478,7 @@ const Index = () => {
     <Layout>
       <HeroSection />
       <SectionDivider />
-      <MissionPreview />
-      <SectionDivider />
-      <StatsSection />
+      <VisionPreview />
       <SectionDivider />
       <EventsPreviewSection />
       <SectionDivider />
