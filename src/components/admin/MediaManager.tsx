@@ -282,14 +282,14 @@ export function MediaManager({ entityType, entityId, onMediaChange }: MediaManag
                       {item.media_type === 'video' ? (
                         <video
                           src={item.url}
-                          className="w-full h-32 object-cover rounded-lg border border-border"
+                          className="w-full max-h-64 object-contain rounded-lg border border-border bg-secondary/30"
                           controls
                         />
                       ) : (
                         <img
                           src={item.url}
                           alt={item.title || 'Media preview'}
-                          className="w-full h-32 object-cover rounded-lg border border-border"
+                          className="w-full max-h-64 object-contain rounded-lg border border-border bg-secondary/30"
                         />
                       )}
                       <button
