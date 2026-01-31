@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Save } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ImageUpload } from '@/components/admin/ImageUpload';
-import { MediaManager, MediaItem } from '@/components/admin/MediaManager';
+import { SimpleMediaUpload, SimpleMediaItem } from '@/components/admin/SimpleMediaUpload';
 
 interface EventFormData {
   title: string;
@@ -33,7 +33,7 @@ export default function AdminEventForm() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(isEditing);
-  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const [mediaItems, setMediaItems] = useState<SimpleMediaItem[]>([]);
 
   const [formData, setFormData] = useState<EventFormData>({
     title: '',
@@ -97,7 +97,7 @@ export default function AdminEventForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleMediaChange = useCallback((media: MediaItem[]) => {
+  const handleMediaChange = useCallback((media: SimpleMediaItem[]) => {
     setMediaItems(media);
   }, []);
 
@@ -183,8 +183,8 @@ export default function AdminEventForm() {
             entity_id: eventId,
             media_type: item.media_type,
             url: item.url,
-            title: item.title || null,
-            description: item.description || null,
+            title: null,
+            description: null,
             display_order: item.display_order,
             created_by: user?.id,
           };
@@ -360,7 +360,7 @@ export default function AdminEventForm() {
 
           {/* Additional Media Section */}
           <div className="pt-4 border-t border-border">
-            <MediaManager
+            <SimpleMediaUpload
               entityType="event"
               entityId={id}
               onMediaChange={handleMediaChange}
