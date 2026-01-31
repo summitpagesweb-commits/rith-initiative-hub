@@ -246,6 +246,7 @@ function BlogPreviewSection() {
 // Events Preview Section
 function EventsPreviewSection() {
   const [events, setEvents] = useState<Event[]>([]);
+  const [eventPhotos, setEventPhotos] = useState<{ url: string; title: string | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -253,6 +254,7 @@ function EventsPreviewSection() {
       try {
         const now = new Date().toISOString();
         
+        // Fetch upcoming events
         const { data, error } = await supabase
           .from('events')
           .select('id, title, start_date, time, location')
@@ -263,6 +265,19 @@ function EventsPreviewSection() {
 
         if (error) throw error;
         setEvents(data || []);
+
+        // Fetch random media from all events for the photo slots
+        const { data: mediaData, error: mediaError } = await supabase
+          .from('media')
+          .select('url, title')
+          .eq('entity_type', 'event')
+          .eq('media_type', 'image');
+
+        if (!mediaError && mediaData && mediaData.length > 0) {
+          // Shuffle and pick 2 random images
+          const shuffled = [...mediaData].sort(() => 0.5 - Math.random());
+          setEventPhotos(shuffled.slice(0, 2));
+        }
       } catch (error) {
         console.error('Error fetching events:', error);
       } finally {
@@ -327,8 +342,40 @@ function EventsPreviewSection() {
           </ScrollReveal>
           <ScrollReveal variant="slide-right" delay={100}>
             <div className="grid grid-cols-2 gap-4">
-              <PlaceholderImage aspectRatio="portrait" label="Event photo 1" className="rounded-xl" />
-              <PlaceholderImage aspectRatio="portrait" label="Event photo 2" className="rounded-xl mt-8" />
+              {eventPhotos.length >= 2 ? (
+                <>
+                  <div className="aspect-[3/4] rounded-xl overflow-hidden bg-secondary/30">
+                    <img 
+                      src={eventPhotos[0].url} 
+                      alt={eventPhotos[0].title || "Event photo"} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="aspect-[3/4] rounded-xl overflow-hidden bg-secondary/30 mt-8">
+                    <img 
+                      src={eventPhotos[1].url} 
+                      alt={eventPhotos[1].title || "Event photo"} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </>
+              ) : eventPhotos.length === 1 ? (
+                <>
+                  <div className="aspect-[3/4] rounded-xl overflow-hidden bg-secondary/30">
+                    <img 
+                      src={eventPhotos[0].url} 
+                      alt={eventPhotos[0].title || "Event photo"} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <PlaceholderImage aspectRatio="portrait" label="Event photo 2" className="rounded-xl mt-8" />
+                </>
+              ) : (
+                <>
+                  <PlaceholderImage aspectRatio="portrait" label="Event photo 1" className="rounded-xl" />
+                  <PlaceholderImage aspectRatio="portrait" label="Event photo 2" className="rounded-xl mt-8" />
+                </>
+              )}
             </div>
           </ScrollReveal>
         </div>
@@ -370,20 +417,78 @@ function CTASection() {
 
 // Gallery Preview
 function GalleryPreview() {
+  const [galleryImages, setGalleryImages] = useState<{ id: string; url: string; title: string | null }[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGallery = async () => {
+      try {
+        // First try to get images from site_gallery
+        const { data: siteImages, error: siteError } = await supabase
+          .from('site_gallery')
+          .select('id, url, title')
+          .eq('section_key', 'home_gallery')
+          .order('display_order', { ascending: true })
+          .limit(8);
+
+        if (!siteError && siteImages && siteImages.length > 0) {
+          setGalleryImages(siteImages);
+        } else {
+          // Fallback to event media if no site gallery images
+          const { data: eventMedia, error: eventError } = await supabase
+            .from('media')
+            .select('id, url, title')
+            .eq('entity_type', 'event')
+            .eq('media_type', 'image')
+            .limit(8);
+
+          if (!eventError && eventMedia) {
+            setGalleryImages(eventMedia);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching gallery:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchGallery();
+  }, []);
+
   return (
     <section className="section-padding">
       <div className="container-wide">
         <ScrollReveal variant="fade-up">
           <SectionHeading title="Moments From Our Events" subtitle="Glimpses of culture, community, and celebration" centered />
         </ScrollReveal>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <ScrollReveal key={i} variant="scale" delay={i * 50}>
-              <PlaceholderImage aspectRatio="square" label={`Gallery image ${i}`} className="rounded-xl hover:scale-105 transition-transform duration-300" />
-            </ScrollReveal>
-          ))}
-        </div>
-        <UnderDevelopment className="text-center mt-6" />
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : galleryImages.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {galleryImages.map((img, i) => (
+              <ScrollReveal key={img.id} variant="scale" delay={i * 50}>
+                <div className="aspect-square rounded-xl overflow-hidden bg-secondary/30 hover:scale-105 transition-transform duration-300">
+                  <img 
+                    src={img.url} 
+                    alt={img.title || `Gallery image ${i + 1}`} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <ScrollReveal key={i} variant="scale" delay={i * 50}>
+                <PlaceholderImage aspectRatio="square" label={`Gallery image ${i}`} className="rounded-xl hover:scale-105 transition-transform duration-300" />
+              </ScrollReveal>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

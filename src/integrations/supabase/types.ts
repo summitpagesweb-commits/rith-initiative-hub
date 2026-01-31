@@ -352,6 +352,86 @@ export type Database = {
         }
         Relationships: []
       }
+      site_content: {
+        Row: {
+          content_type: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          section_key: string
+          title: string | null
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          content_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          section_key: string
+          title?: string | null
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          section_key?: string
+          title?: string | null
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      site_gallery: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          section_key: string
+          title: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          section_key: string
+          title?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          section_key?: string
+          title?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_gallery_section_key_fkey"
+            columns: ["section_key"]
+            isOneToOne: false
+            referencedRelation: "site_content"
+            referencedColumns: ["section_key"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
