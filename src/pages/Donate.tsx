@@ -1,6 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
-import { UnderDevelopment } from "@/components/shared/UnderDevelopment";
 import { SectionDivider } from "@/components/shared/SectionDivider";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { Button } from "@/components/ui/button";
@@ -57,7 +56,6 @@ export default function Donate() {
                 Your generous contribution helps us share the beauty of Indian culture with
                 communities across Central Virginia. Every donation makes a lasting impact.
               </p>
-              <UnderDevelopment className="mt-4" />
             </ScrollReveal>
           </div>
         </div>
@@ -141,7 +139,6 @@ export default function Donate() {
               </ScrollReveal>
             ))}
           </div>
-          <UnderDevelopment className="text-center mt-6" />
         </div>
       </section>
 
@@ -159,7 +156,6 @@ export default function Donate() {
               are tax-deductible to the fullest extent allowed by law. We are committed to
               transparency and responsible stewardship of every contribution.
             </p>
-            <UnderDevelopment className="mt-4" />
           </ScrollReveal>
         </div>
       </section>
