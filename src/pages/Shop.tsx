@@ -2,7 +2,6 @@ import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { SectionDivider } from "@/components/shared/SectionDivider";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
-import { UnderDevelopment } from "@/components/shared/UnderDevelopment";
 import { ShoppingBag } from "lucide-react";
 
 export default function Shop() {
@@ -21,7 +20,6 @@ export default function Shop() {
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
                 Support The Rith Initiative by purchasing cultural merchandise and handcrafted items.
               </p>
-              <UnderDevelopment className="mt-4" />
             </ScrollReveal>
           </div>
         </div>

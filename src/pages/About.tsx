@@ -1,7 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
-import { UnderDevelopment } from "@/components/shared/UnderDevelopment";
 import { SectionDivider } from "@/components/shared/SectionDivider";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { Heart, Users, Globe, BookOpen } from "lucide-react";
@@ -54,7 +53,6 @@ export default function About() {
                 We are a 501(c)(3) nonprofit organization dedicated to sharing and preserving 
                 Indian culture through community events, arts, and cultural programming in Central Virginia.
               </p>
-              <UnderDevelopment className="mt-4" />
             </ScrollReveal>
           </div>
         </div>
@@ -191,7 +189,6 @@ export default function About() {
               </ScrollReveal>
             ))}
           </div>
-          <UnderDevelopment className="text-center mt-6" />
         </div>
       </section>
 
@@ -224,7 +221,6 @@ export default function About() {
               </ScrollReveal>
             ))}
           </div>
-          <UnderDevelopment className="text-center mt-6" />
         </div>
       </section>
 

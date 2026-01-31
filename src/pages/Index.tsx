@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
-import { UnderDevelopment } from "@/components/shared/UnderDevelopment";
 import { SectionDivider } from "@/components/shared/SectionDivider";
 import { BlogDetailModal } from "@/components/shared/BlogDetailModal";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
@@ -52,7 +51,6 @@ function HeroSection() {
                 Rith means cosmic rhythms, calling us to listen deeply — to the echoes of our ancestors, 
                 the voices around us and the unfolding possibilities before us.
               </p>
-              <UnderDevelopment />
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button variant="hero" size="xl" asChild>
                   <Link to="/events">
@@ -105,7 +103,6 @@ function VisionPreview() {
                 Our vision is a world where art nurtures connection — bridging cultures, generations, 
                 and ideas — fostering creativity, sustainability, and conscious living in harmony with the earth.
               </p>
-              <UnderDevelopment />
               <Button variant="subtle" size="lg" asChild>
                 <Link to="/about">
                   Learn More About Us
@@ -376,7 +373,6 @@ function CTASection() {
             Your contribution helps us continue sharing Indian culture and traditions with 
             communities across Central Virginia. Every donation makes a difference.
           </p>
-          <UnderDevelopment className="text-background/50 mb-6" />
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="hero" size="xl" asChild>
               <Link to="/donate">
