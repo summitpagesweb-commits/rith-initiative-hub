@@ -122,6 +122,16 @@ export function MediaManager({ entityType, entityId, onMediaChange }: MediaManag
     ));
   };
 
+  const moveMediaItem = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+    setMediaItems(prev => {
+      const newItems = [...prev];
+      const [moved] = newItems.splice(fromIndex, 1);
+      newItems.splice(toIndex, 0, moved);
+      return newItems.map((item, i) => ({ ...item, display_order: i }));
+    });
+  };
+
   const handleFileUpload = async (index: number, file: File) => {
     if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
       toast({
@@ -216,10 +226,31 @@ export function MediaManager({ entityType, entityId, onMediaChange }: MediaManag
       ) : (
         <div className="space-y-4">
           {mediaItems.map((item, index) => (
-            <div key={index} className="p-4 border border-border rounded-lg bg-card space-y-3">
+            <div
+              key={item.id || index}
+              draggable
+              onDragStart={(e) => {
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', index.toString());
+                (e.target as HTMLElement).classList.add('opacity-50');
+              }}
+              onDragEnd={(e) => {
+                (e.target as HTMLElement).classList.remove('opacity-50');
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                moveMediaItem(fromIndex, index);
+              }}
+              className="p-4 border border-border rounded-lg bg-card space-y-3"
+            >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-2 text-muted-foreground">
-                  <GripVertical size={16} />
+                  <GripVertical size={16} className="cursor-grab active:cursor-grabbing" />
                   {getMediaIcon(item.media_type)}
                   <span className="text-sm font-medium">Media #{index + 1}</span>
                 </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -163,6 +163,19 @@ export function FormBuilder({ postId, onFormChange }: FormBuilderProps) {
     }));
   };
 
+  const moveField = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+    setFormData(prev => {
+      const newFields = [...prev.fields];
+      const [moved] = newFields.splice(fromIndex, 1);
+      newFields.splice(toIndex, 0, moved);
+      return {
+        ...prev,
+        fields: newFields.map((f, i) => ({ ...f, display_order: i })),
+      };
+    });
+  };
+
   const updateOption = (fieldIndex: number, optionIndex: number, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -280,11 +293,29 @@ export function FormBuilder({ postId, onFormChange }: FormBuilderProps) {
           <div className="space-y-4">
             {formData.fields.map((field, index) => (
               <div
-                key={index}
+                key={field.id || index}
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.effectAllowed = 'move';
+                  e.dataTransfer.setData('text/plain', index.toString());
+                  (e.target as HTMLElement).classList.add('opacity-50');
+                }}
+                onDragEnd={(e) => {
+                  (e.target as HTMLElement).classList.remove('opacity-50');
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                  moveField(fromIndex, index);
+                }}
                 className="p-4 rounded-lg border border-border bg-background space-y-4"
               >
                 <div className="flex items-start gap-2">
-                  <GripVertical size={20} className="text-muted-foreground mt-2 flex-shrink-0" />
+                  <GripVertical size={20} className="text-muted-foreground mt-2 flex-shrink-0 cursor-grab active:cursor-grabbing" />
                   <div className="flex-1 space-y-4">
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
