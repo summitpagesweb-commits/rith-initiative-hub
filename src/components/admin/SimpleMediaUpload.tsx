@@ -2,8 +2,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, X, Image as ImageIcon, Video, Loader2, Plus } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Video, Loader2, Plus, Pencil } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { ImageEditor } from './ImageEditor';
 
 interface SimpleMediaItem {
   id?: string;
@@ -24,6 +25,7 @@ export function SimpleMediaUpload({ entityType, entityId, onMediaChange }: Simpl
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadCount, setUploadCount] = useState({ current: 0, total: 0 });
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { toast } = useToast();
 
@@ -89,6 +91,49 @@ export function SimpleMediaUpload({ entityType, entityId, onMediaChange }: Simpl
     }
 
     setMediaItems(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleEditSave = async (croppedImageUrl: string) => {
+    if (editingIndex === null) return;
+    
+    try {
+      // Convert base64 to blob
+      const response = await fetch(croppedImageUrl);
+      const blob = await response.blob();
+      
+      // Upload the cropped image
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+      const filePath = `uploads/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(filePath, blob);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath);
+
+      // Update the media item with new URL
+      setMediaItems(prev => prev.map((item, i) => 
+        i === editingIndex ? { ...item, url: publicUrl } : item
+      ));
+
+      toast({
+        title: 'Image updated',
+        description: 'Your cropped image has been saved.',
+      });
+    } catch (error) {
+      console.error('Error saving cropped image:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save cropped image.',
+        variant: 'destructive',
+      });
+    }
+    
+    setEditingIndex(null);
   };
 
   const handleMultipleFileUpload = async (files: FileList) => {
@@ -279,6 +324,18 @@ export function SimpleMediaUpload({ entityType, entityId, onMediaChange }: Simpl
                 )}
               </div>
 
+              {/* Edit button for images */}
+              {item.media_type === 'image' && (
+                <button
+                  type="button"
+                  onClick={() => setEditingIndex(index)}
+                  className="absolute top-2 left-2 p-1.5 rounded-full bg-background/80 text-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
+                  title="Edit image"
+                >
+                  <Pencil size={14} />
+                </button>
+              )}
+
               {/* Remove button */}
               <button
                 type="button"
@@ -299,6 +356,16 @@ export function SimpleMediaUpload({ entityType, entityId, onMediaChange }: Simpl
             <span className="text-xs text-muted-foreground">Add more</span>
           </div>
         </div>
+      )}
+
+      {/* Image Editor Modal */}
+      {editingIndex !== null && mediaItems[editingIndex]?.media_type === 'image' && (
+        <ImageEditor
+          imageUrl={mediaItems[editingIndex].url}
+          open={true}
+          onOpenChange={(open) => !open && setEditingIndex(null)}
+          onSave={handleEditSave}
+        />
       )}
     </div>
   );
