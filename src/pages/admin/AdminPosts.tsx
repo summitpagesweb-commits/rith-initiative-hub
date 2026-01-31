@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, FileText, Edit, Archive, Trash2, RotateCcw, Eye, EyeOff } from 'lucide-react';
+import { Plus, FileText, Edit, Archive, Trash2, RotateCcw, Eye, EyeOff, Globe, GlobeLock } from 'lucide-react';
 import { FormSubmissionsViewer } from '@/components/admin/FormSubmissionsViewer';
+import { BlogDetailModal } from '@/components/shared/BlogDetailModal';
 import { format } from 'date-fns';
 import {
   AlertDialog,
@@ -22,6 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 interface BlogPost {
   id: string;
   title: string;
+  content: string;
   excerpt: string | null;
   author_name: string | null;
   category: string | null;
@@ -34,6 +36,8 @@ interface BlogPost {
 export default function AdminPosts() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [previewPost, setPreviewPost] = useState<BlogPost | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const { toast } = useToast();
 
   const fetchPosts = async () => {
@@ -196,9 +200,21 @@ export default function AdminPosts() {
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              setPreviewPost(post);
+              setIsPreviewOpen(true);
+            }}
+            title="Preview"
+          >
+            <Eye size={16} />
+          </Button>
+          
           <FormSubmissionsViewer postId={post.id} postTitle={post.title} />
           
-          <Button variant="ghost" size="icon" asChild>
+          <Button variant="ghost" size="icon" asChild title="Edit">
             <Link to={`/admin/posts/${post.id}`}>
               <Edit size={16} />
             </Link>
@@ -209,8 +225,9 @@ export default function AdminPosts() {
               variant="ghost"
               size="icon"
               onClick={() => handlePublish(post.id, !post.is_published)}
+              title={post.is_published ? 'Unpublish' : 'Publish'}
             >
-              {post.is_published ? <EyeOff size={16} /> : <Eye size={16} />}
+              {post.is_published ? <GlobeLock size={16} /> : <Globe size={16} />}
             </Button>
           )}
 
@@ -320,6 +337,12 @@ export default function AdminPosts() {
           )}
         </TabsContent>
       </Tabs>
+
+      <BlogDetailModal 
+        post={previewPost}
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
+      />
     </div>
   );
 }

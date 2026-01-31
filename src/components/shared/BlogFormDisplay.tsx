@@ -272,7 +272,36 @@ export function BlogFormDisplay({ postId }: BlogFormDisplayProps) {
               </RadioGroup>
             )}
 
-            {field.field_type === 'checkbox' && (
+            {field.field_type === 'checkbox' && field.options && field.options.length > 0 ? (
+              <div className="space-y-2">
+                {field.options.map((option, idx) => {
+                  const selectedOptions = (responses[field.id] as string) || '';
+                  const selectedArray = selectedOptions ? selectedOptions.split('|||') : [];
+                  const isChecked = selectedArray.includes(option);
+                  
+                  return (
+                    <div key={idx} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`${field.id}-${idx}`}
+                        checked={isChecked}
+                        onCheckedChange={(checked) => {
+                          let newSelected: string[];
+                          if (checked) {
+                            newSelected = [...selectedArray, option];
+                          } else {
+                            newSelected = selectedArray.filter(o => o !== option);
+                          }
+                          handleInputChange(field.id, newSelected.join('|||'));
+                        }}
+                      />
+                      <Label htmlFor={`${field.id}-${idx}`} className="font-normal cursor-pointer">
+                        {option}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : field.field_type === 'checkbox' && (
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id={field.id}

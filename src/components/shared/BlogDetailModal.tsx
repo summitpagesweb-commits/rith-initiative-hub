@@ -190,12 +190,12 @@ export function BlogDetailModal({ post, open, onOpenChange }: BlogDetailModalPro
             {/* Media Gallery - Compact thumbnails */}
             {media.length > 0 && (
               <div className="px-6 pb-4">
-                <div className="flex gap-2 overflow-x-auto pb-2">
+                <div className="flex gap-2 overflow-x-auto py-1 -my-1 px-1 -mx-1">
                   {media.slice(0, 4).map((item, index) => (
                     <button 
                       key={item.id}
                       onClick={() => item.media_type !== 'link' && openLightbox(index)}
-                      className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-secondary/30 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                      className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-secondary/30 cursor-pointer ring-2 ring-transparent hover:ring-primary transition-all"
                     >
                       {item.media_type === 'image' && (
                         <img
@@ -225,7 +225,7 @@ export function BlogDetailModal({ post, open, onOpenChange }: BlogDetailModalPro
                   {media.length > 4 && (
                     <button
                       onClick={() => openLightbox(4)}
-                      className="flex-shrink-0 w-16 h-16 rounded-lg bg-secondary/50 flex items-center justify-center hover:bg-secondary transition-colors"
+                      className="flex-shrink-0 w-16 h-16 rounded-lg bg-secondary/50 flex items-center justify-center ring-2 ring-transparent hover:ring-primary transition-colors"
                     >
                       <span className="text-xs text-muted-foreground font-medium">+{media.length - 4}</span>
                     </button>

@@ -324,7 +324,7 @@ export function FormBuilder({ postId, onFormChange }: FormBuilderProps) {
                           value={field.field_type}
                           onValueChange={(value) => updateField(index, { 
                             field_type: value as FormField['field_type'],
-                            options: value === 'multiple_choice' ? [''] : undefined,
+                            options: (value === 'multiple_choice' || value === 'checkbox') ? [''] : undefined,
                           })}
                         >
                           <SelectTrigger>
@@ -358,9 +358,14 @@ export function FormBuilder({ postId, onFormChange }: FormBuilderProps) {
                       />
                     </div>
 
-                    {field.field_type === 'multiple_choice' && (
+                    {(field.field_type === 'multiple_choice' || field.field_type === 'checkbox') && (
                       <div className="space-y-2">
-                        <Label>Options</Label>
+                        <Label>{field.field_type === 'checkbox' ? 'Checkbox Options' : 'Options'}</Label>
+                        <p className="text-xs text-muted-foreground">
+                          {field.field_type === 'checkbox' 
+                            ? 'Users can select multiple options' 
+                            : 'Users can select one option'}
+                        </p>
                         <div className="space-y-2">
                           {(field.options || []).map((option, optionIndex) => (
                             <div key={optionIndex} className="flex gap-2">
