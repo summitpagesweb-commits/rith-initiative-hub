@@ -107,6 +107,23 @@ export default function AdminPostForm() {
       return;
     }
 
+    // Validate form fields if form exists
+    if (blogFormData && blogFormData.fields.length > 0) {
+      for (const field of blogFormData.fields) {
+        if (field.field_type === 'multiple_choice' || field.field_type === 'checkbox') {
+          const validOptions = (field.options || []).filter(opt => opt.trim() !== '');
+          if (validOptions.length === 0) {
+            toast({
+              title: 'Invalid form field',
+              description: `The ${field.field_type === 'checkbox' ? 'checkbox' : 'multiple choice'} field "${field.label || 'Untitled'}" must have at least one option.`,
+              variant: 'destructive',
+            });
+            return;
+          }
+        }
+      }
+    }
+
     setIsLoading(true);
 
     try {
