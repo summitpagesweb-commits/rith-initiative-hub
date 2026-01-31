@@ -36,7 +36,7 @@ export function Footer() {
             </Link>
             <p className="text-background/70 max-w-md mb-6 leading-relaxed">
               A 501(c)(3) nonprofit organization dedicated to sharing and preserving Indian culture 
-              through community events, arts, and cultural programming in Central Virginia.
+              through community events, arts, and cultural programming in Virginia.
             </p>
             <div className="flex gap-4">
               {footerLinks.social.map((social) => (

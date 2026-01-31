@@ -54,7 +54,7 @@ export default function Donate() {
             <ScrollReveal variant="fade-up" delay={200}>
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
                 Your generous contribution helps us share the beauty of Indian culture with
-                communities across Central Virginia. Every donation makes a lasting impact.
+                communities across Virginia. Every donation makes a lasting impact.
               </p>
             </ScrollReveal>
           </div>
@@ -82,7 +82,7 @@ export default function Donate() {
                 </h2>
                 <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto leading-relaxed">
                   Every contribution, no matter the size, helps us continue our mission of
-                  cultural preservation and community building in Central Virginia.
+                  cultural preservation and community building in Virginia.
                 </p>
                 
                 <Button 
