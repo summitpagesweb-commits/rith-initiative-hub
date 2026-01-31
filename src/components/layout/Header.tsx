@@ -57,13 +57,13 @@ export function Header() {
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/50">
         <div className="container-wide">
-          <nav className="flex items-center justify-between h-16 md:h-20">
+          <nav className="flex items-center justify-between h-20 md:h-24">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
               <img 
                 src={logo} 
                 alt="The Rith Initiative Logo" 
-                className="h-14 md:h-16 w-auto transition-transform group-hover:scale-105"
+                className="h-16 md:h-20 w-auto transition-transform group-hover:scale-105"
               />
             </Link>
 
