@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import communityGatheringImage from "@/assets/community-gathering.jpg";
+import heroCulturalEventImage from "@/assets/hero-cultural-event.jpg";
 
 interface Event {
   id: string;
@@ -68,7 +69,11 @@ function HeroSection() {
           <ScrollReveal variant="fade-up" delay={200}>
             <div className="relative">
               <div className="relative z-10">
-                <PlaceholderImage aspectRatio="square" label="Hero image - Cultural event photography" className="rounded-2xl shadow-elevated" />
+                <img 
+                  src={heroCulturalEventImage} 
+                  alt="Nataraja statue decorated with marigold garlands at cultural event" 
+                  className="rounded-2xl shadow-elevated w-full h-auto object-cover aspect-square"
+                />
               </div>
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-primary/20 rounded-full blur-2xl" />
               <div className="absolute -top-6 -right-6 w-40 h-40 bg-accent/20 rounded-full blur-2xl" />
