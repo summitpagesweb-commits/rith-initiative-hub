@@ -371,7 +371,7 @@ function CTASection() {
           </h2>
           <p className="text-background/70 text-lg md:text-xl max-w-2xl mx-auto mb-8 leading-relaxed">
             Your contribution helps us continue sharing Indian culture and traditions with 
-            communities across Central Virginia. Every donation makes a difference.
+            communities across Virginia. Every donation makes a difference.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="hero" size="xl" asChild>
