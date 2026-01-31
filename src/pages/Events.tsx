@@ -245,11 +245,13 @@ export default function Events() {
                   <ScrollReveal key={event.id} variant="fade-up" delay={index * 100}>
                     <div className="group grid md:grid-cols-[300px_1fr] gap-6 p-6 rounded-2xl bg-card border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300 overflow-hidden">
                       {event.featured_image_url ? (
-                        <img 
-                          src={event.featured_image_url} 
-                          alt={event.title}
-                          className="w-full h-auto aspect-video object-cover rounded-xl"
-                        />
+                        <div className="w-full aspect-[4/3] bg-secondary/50 rounded-xl overflow-hidden flex items-center justify-center">
+                          <img 
+                            src={event.featured_image_url} 
+                            alt={event.title}
+                            className="max-w-full max-h-full object-contain"
+                          />
+                        </div>
                       ) : (
                         <PlaceholderImage 
                           aspectRatio="video" 
@@ -355,11 +357,13 @@ export default function Events() {
                   <ScrollReveal key={event.id} variant="fade-up" delay={index * 100}>
                     <div className="bg-card rounded-2xl overflow-hidden border border-border/50 shadow-soft h-full">
                       {event.featured_image_url ? (
-                        <img 
-                          src={event.featured_image_url} 
-                          alt={event.title}
-                          className="w-full h-auto aspect-video object-cover"
-                        />
+                        <div className="w-full aspect-[4/3] bg-secondary/50 overflow-hidden flex items-center justify-center">
+                          <img 
+                            src={event.featured_image_url} 
+                            alt={event.title}
+                            className="max-w-full max-h-full object-contain"
+                          />
+                        </div>
                       ) : (
                         <PlaceholderImage 
                           aspectRatio="video" 
