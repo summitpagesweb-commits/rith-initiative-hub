@@ -5,6 +5,7 @@ import { UnderDevelopment } from "@/components/shared/UnderDevelopment";
 import { SectionDivider } from "@/components/shared/SectionDivider";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { Heart, Users, Globe, BookOpen } from "lucide-react";
+import missionCelebrationImage from "@/assets/mission-celebration.jpg";
 
 const values = [
   {
@@ -96,10 +97,10 @@ export default function About() {
             </ScrollReveal>
             <ScrollReveal variant="slide-right" delay={100}>
               <div className="relative">
-                <PlaceholderImage 
-                  aspectRatio="square" 
-                  label="Mission image - Community celebration"
-                  className="rounded-2xl shadow-elevated"
+                <img 
+                  src={missionCelebrationImage} 
+                  alt="Traditional Indian dancers performing at community celebration" 
+                  className="rounded-2xl shadow-elevated w-full h-auto object-cover aspect-square"
                 />
                 <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-primary/20 rounded-full blur-2xl" />
               </div>
