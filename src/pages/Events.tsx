@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { MediaLightbox } from "@/components/shared/MediaLightbox";
 
 interface Event {
   id: string;
@@ -44,6 +45,9 @@ export default function Events() {
   const [isLoading, setIsLoading] = useState(true);
   const [showAllPast, setShowAllPast] = useState(false);
   const [expandedDescriptions, setExpandedDescriptions] = useState<Set<string>>(new Set());
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxMedia, setLightboxMedia] = useState<MediaItem[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -119,6 +123,15 @@ export default function Events() {
     });
   };
 
+  const openMediaLightbox = (eventId: string, index: number = 0) => {
+    const media = eventMedia[eventId];
+    if (media && media.length > 0) {
+      setLightboxMedia(media);
+      setLightboxIndex(index);
+      setLightboxOpen(true);
+    }
+  };
+
   const renderMediaGallery = (eventId: string, eventTitle: string) => {
     const media = eventMedia[eventId];
     if (!media || media.length === 0) return null;
@@ -135,23 +148,34 @@ export default function Events() {
           <DialogHeader>
             <DialogTitle>{eventTitle} - Media Gallery</DialogTitle>
           </DialogHeader>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-            {media.map((item) => (
-              <div key={item.id} className="rounded-lg overflow-hidden border border-border bg-muted/30">
+          <p className="text-sm text-muted-foreground mb-4">Click any image to enlarge</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
+            {media.map((item, index) => (
+              <div 
+                key={item.id} 
+                className="rounded-lg overflow-hidden border border-border bg-muted/30 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                onClick={() => item.media_type !== 'link' && openMediaLightbox(eventId, index)}
+              >
                 {item.media_type === 'image' && (
                   <img 
                     src={item.url} 
                     alt={item.title || 'Event media'} 
-                    className="w-full h-48 object-cover"
+                    className="w-full h-40 object-cover"
                   />
                 )}
                 {item.media_type === 'video' && (
-                  <div className="relative">
+                  <div className="relative w-full h-40 bg-secondary flex items-center justify-center">
                     <video 
                       src={item.url} 
-                      controls 
-                      className="w-full h-48 object-cover"
+                      className="w-full h-full object-cover"
                     />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
+                        <svg className="w-5 h-5 text-foreground ml-1" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 )}
                 {item.media_type === 'link' && (
@@ -159,19 +183,12 @@ export default function Events() {
                     href={item.url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 p-4 hover:bg-muted transition-colors"
+                    className="flex items-center gap-2 p-4 h-40 hover:bg-muted transition-colors"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <ExternalLink size={20} className="text-primary" />
                     <span className="text-sm font-medium truncate">{item.title || item.url}</span>
                   </a>
-                )}
-                {item.title && item.media_type !== 'link' && (
-                  <div className="p-2">
-                    <p className="text-sm font-medium text-foreground">{item.title}</p>
-                    {item.description && (
-                      <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
-                    )}
-                  </div>
                 )}
               </div>
             ))}
@@ -448,6 +465,14 @@ export default function Events() {
           </ScrollReveal>
         </div>
       </section>
+
+      {/* Media Lightbox */}
+      <MediaLightbox
+        media={lightboxMedia}
+        initialIndex={lightboxIndex}
+        open={lightboxOpen}
+        onOpenChange={setLightboxOpen}
+      />
     </Layout>
   );
 }
