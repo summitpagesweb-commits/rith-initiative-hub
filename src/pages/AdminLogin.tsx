@@ -54,9 +54,24 @@ export default function AdminLogin() {
         return;
       }
 
-      setTimeout(() => {
+      // Wait briefly for auth state to update, then check admin status
+      setTimeout(async () => {
+        // Re-check if user is admin after login
+        const { data: roleData } = await import('@/integrations/supabase/client').then(m => 
+          m.supabase.from('user_roles').select('role').in('role', ['admin', 'moderator'])
+        );
+        
+        if (!roleData || roleData.length === 0) {
+          toast({
+            title: 'Access denied',
+            description: 'You do not have admin privileges. Please contact an administrator.',
+            variant: 'destructive',
+          });
+          // Sign out since they don't have admin access
+          await import('@/integrations/supabase/client').then(m => m.supabase.auth.signOut());
+        }
         setIsSubmitting(false);
-      }, 1000);
+      }, 500);
     } catch (err) {
       toast({
         title: 'Login failed',
