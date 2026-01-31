@@ -272,7 +272,7 @@ export function BlogFormDisplay({ postId }: BlogFormDisplayProps) {
               </RadioGroup>
             )}
 
-            {field.field_type === 'checkbox' && field.options && field.options.length > 0 ? (
+            {field.field_type === 'checkbox' && Array.isArray(field.options) && field.options.length > 0 ? (
               <div className="space-y-2">
                 {field.options.map((option, idx) => {
                   const selectedOptions = (responses[field.id] as string) || '';
