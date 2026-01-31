@@ -11,6 +11,7 @@ import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import communityGatheringImage from "@/assets/community-gathering.jpg";
 
 interface Event {
   id: string;
@@ -86,7 +87,11 @@ function MissionPreview() {
       <div className="container-wide">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <ScrollReveal variant="slide-left" className="order-2 lg:order-1">
-            <PlaceholderImage aspectRatio="video" label="Community gathering photo" className="rounded-2xl shadow-soft" />
+            <img 
+              src={communityGatheringImage} 
+              alt="Community gathering at Virginia Historical Society" 
+              className="rounded-2xl shadow-soft w-full h-auto object-cover"
+            />
           </ScrollReveal>
           <ScrollReveal variant="slide-right" className="order-1 lg:order-2">
             <div className="space-y-6">
