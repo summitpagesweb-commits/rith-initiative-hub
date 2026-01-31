@@ -3,7 +3,7 @@ import { SectionHeading } from "@/components/shared/SectionHeading";
 import { SectionDivider } from "@/components/shared/SectionDivider";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, Send, Facebook, Instagram } from "lucide-react";
+import { Mail, Send, Facebook, Instagram } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -201,22 +201,6 @@ export default function Contact() {
                       >
                         rithinitiative@gmail.com
                       </a>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <h4 className="font-heading text-lg font-semibold text-foreground mb-1">Phone</h4>
-                      <a 
-                        href="tel:+1234567890" 
-                        className="text-muted-foreground hover:text-primary transition-colors"
-                      >
-                        (123) 456-7890
-                      </a>
-                      <p className="text-sm text-muted-foreground mt-1">Mon-Fri, 9am-5pm EST</p>
                     </div>
                   </div>
 
