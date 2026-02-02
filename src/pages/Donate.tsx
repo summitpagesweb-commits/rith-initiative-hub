@@ -84,25 +84,21 @@ export default function Donate() {
                   cultural preservation and community building in Virginia.
                 </p>
                 
-                <Button 
-                  variant="hero" 
-                  size="xl" 
-                  asChild
-                  className="min-w-[240px] text-lg"
-                >
-                  <a 
-                    href={DONATION_LINK} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-3"
-                  >
-                    Donate Now
-                    <ExternalLink size={20} />
-                  </a>
-                </Button>
+                <form action="https://www.paypal.com/donate" method="post" target="_top" className="inline-block">
+                  <input type="hidden" name="hosted_button_id" value="LDD3U2Q5B59QE" />
+                  <input 
+                    type="image" 
+                    src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" 
+                    name="submit" 
+                    title="PayPal - The safer, easier way to pay online!" 
+                    alt="Donate with PayPal button"
+                    className="cursor-pointer"
+                  />
+                  <img alt="" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
+                </form>
                 
                 <p className="text-sm text-muted-foreground mt-6">
-                  You will be redirected to our secure donation platform
+                  Secure payment powered by PayPal
                 </p>
               </div>
             </div>
