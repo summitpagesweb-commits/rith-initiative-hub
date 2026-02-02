@@ -185,4 +185,41 @@
       transform: translateX(0);
     }
   }
+
+  /* Page flip animation for poster book */
+  @keyframes pageFlip {
+    0% {
+      transform: rotateY(0deg);
+      transform-origin: left center;
+    }
+    100% {
+      transform: rotateY(-180deg);
+      transform-origin: left center;
+    }
+  }
+
+  @keyframes pageFlipReverse {
+    0% {
+      transform: rotateY(0deg);
+      transform-origin: right center;
+    }
+    100% {
+      transform: rotateY(180deg);
+      transform-origin: right center;
+    }
+  }
+
+  .animate-page-flip {
+    animation: pageFlip 0.6s ease-in-out forwards;
+    backface-visibility: hidden;
+  }
+
+  .animate-page-flip-reverse {
+    animation: pageFlipReverse 0.6s ease-in-out forwards;
+    backface-visibility: hidden;
+  }
+
+  .perspective-\[2000px\] {
+    perspective: 2000px;
+  }
 }
