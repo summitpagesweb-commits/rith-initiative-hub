@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, X, Loader2, Plus, GripVertical, Image as ImageIcon } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -19,6 +18,8 @@ export default function AdminGallery() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadCount, setUploadCount] = useState({ current: 0, total: 0 });
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -153,6 +154,73 @@ export default function AdminGallery() {
     fetchImages();
   };
 
+  const handleDragStart = useCallback((e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', index.toString());
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverIndex(null);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  }, []);
+
+  const handleDrop = useCallback(async (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    const dragIndex = draggedIndex;
+    
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+    
+    if (dragIndex === null || dragIndex === dropIndex) return;
+    
+    // Reorder images locally first
+    const reorderedImages = [...images];
+    const [draggedImage] = reorderedImages.splice(dragIndex, 1);
+    reorderedImages.splice(dropIndex, 0, draggedImage);
+    
+    // Update display_order for each image
+    const updatedImages = reorderedImages.map((img, idx) => ({
+      ...img,
+      display_order: idx,
+    }));
+    
+    setImages(updatedImages);
+    
+    // Update in database
+    try {
+      for (const img of updatedImages) {
+        await supabase
+          .from('site_gallery')
+          .update({ display_order: img.display_order })
+          .eq('id', img.id);
+      }
+      
+      toast({
+        title: 'Order updated',
+        description: 'Gallery order has been saved.',
+      });
+    } catch (error) {
+      console.error('Error updating order:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save new order.',
+        variant: 'destructive',
+      });
+      fetchImages(); // Revert to database state on error
+    }
+  }, [draggedIndex, images, toast]);
+
   const handleRemove = async (id: string) => {
     try {
       const { error } = await supabase
@@ -263,12 +331,30 @@ export default function AdminGallery() {
       {images.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {images.map((image, index) => (
-            <div key={image.id} className="relative group aspect-square">
+            <div
+              key={image.id}
+              draggable
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDragLeave={handleDragLeave}
+              onDragEnd={handleDragEnd}
+              onDrop={(e) => handleDrop(e, index)}
+              className={`
+                relative group aspect-square transition-all duration-200
+                ${draggedIndex === index ? 'opacity-50 scale-95' : ''}
+                ${dragOverIndex === index && draggedIndex !== index ? 'ring-2 ring-primary ring-offset-2' : ''}
+              `}
+            >
               <img
                 src={image.url}
                 alt={image.title || `Gallery image ${index + 1}`}
-                className="w-full h-full object-cover rounded-lg border border-border"
+                className="w-full h-full object-cover rounded-lg border border-border pointer-events-none"
               />
+              
+              {/* Drag handle */}
+              <div className="absolute top-2 left-2 p-1.5 rounded bg-background/80 backdrop-blur-sm cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity">
+                <GripVertical size={14} className="text-foreground" />
+              </div>
               
               {/* Order indicator */}
               <div className="absolute bottom-2 left-2 px-2 py-1 rounded bg-background/80 backdrop-blur-sm text-xs font-medium">
