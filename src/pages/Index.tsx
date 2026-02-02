@@ -26,6 +26,7 @@ interface Update {
   description: string | null;
   media_url: string | null;
   media_type: string | null;
+  thumbnail_url: string | null;
   published_at: string | null;
   created_at: string;
 }
@@ -122,7 +123,7 @@ function UpdatesPreviewSection() {
       try {
         const { data, error } = await supabase
           .from('updates')
-          .select('id, title, description, media_url, media_type, published_at, created_at')
+          .select('id, title, description, media_url, media_type, thumbnail_url, published_at, created_at')
           .eq('is_published', true)
           .eq('is_archived', false)
           .order('published_at', { ascending: false })
@@ -168,7 +169,7 @@ function UpdatesPreviewSection() {
                   onClick={() => handleUpdateClick(update)}
                 >
                   {/* Media Display */}
-                  {update.media_url && update.media_type === 'image' && (
+                  {update.media_type === 'image' && update.media_url && (
                     <div className="aspect-video overflow-hidden">
                       <img 
                         src={update.media_url} 
@@ -177,7 +178,7 @@ function UpdatesPreviewSection() {
                       />
                     </div>
                   )}
-                  {update.media_url && update.media_type === 'video' && (
+                  {update.media_type === 'video' && update.media_url && (
                     <div className="aspect-video overflow-hidden">
                       <video 
                         src={update.media_url}
@@ -186,7 +187,18 @@ function UpdatesPreviewSection() {
                       />
                     </div>
                   )}
-                  {(!update.media_url || update.media_type === 'link') && (
+                  {update.media_type === 'link' && update.thumbnail_url && (
+                    <div className="aspect-video overflow-hidden">
+                      <img 
+                        src={update.thumbnail_url} 
+                        alt={update.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
+                  {!((update.media_type === 'image' && update.media_url) || 
+                     (update.media_type === 'video' && update.media_url) || 
+                     (update.media_type === 'link' && update.thumbnail_url)) && (
                     <PlaceholderImage aspectRatio="video" label="Update" className="rounded-none" />
                   )}
                   

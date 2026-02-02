@@ -443,6 +443,7 @@ export type Database = {
           media_type: string | null
           media_url: string | null
           published_at: string | null
+          thumbnail_url: string | null
           title: string
           updated_at: string
         }
@@ -456,6 +457,7 @@ export type Database = {
           media_type?: string | null
           media_url?: string | null
           published_at?: string | null
+          thumbnail_url?: string | null
           title: string
           updated_at?: string
         }
@@ -469,6 +471,7 @@ export type Database = {
           media_type?: string | null
           media_url?: string | null
           published_at?: string | null
+          thumbnail_url?: string | null
           title?: string
           updated_at?: string
         }
