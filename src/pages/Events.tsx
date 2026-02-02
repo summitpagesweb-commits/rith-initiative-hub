@@ -458,6 +458,12 @@ export default function Events() {
                   alt: "Diwali Music and Arts Festival 2024 - October 26 at Lewis Ginter Botanical Garden",
                   year: "2024",
                   title: "Diwali Music & Arts Festival"
+                },
+                {
+                  src: "",
+                  alt: "Coming soon",
+                  year: "",
+                  title: ""
                 }
               ]}
             />
