@@ -3,6 +3,7 @@ import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
 import { SectionDivider } from "@/components/shared/SectionDivider";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
+import { PosterBook } from "@/components/shared/PosterBook";
 import diwaliPoster2025 from "@/assets/diwali-poster-2025.jpg";
 import diwaliPoster2024 from "@/assets/diwali-poster-2024.png";
 import { Button } from "@/components/ui/button";
@@ -432,35 +433,38 @@ export default function Events() {
 
       <SectionDivider />
 
-      {/* Event Posters Section */}
-      <section className="section-padding">
+      {/* Event Posters Section - Book Style Gallery */}
+      <section className="section-padding bg-secondary/20">
         <div className="container-wide">
           <ScrollReveal variant="fade-up">
             <SectionHeading 
               title="Event Posters"
-              subtitle="Our festival memories captured in design"
+              subtitle="Flip through our festival memories"
+              centered
             />
           </ScrollReveal>
           
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            <ScrollReveal variant="fade-up" delay={100}>
-              <div className="bg-card rounded-2xl overflow-hidden border border-border/50 shadow-soft">
-                <img 
-                  src={diwaliPoster2025} 
-                  alt="Diwali Music & Arts Festival 2025 - October 18 at Virginia Museum of History & Culture" 
-                  className="w-full h-auto object-contain"
-                />
-              </div>
-            </ScrollReveal>
-            <ScrollReveal variant="fade-up" delay={200}>
-              <div className="bg-card rounded-2xl overflow-hidden border border-border/50 shadow-soft">
-                <img 
-                  src={diwaliPoster2024} 
-                  alt="Diwali Music and Arts Festival 2024 - October 26 at Lewis Ginter Botanical Garden" 
-                  className="w-full h-auto object-contain"
-                />
-              </div>
-            </ScrollReveal>
+          <ScrollReveal variant="fade-up" delay={100}>
+            <PosterBook 
+              posters={[
+                {
+                  src: diwaliPoster2025,
+                  alt: "Diwali Music & Arts Festival 2025 - October 18 at Virginia Museum of History & Culture",
+                  year: "2025",
+                  title: "Diwali Music & Arts Festival"
+                },
+                {
+                  src: diwaliPoster2024,
+                  alt: "Diwali Music and Arts Festival 2024 - October 26 at Lewis Ginter Botanical Garden",
+                  year: "2024",
+                  title: "Diwali Music & Arts Festival"
+                }
+              ]}
+            />
+          </ScrollReveal>
+          
+          <div className="text-center mt-8 text-muted-foreground text-sm">
+            <p>Click on the right page or use the arrows to flip through</p>
           </div>
         </div>
       </section>
