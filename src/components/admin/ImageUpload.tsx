@@ -1,10 +1,8 @@
 import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, X, Image as ImageIcon, Loader2, Pencil } from 'lucide-react';
-import { ImageEditor } from './ImageEditor';
+import { X, Image as ImageIcon, Loader2 } from 'lucide-react';
 
 interface ImageUploadProps {
   value: string;
@@ -14,7 +12,6 @@ interface ImageUploadProps {
 
 export function ImageUpload({ value, onChange, label = 'Featured Image' }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
-  const [isEditorOpen, setIsEditorOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -87,47 +84,6 @@ export function ImageUpload({ value, onChange, label = 'Featured Image' }: Image
     onChange('');
   };
 
-  const handleEditSave = async (croppedDataUrl: string) => {
-    setIsUploading(true);
-    try {
-      // Convert base64 to blob
-      const response = await fetch(croppedDataUrl);
-      const blob = await response.blob();
-      
-      // Generate unique filename
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
-      const filePath = `uploads/${fileName}`;
-
-      // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('images')
-        .upload(filePath, blob, { contentType: 'image/jpeg' });
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('images')
-        .getPublicUrl(filePath);
-
-      onChange(publicUrl);
-
-      toast({
-        title: 'Image updated',
-        description: 'The cropped image has been saved.',
-      });
-    } catch (error) {
-      console.error('Error saving cropped image:', error);
-      toast({
-        title: 'Save failed',
-        description: 'Failed to save cropped image. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   return (
     <div className="space-y-3">
       <label className="text-sm font-medium text-foreground">{label}</label>
@@ -139,24 +95,14 @@ export function ImageUpload({ value, onChange, label = 'Featured Image' }: Image
             alt="Preview"
             className="w-full h-48 object-cover rounded-lg border border-border"
           />
-          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-              type="button"
-              onClick={() => setIsEditorOpen(true)}
-              className="p-1.5 rounded-full bg-primary text-primary-foreground"
-              title="Edit image"
-            >
-              <Pencil size={16} />
-            </button>
-            <button
+          <button
               type="button"
               onClick={handleRemove}
-              className="p-1.5 rounded-full bg-destructive text-destructive-foreground"
+              className="absolute top-2 right-2 p-1.5 rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity"
               title="Remove image"
             >
               <X size={16} />
             </button>
-          </div>
         </div>
       ) : (
         <div
@@ -185,15 +131,6 @@ export function ImageUpload({ value, onChange, label = 'Featured Image' }: Image
         onChange={handleFileSelect}
         className="hidden"
       />
-
-      {value && (
-        <ImageEditor
-          imageUrl={value}
-          open={isEditorOpen}
-          onOpenChange={setIsEditorOpen}
-          onSave={handleEditSave}
-        />
-      )}
     </div>
   );
 }
