@@ -47,10 +47,6 @@ function HeroSection() {
                 Celebrating & Preserving{" "}
                 <span className="text-primary">Indian Culture</span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
-                Rith means cosmic rhythms, calling us to listen deeply — to the echoes of our ancestors, 
-                the voices around us and the unfolding possibilities before us.
-              </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button variant="hero" size="xl" asChild>
                   <Link to="/events">
@@ -69,8 +65,8 @@ function HeroSection() {
               <div className="relative z-10">
                 <img 
                   src={heroCulturalEventImage} 
-                  alt="Nataraja statue decorated with marigold garlands at cultural event" 
-                  className="rounded-2xl shadow-elevated w-full h-auto object-cover aspect-square"
+                  alt="Community members creating traditional Rangoli art with the message: Rith means cosmic rhythms, calling us to listen deeply to the echoes of our heritage, the voices around us and the possibilities before us" 
+                  className="rounded-2xl shadow-elevated w-full h-auto object-cover"
                 />
               </div>
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-primary/20 rounded-full blur-2xl" />
