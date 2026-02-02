@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Mail } from "lucide-react";
+import footerLogo from "@/assets/footer-logo.png";
 
 const footerLinks = {
   navigation: [
@@ -26,9 +27,9 @@ export function Footer() {
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-6">
               <img 
-                src="/favicon.png" 
+                src={footerLogo} 
                 alt="The Rith Initiative Logo" 
-                className="w-12 h-12 rounded-full object-cover"
+                className="w-12 h-12 object-contain"
               />
               <span className="font-heading text-xl font-semibold">
                 The Rith Initiative
