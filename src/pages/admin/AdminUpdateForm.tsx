@@ -16,6 +16,7 @@ interface UpdateFormData {
   description: string;
   media_url: string;
   media_type: 'image' | 'video' | 'link';
+  thumbnail_url: string;
   is_published: boolean;
 }
 
@@ -28,13 +29,16 @@ export default function AdminUpdateForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(isEditing);
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const thumbnailInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<UpdateFormData>({
     title: '',
     description: '',
     media_url: '',
     media_type: 'image',
+    thumbnail_url: '',
     is_published: false,
   });
 
@@ -56,6 +60,7 @@ export default function AdminUpdateForm() {
               description: data.description || '',
               media_url: data.media_url || '',
               media_type: (data.media_type as 'image' | 'video' | 'link') || 'image',
+              thumbnail_url: data.thumbnail_url || '',
               is_published: data.is_published || false,
             });
           }
@@ -82,27 +87,39 @@ export default function AdminUpdateForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isThumbnail = false) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type based on selected media type
-    if (formData.media_type === 'image' && !file.type.startsWith('image/')) {
+    // For thumbnail, always require image
+    if (isThumbnail && !file.type.startsWith('image/')) {
       toast({
         title: 'Invalid file type',
-        description: 'Please upload an image file.',
+        description: 'Please upload an image file for the thumbnail.',
         variant: 'destructive',
       });
       return;
     }
 
-    if (formData.media_type === 'video' && !file.type.startsWith('video/')) {
-      toast({
-        title: 'Invalid file type',
-        description: 'Please upload a video file.',
-        variant: 'destructive',
-      });
-      return;
+    // Validate file type based on selected media type (for non-thumbnail uploads)
+    if (!isThumbnail) {
+      if (formData.media_type === 'image' && !file.type.startsWith('image/')) {
+        toast({
+          title: 'Invalid file type',
+          description: 'Please upload an image file.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (formData.media_type === 'video' && !file.type.startsWith('video/')) {
+        toast({
+          title: 'Invalid file type',
+          description: 'Please upload a video file.',
+          variant: 'destructive',
+        });
+        return;
+      }
     }
 
     if (file.size > 50 * 1024 * 1024) {
@@ -114,7 +131,11 @@ export default function AdminUpdateForm() {
       return;
     }
 
-    setIsUploading(true);
+    if (isThumbnail) {
+      setIsUploadingThumbnail(true);
+    } else {
+      setIsUploading(true);
+    }
 
     try {
       const fileExt = file.name.split('.').pop();
@@ -131,7 +152,11 @@ export default function AdminUpdateForm() {
         .from('images')
         .getPublicUrl(filePath);
 
-      setFormData((prev) => ({ ...prev, media_url: publicUrl }));
+      if (isThumbnail) {
+        setFormData((prev) => ({ ...prev, thumbnail_url: publicUrl }));
+      } else {
+        setFormData((prev) => ({ ...prev, media_url: publicUrl }));
+      }
 
       toast({
         title: 'File uploaded',
@@ -145,9 +170,16 @@ export default function AdminUpdateForm() {
         variant: 'destructive',
       });
     } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+      if (isThumbnail) {
+        setIsUploadingThumbnail(false);
+        if (thumbnailInputRef.current) {
+          thumbnailInputRef.current.value = '';
+        }
+      } else {
+        setIsUploading(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       }
     }
   };
@@ -172,6 +204,7 @@ export default function AdminUpdateForm() {
         description: formData.description || null,
         media_url: formData.media_url || null,
         media_type: formData.media_type,
+        thumbnail_url: formData.thumbnail_url || null,
         is_published: formData.is_published,
         published_at: formData.is_published ? new Date().toISOString() : null,
         created_by: user?.id,
@@ -272,7 +305,7 @@ export default function AdminUpdateForm() {
                   type="button"
                   variant={formData.media_type === type ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setFormData((prev) => ({ ...prev, media_type: type, media_url: '' }))}
+                  onClick={() => setFormData((prev) => ({ ...prev, media_type: type, media_url: '', thumbnail_url: '' }))}
                   className="flex items-center gap-2"
                 >
                   {type === 'image' && <ImageIcon size={16} />}
@@ -345,10 +378,62 @@ export default function AdminUpdateForm() {
               ref={fileInputRef}
               type="file"
               accept={formData.media_type === 'video' ? 'video/*' : 'image/*'}
-              onChange={handleFileUpload}
+              onChange={(e) => handleFileUpload(e, false)}
               className="hidden"
             />
           </div>
+
+          {/* Thumbnail Upload for Links */}
+          {formData.media_type === 'link' && (
+            <div className="space-y-2">
+              <Label>Thumbnail Image (for preview)</Label>
+              {formData.thumbnail_url ? (
+                <div className="relative group">
+                  <img
+                    src={formData.thumbnail_url}
+                    alt="Thumbnail preview"
+                    className="w-full max-h-64 object-contain rounded-lg border border-border bg-secondary/30"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, thumbnail_url: '' }))}
+                    className="absolute top-2 right-2 p-1.5 rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => !isUploadingThumbnail && thumbnailInputRef.current?.click()}
+                  className={`w-full h-32 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 hover:bg-secondary/30 transition-colors ${isUploadingThumbnail ? 'cursor-wait' : ''}`}
+                >
+                  {isUploadingThumbnail ? (
+                    <>
+                      <Loader2 className="h-6 w-6 text-muted-foreground animate-spin" />
+                      <span className="text-sm text-muted-foreground">Uploading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        Click to upload preview image
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
+              <input
+                ref={thumbnailInputRef}
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFileUpload(e, true)}
+                className="hidden"
+              />
+              <p className="text-xs text-muted-foreground">
+                This image will be shown as a preview on the homepage
+              </p>
+            </div>
+          )}
 
           <div className="flex items-center gap-3 p-4 rounded-lg bg-secondary/30">
             <Switch
