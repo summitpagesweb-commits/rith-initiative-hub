@@ -114,19 +114,19 @@ export function PosterBook({ posters }: PosterBookProps) {
             
             {renderPosterPage(leftPoster, 'left')}
             
-            {/* Navigation - Previous */}
-            {canGoPrev && (
-              <button
-                onClick={prevSpread}
-                disabled={isFlipping}
-                className="absolute left-2 top-1/2 -translate-y-1/2 p-2 sm:p-3 rounded-full 
-                  bg-primary/10 hover:bg-primary/20 text-primary transition-all duration-200
-                  disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 z-10"
-                aria-label="Previous spread"
-              >
-                <ChevronLeft size={24} />
-              </button>
-            )}
+            {/* Navigation - Previous (always visible, disabled if no prev) */}
+            <button
+              onClick={prevSpread}
+              disabled={isFlipping || !canGoPrev}
+              className={`absolute left-2 top-1/2 -translate-y-1/2 p-2 sm:p-3 rounded-full 
+                transition-all duration-200 z-10
+                ${canGoPrev 
+                  ? 'bg-primary/10 hover:bg-primary/20 text-primary hover:scale-110' 
+                  : 'bg-muted/50 text-muted-foreground/30 cursor-not-allowed'}`}
+              aria-label="Previous spread"
+            >
+              <ChevronLeft size={24} />
+            </button>
           </div>
 
           {/* Right Page */}
@@ -143,35 +143,33 @@ export function PosterBook({ posters }: PosterBookProps) {
             
             {renderPosterPage(rightPoster, 'right')}
             
-            {/* Hover flip indicator */}
+            {/* Navigation - Next (always visible, disabled if no next) */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                nextSpread();
+              }}
+              disabled={isFlipping || !canGoNext}
+              className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 sm:p-3 rounded-full 
+                transition-all duration-200 z-10
+                ${canGoNext 
+                  ? 'bg-primary/10 hover:bg-primary/20 text-primary hover:scale-110' 
+                  : 'bg-muted/50 text-muted-foreground/30 cursor-not-allowed'}`}
+              aria-label="Next spread"
+            >
+              <ChevronRight size={24} />
+            </button>
+            
+            {/* Corner curl effect on hover - only when can go next */}
             {canGoNext && (
-              <>
-                {/* Page turn preview on hover */}
-                <div className="absolute inset-0 bg-gradient-to-l from-black/0 via-transparent to-transparent 
-                  group-hover:from-black/5 transition-all duration-300 pointer-events-none" />
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    nextSpread();
-                  }}
-                  disabled={isFlipping}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 sm:p-3 rounded-full 
-                    bg-primary/10 hover:bg-primary/20 text-primary transition-all duration-200
-                    disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 z-10"
-                  aria-label="Next spread"
-                >
-                  <ChevronRight size={24} />
-                </button>
-                {/* Corner curl effect on hover */}
-                <div className="absolute bottom-0 right-0 w-16 h-16 origin-bottom-right 
-                  transition-transform duration-300 group-hover:scale-110 pointer-events-none">
-                  <div className="absolute bottom-0 right-0 w-0 h-0 
-                    border-l-[30px] border-l-transparent 
-                    border-b-[30px] border-b-stone-200
-                    group-hover:border-l-[40px] group-hover:border-b-[40px]
-                    transition-all duration-300 shadow-sm" />
-                </div>
-              </>
+              <div className="absolute bottom-0 right-0 w-16 h-16 origin-bottom-right 
+                transition-transform duration-300 group-hover:scale-110 pointer-events-none">
+                <div className="absolute bottom-0 right-0 w-0 h-0 
+                  border-l-[30px] border-l-transparent 
+                  border-b-[30px] border-b-stone-200
+                  group-hover:border-l-[40px] group-hover:border-b-[40px]
+                  transition-all duration-300 shadow-sm" />
+              </div>
             )}
           </div>
         </div>
