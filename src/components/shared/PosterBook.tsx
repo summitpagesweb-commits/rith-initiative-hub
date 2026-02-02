@@ -89,7 +89,7 @@ export function PosterBook({ posters }: PosterBookProps) {
 
     return (
       <div className="h-full flex flex-col p-3 sm:p-4 md:p-6">
-        <div className="flex-1 flex items-center justify-center overflow-hidden rounded-lg">
+        <div className="flex-1 flex items-start justify-center overflow-hidden rounded-lg pt-2">
           <img
             src={poster.src}
             alt={poster.alt}
@@ -207,6 +207,11 @@ export function PosterBook({ posters }: PosterBookProps) {
             
             {renderPosterPage(leftPoster, 'left')}
             
+            {/* Page number - left */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs text-muted-foreground/50 font-body italic">
+              {currentSpread * 2 + 1}
+            </div>
+            
             {/* Navigation - Previous */}
             <div className="absolute left-2 top-1/2 -translate-y-1/2">
               <NavigationArrow 
@@ -230,6 +235,11 @@ export function PosterBook({ posters }: PosterBookProps) {
             <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-black/5 to-transparent" />
             
             {renderPosterPage(rightPoster, 'right')}
+            
+            {/* Page number - right */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs text-muted-foreground/50 font-body italic">
+              {currentSpread * 2 + 2}
+            </div>
             
             {/* Navigation - Next */}
             <div 
