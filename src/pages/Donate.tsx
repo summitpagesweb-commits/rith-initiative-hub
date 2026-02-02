@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, Gift, Users, BookOpen, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 
-// TODO: Replace with actual donation link when received
-const DONATION_LINK = "#";
+const DONATION_LINK = "https://www.paypal.com/donate?hosted_button_id=LDD3U2Q5B59QE";
 
 const impactAreas = [
   {
