@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Calendar, FileText, LogOut, Home, LayoutDashboard, Users, Mail } from 'lucide-react';
+import { Calendar, FileText, LogOut, Home, LayoutDashboard, Users, Mail, Bell, Image } from 'lucide-react';
 import logo from '@/assets/logo.png';
 
 export default function AdminDashboard() {
@@ -36,7 +36,9 @@ export default function AdminDashboard() {
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
     { href: '/admin/events', label: 'Events', icon: Calendar },
+    { href: '/admin/updates', label: 'Updates', icon: Bell },
     { href: '/admin/posts', label: 'Blog Posts', icon: FileText },
+    { href: '/admin/gallery', label: 'Home Gallery', icon: Image },
     { href: '/admin/users', label: 'Administrators', icon: Users },
     { href: '/admin/subscribers', label: 'Subscribers', icon: Mail },
   ];

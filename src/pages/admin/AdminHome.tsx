@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, FileText, Plus, ArrowRight } from 'lucide-react';
+import { Calendar, Bell, Plus, ArrowRight } from 'lucide-react';
 
 export default function AdminHome() {
   const [stats, setStats] = useState({
     upcomingEvents: 0,
     pastEvents: 0,
-    publishedPosts: 0,
-    draftPosts: 0,
+    publishedUpdates: 0,
+    draftUpdates: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -32,15 +32,15 @@ export default function AdminHome() {
           .lt('start_date', now)
           .eq('is_archived', false);
 
-        // Fetch posts stats
-        const { data: publishedPosts } = await supabase
-          .from('blog_posts')
+        // Fetch updates stats
+        const { data: publishedUpdates } = await supabase
+          .from('updates')
           .select('id', { count: 'exact' })
           .eq('is_published', true)
           .eq('is_archived', false);
 
-        const { data: draftPosts } = await supabase
-          .from('blog_posts')
+        const { data: draftUpdates } = await supabase
+          .from('updates')
           .select('id', { count: 'exact' })
           .eq('is_published', false)
           .eq('is_archived', false);
@@ -48,8 +48,8 @@ export default function AdminHome() {
         setStats({
           upcomingEvents: upcomingEvents?.length || 0,
           pastEvents: pastEvents?.length || 0,
-          publishedPosts: publishedPosts?.length || 0,
-          draftPosts: draftPosts?.length || 0,
+          publishedUpdates: publishedUpdates?.length || 0,
+          draftUpdates: draftUpdates?.length || 0,
         });
       } catch (error) {
         console.error('Error fetching stats:', error);
@@ -120,30 +120,30 @@ export default function AdminHome() {
         <Card className="border-border/50 shadow-soft">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary" />
-              Blog Posts
+              <Bell className="h-5 w-5 text-primary" />
+              Updates
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-2xl font-bold text-foreground">{stats.publishedPosts}</p>
+                <p className="text-2xl font-bold text-foreground">{stats.publishedUpdates}</p>
                 <p className="text-sm text-muted-foreground">Published</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{stats.draftPosts}</p>
+                <p className="text-2xl font-bold text-foreground">{stats.draftUpdates}</p>
                 <p className="text-sm text-muted-foreground">Drafts</p>
               </div>
             </div>
             <div className="flex gap-2">
               <Button variant="hero" size="sm" asChild className="flex-1">
-                <Link to="/admin/posts/new">
+                <Link to="/admin/updates/new">
                   <Plus size={16} />
-                  Add Post
+                  Add Update
                 </Link>
               </Button>
               <Button variant="outline" size="sm" asChild className="flex-1">
-                <Link to="/admin/posts">
+                <Link to="/admin/updates">
                   View All
                   <ArrowRight size={16} />
                 </Link>

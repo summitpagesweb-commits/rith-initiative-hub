@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Calendar, Heart, Users } from "lucide-react";
+import { ArrowRight, Calendar, Heart, Users, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
 import { SectionDivider } from "@/components/shared/SectionDivider";
-import { BlogDetailModal } from "@/components/shared/BlogDetailModal";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,13 +20,12 @@ interface Event {
   location: string | null;
 }
 
-interface BlogPost {
+interface Update {
   id: string;
   title: string;
-  content: string;
-  excerpt: string | null;
-  author_name: string | null;
-  category: string | null;
+  description: string | null;
+  media_url: string | null;
+  media_type: string | null;
   published_at: string | null;
   created_at: string;
 }
@@ -114,41 +112,38 @@ function VisionPreview() {
 }
 
 
-// Featured Blog Posts Section
-function BlogPreviewSection() {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
+// Latest Updates Section (shows Updates, not blog posts)
+function UpdatesPreviewSection() {
+  const [updates, setUpdates] = useState<Update[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showAll, setShowAll] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchUpdates = async () => {
       try {
         const { data, error } = await supabase
-          .from('blog_posts')
-          .select('id, title, content, excerpt, author_name, category, published_at, created_at')
+          .from('updates')
+          .select('id, title, description, media_url, media_type, published_at, created_at')
           .eq('is_published', true)
           .eq('is_archived', false)
-          .order('published_at', { ascending: false });
+          .order('published_at', { ascending: false })
+          .limit(3);
 
         if (error) throw error;
-        setPosts(data || []);
+        setUpdates(data || []);
       } catch (error) {
-        console.error('Error fetching posts:', error);
+        console.error('Error fetching updates:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchPosts();
+    fetchUpdates();
   }, []);
 
-  const displayedPosts = showAll ? posts : posts.slice(0, 3);
-
-  const handlePostClick = (post: BlogPost) => {
-    setSelectedPost(post);
-    setIsModalOpen(true);
+  const handleUpdateClick = (update: Update) => {
+    if (update.media_type === 'link' && update.media_url) {
+      window.open(update.media_url, '_blank', 'noopener,noreferrer');
+    }
   };
 
   return (
@@ -156,13 +151,7 @@ function BlogPreviewSection() {
       <div className="container-wide">
         <ScrollReveal variant="fade-up">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-            <SectionHeading title="Latest Updates" subtitle="Stories and news from our community" className="mb-0" />
-            {posts.length > 3 && (
-              <Button variant="subtle" onClick={() => setShowAll(!showAll)}>
-                {showAll ? 'Show Less' : 'View All Posts'}
-                <ArrowRight size={16} className={showAll ? 'rotate-90' : ''} />
-              </Button>
-            )}
+            <SectionHeading title="Latest Updates" subtitle="News and announcements from our community" className="mb-0" />
           </div>
         </ScrollReveal>
         
@@ -170,29 +159,47 @@ function BlogPreviewSection() {
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
-        ) : posts.length > 0 ? (
+        ) : updates.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {displayedPosts.map((post, index) => (
-              <ScrollReveal key={post.id} variant="fade-up" delay={index * 100}>
+            {updates.map((update, index) => (
+              <ScrollReveal key={update.id} variant="fade-up" delay={index * 100}>
                 <article 
-                  className="group bg-card rounded-2xl overflow-hidden border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300 cursor-pointer h-full"
-                  onClick={() => handlePostClick(post)}
+                  className={`group bg-card rounded-2xl overflow-hidden border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300 h-full ${update.media_type === 'link' ? 'cursor-pointer' : ''}`}
+                  onClick={() => handleUpdateClick(update)}
                 >
-                  <PlaceholderImage aspectRatio="video" label="Blog post image" className="rounded-none" />
+                  {/* Media Display */}
+                  {update.media_url && update.media_type === 'image' && (
+                    <div className="aspect-video overflow-hidden">
+                      <img 
+                        src={update.media_url} 
+                        alt={update.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
+                  {update.media_url && update.media_type === 'video' && (
+                    <div className="aspect-video overflow-hidden">
+                      <video 
+                        src={update.media_url}
+                        className="w-full h-full object-cover"
+                        controls
+                      />
+                    </div>
+                  )}
+                  {(!update.media_url || update.media_type === 'link') && (
+                    <PlaceholderImage aspectRatio="video" label="Update" className="rounded-none" />
+                  )}
+                  
                   <div className="p-6">
-                    {post.category && (
-                      <span className="text-xs font-medium text-primary uppercase tracking-wide">
-                        {post.category}
-                      </span>
-                    )}
-                    <p className="text-sm text-muted-foreground mt-1 mb-2">
-                      {format(new Date(post.published_at || post.created_at), 'MMMM d, yyyy')}
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {format(new Date(update.published_at || update.created_at), 'MMMM d, yyyy')}
                     </p>
-                    <h3 className="font-heading text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
-                      {post.title}
+                    <h3 className="font-heading text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors flex items-center gap-2">
+                      {update.title}
+                      {update.media_type === 'link' && <ExternalLink size={16} className="text-muted-foreground" />}
                     </h3>
-                    {post.excerpt && (
-                      <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">{post.excerpt}</p>
+                    {update.description && (
+                      <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">{update.description}</p>
                     )}
                   </div>
                 </article>
@@ -204,12 +211,6 @@ function BlogPreviewSection() {
             <p className="text-muted-foreground">No updates yet. Check back soon!</p>
           </div>
         )}
-
-        <BlogDetailModal 
-          post={selectedPost}
-          open={isModalOpen}
-          onOpenChange={setIsModalOpen}
-        />
       </div>
     </section>
   );
@@ -474,7 +475,7 @@ const Index = () => {
       <SectionDivider />
       <EventsPreviewSection />
       <SectionDivider />
-      <BlogPreviewSection />
+      <UpdatesPreviewSection />
       <SectionDivider />
       <GalleryPreview />
       <CTASection />

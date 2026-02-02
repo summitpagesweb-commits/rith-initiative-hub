@@ -20,6 +20,9 @@ import AdminEvents from "./pages/admin/AdminEvents";
 import AdminEventForm from "./pages/admin/AdminEventForm";
 import AdminPosts from "./pages/admin/AdminPosts";
 import AdminPostForm from "./pages/admin/AdminPostForm";
+import AdminUpdates from "./pages/admin/AdminUpdates";
+import AdminUpdateForm from "./pages/admin/AdminUpdateForm";
+import AdminGallery from "./pages/admin/AdminGallery";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminSubscribers from "./pages/admin/AdminSubscribers";
 
@@ -49,9 +52,13 @@ const App = () => (
               <Route path="events" element={<AdminEvents />} />
               <Route path="events/new" element={<AdminEventForm />} />
               <Route path="events/:id" element={<AdminEventForm />} />
+              <Route path="updates" element={<AdminUpdates />} />
+              <Route path="updates/new" element={<AdminUpdateForm />} />
+              <Route path="updates/:id" element={<AdminUpdateForm />} />
               <Route path="posts" element={<AdminPosts />} />
               <Route path="posts/new" element={<AdminPostForm />} />
               <Route path="posts/:id" element={<AdminPostForm />} />
+              <Route path="gallery" element={<AdminGallery />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="subscribers" element={<AdminSubscribers />} />
             </Route>
