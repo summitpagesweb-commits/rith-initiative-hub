@@ -432,6 +432,48 @@ export type Database = {
           },
         ]
       }
+      updates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_archived: boolean
+          is_published: boolean
+          media_type: string | null
+          media_url: string | null
+          published_at: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_archived?: boolean
+          is_published?: boolean
+          media_type?: string | null
+          media_url?: string | null
+          published_at?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_archived?: boolean
+          is_published?: boolean
+          media_type?: string | null
+          media_url?: string | null
+          published_at?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
