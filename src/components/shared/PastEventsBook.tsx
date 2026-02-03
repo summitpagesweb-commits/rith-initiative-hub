@@ -265,13 +265,6 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
                 {event.title}
               </h3>
 
-              {/* Media Button - at top */}
-              {hasMedia && (
-                <div onClick={(e) => e.stopPropagation()} className="mb-3">
-                  {renderMediaGallery(event)}
-                </div>
-              )}
-
               {/* Event Details */}
               <div className="space-y-1.5 text-xs sm:text-sm text-muted-foreground mb-3">
                 <div className="flex items-center gap-2">
@@ -291,6 +284,13 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
                   </div>
                 )}
               </div>
+
+              {/* Media Button - after event details */}
+              {hasMedia && (
+                <div onClick={(e) => e.stopPropagation()} className="mb-3">
+                  {renderMediaGallery(event)}
+                </div>
+              )}
 
               {/* Description */}
               {event.description && (
