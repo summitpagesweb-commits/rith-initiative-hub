@@ -46,7 +46,8 @@ function HeroSection() {
                 Celebrating & Preserving{" "}
                 <span className="text-primary">Indian Culture</span>
               </h1>
-              <div className="flex flex-col sm:flex-row gap-4">
+              {/* Buttons - hidden on mobile/tablet, shown on desktop */}
+              <div className="hidden lg:flex flex-col sm:flex-row gap-4">
                 <Button variant="hero" size="xl" asChild>
                   <Link to="/events">
                     Explore Events
@@ -70,6 +71,20 @@ function HeroSection() {
               </div>
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-primary/20 rounded-full blur-2xl" />
               <div className="absolute -top-6 -right-6 w-40 h-40 bg-accent/20 rounded-full blur-2xl" />
+            </div>
+          </ScrollReveal>
+          {/* Buttons - shown on mobile/tablet below image, hidden on desktop */}
+          <ScrollReveal variant="fade-up" delay={300} className="lg:hidden lg:col-span-2">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button variant="hero" size="xl" asChild>
+                <Link to="/events">
+                  Explore Events
+                  <ArrowRight size={20} />
+                </Link>
+              </Button>
+              <Button variant="heroOutline" size="xl" asChild>
+                <Link to="/donate">Support Our Mission</Link>
+              </Button>
             </div>
           </ScrollReveal>
         </div>
