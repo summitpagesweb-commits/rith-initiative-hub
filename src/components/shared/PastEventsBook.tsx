@@ -9,6 +9,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MediaItem {
   id: string;
@@ -37,9 +45,11 @@ interface PastEventsBookProps {
 }
 
 export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsBookProps) {
+  const isMobile = useIsMobile();
   const [currentSpread, setCurrentSpread] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
   const [flippedCards, setFlippedCards] = useState<Set<number>>(new Set());
+  const [mobileFlippedCards, setMobileFlippedCards] = useState<Set<string>>(new Set());
 
   // Group events into spreads (2 per spread)
   const spreads: PastEvent[][] = [];
@@ -95,6 +105,18 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
         next.delete(cardIndex);
       } else {
         next.add(cardIndex);
+      }
+      return next;
+    });
+  };
+
+  const toggleMobileCardFlip = (eventId: string) => {
+    setMobileFlippedCards(prev => {
+      const next = new Set(prev);
+      if (next.has(eventId)) {
+        next.delete(eventId);
+      } else {
+        next.add(eventId);
       }
       return next;
     });
@@ -399,7 +421,140 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
     );
   }
 
-  return (
+  // Mobile Carousel View
+  const renderMobileView = () => (
+    <div className="w-full px-2">
+      <Carousel
+        opts={{
+          align: "center",
+          loop: false,
+        }}
+        className="w-full"
+      >
+        <CarouselContent className="-ml-2">
+          {events.map((event) => {
+            const isFlipped = mobileFlippedCards.has(event.id);
+            const media = eventMedia[event.id];
+            const hasMedia = media && media.length > 0;
+
+            return (
+              <CarouselItem key={event.id} className="pl-2 basis-[85%]">
+                <div 
+                  className="perspective-1000 cursor-pointer"
+                  onClick={() => toggleMobileCardFlip(event.id)}
+                >
+                  <div 
+                    className="relative w-full transition-transform duration-500"
+                    style={{
+                      transformStyle: 'preserve-3d',
+                      transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                    }}
+                  >
+                    {/* Front of card */}
+                    <div 
+                      className="w-full bg-gradient-to-br from-white via-stone-50 to-stone-100 rounded-xl shadow-lg border border-stone-200 p-4"
+                      style={{ backfaceVisibility: 'hidden' }}
+                    >
+                      {event.featured_image_url ? (
+                        <div className="aspect-[3/4] w-full flex items-center justify-center overflow-hidden rounded-lg bg-secondary/20 mb-3">
+                          <img
+                            src={event.featured_image_url}
+                            alt={event.title}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <div className="aspect-[3/4] w-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg mb-3">
+                          <div className="text-center p-4">
+                            <Calendar className="w-12 h-12 mx-auto mb-3 text-primary/40" />
+                            <p className="text-muted-foreground font-heading">{event.title}</p>
+                          </div>
+                        </div>
+                      )}
+                      <div className="text-center">
+                        <p className="text-sm font-semibold text-foreground truncate">{event.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {format(new Date(event.start_date), 'MMMM d, yyyy')}
+                        </p>
+                        <p className="text-xs text-primary mt-1 italic">Tap to see details →</p>
+                      </div>
+                    </div>
+
+                    {/* Back of card */}
+                    <div 
+                      className="absolute inset-0 w-full bg-gradient-to-br from-white via-stone-50 to-stone-100 rounded-xl shadow-lg border border-stone-200 p-4 overflow-y-auto"
+                      style={{ 
+                        backfaceVisibility: 'hidden',
+                        transform: 'rotateY(180deg)',
+                      }}
+                    >
+                      <div className="flex flex-col h-full">
+                        {event.category && (
+                          <span className="inline-block self-start px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium mb-2">
+                            {event.category}
+                          </span>
+                        )}
+                        
+                        <h3 className="font-heading text-base font-semibold text-foreground mb-3">
+                          {event.title}
+                        </h3>
+
+                        <div className="space-y-2 text-sm text-muted-foreground mb-3">
+                          <div className="flex items-center gap-2">
+                            <Calendar size={14} className="text-primary flex-shrink-0" />
+                            <span>{format(new Date(event.start_date), 'MMMM d, yyyy')}</span>
+                          </div>
+                          {event.time && (
+                            <div className="flex items-center gap-2">
+                              <Clock size={14} className="text-primary flex-shrink-0" />
+                              <span>{event.time}</span>
+                            </div>
+                          )}
+                          {event.location && (
+                            <div className="flex items-start gap-2">
+                              <MapPin size={14} className="text-primary flex-shrink-0 mt-0.5" />
+                              <span>{event.location}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {hasMedia && (
+                          <div onClick={(e) => e.stopPropagation()} className="mb-3">
+                            {renderMediaGallery(event)}
+                          </div>
+                        )}
+
+                        {event.description && (
+                          <div className="flex-1 overflow-y-auto mb-3">
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                              {event.description}
+                            </p>
+                          </div>
+                        )}
+
+                        <p className="text-xs text-primary text-center italic mt-auto">Tap to flip back</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CarouselItem>
+            );
+          })}
+        </CarouselContent>
+        <div className="flex justify-center items-center gap-4 mt-4">
+          <CarouselPrevious className="static translate-y-0" />
+          <CarouselNext className="static translate-y-0" />
+        </div>
+      </Carousel>
+      
+      <p className="text-center mt-4 text-muted-foreground text-xs">
+        Swipe to browse • Tap card to flip
+      </p>
+    </div>
+  );
+
+  // Desktop Book View
+  const renderDesktopView = () => (
     <div className="relative w-full max-w-5xl mx-auto">
       {/* Book Container */}
       <div className="relative">
@@ -410,7 +565,7 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
         <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-3 sm:w-4 md:w-6 bg-gradient-to-r from-stone-400 via-stone-300 to-stone-400 z-20 rounded-sm shadow-md" />
         
         {/* Book Pages Container - lighter cream/white tones */}
-        <div className={`relative flex bg-gradient-to-b from-stone-50 to-stone-100/80 rounded-lg shadow-2xl border-2 sm:border-4 md:border-8 border-stone-300 min-h-[340px] sm:min-h-[550px] md:min-h-[650px] transition-opacity duration-200 ${isFlipping ? 'opacity-90' : 'opacity-100'}`}>
+        <div className={`relative flex bg-gradient-to-b from-stone-50 to-stone-100/80 rounded-lg shadow-2xl border-4 md:border-8 border-stone-300 min-h-[550px] md:min-h-[650px] transition-opacity duration-200 ${isFlipping ? 'opacity-90' : 'opacity-100'}`}>
           {/* Left Page */}
           <div className="w-1/2 bg-gradient-to-br from-white via-stone-50 to-stone-100/50 border-r border-stone-200/50 relative overflow-hidden">
             {/* Page texture lines */}
@@ -513,4 +668,6 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
       </div>
     </div>
   );
+
+  return isMobile ? renderMobileView() : renderDesktopView();
 }
