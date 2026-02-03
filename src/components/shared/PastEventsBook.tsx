@@ -214,12 +214,12 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
         >
           {/* Front of card - Featured Image/Poster */}
           <div 
-            className="absolute inset-0 backface-hidden p-3 sm:p-4 md:p-6"
+            className="absolute inset-0 backface-hidden p-2 sm:p-4 md:p-6"
             style={{ backfaceVisibility: 'hidden' }}
           >
           <div className="h-full flex flex-col">
               {event.featured_image_url ? (
-                <div className="flex-1 flex items-start justify-center overflow-hidden rounded-lg bg-secondary/20 p-2">
+                <div className="flex-1 flex items-start justify-center overflow-hidden rounded-lg bg-secondary/20 p-1 sm:p-2">
                   <img
                     src={event.featured_image_url}
                     alt={event.title}
@@ -228,25 +228,25 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
                 </div>
               ) : (
                 <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg">
-                  <div className="text-center p-4">
-                    <Calendar className="w-12 h-12 mx-auto mb-3 text-primary/40" />
-                    <p className="text-muted-foreground font-heading">{event.title}</p>
+                  <div className="text-center p-2 sm:p-4">
+                    <Calendar className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-2 sm:mb-3 text-primary/40" />
+                    <p className="text-muted-foreground font-heading text-xs sm:text-base">{event.title}</p>
                   </div>
                 </div>
               )}
-              <div className={`mt-3 pt-3 border-t border-border/30 ${side === 'left' ? 'text-left' : 'text-right'}`}>
-                <p className="text-xs sm:text-sm font-medium text-foreground truncate">{event.title}</p>
-                <p className="text-xs text-muted-foreground">
+              <div className={`mt-1.5 sm:mt-3 pt-1.5 sm:pt-3 border-t border-border/30 ${side === 'left' ? 'text-left' : 'text-right'}`}>
+                <p className="text-[10px] sm:text-sm font-medium text-foreground truncate">{event.title}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">
                   {format(new Date(event.start_date), 'MMMM d, yyyy')}
                 </p>
-                <p className="text-xs text-primary mt-1 italic">Click to see details →</p>
+                <p className="text-[10px] sm:text-xs text-primary mt-0.5 sm:mt-1 italic">Click to see details →</p>
               </div>
             </div>
           </div>
 
           {/* Back of card - Event Details */}
           <div 
-            className="absolute inset-0 backface-hidden p-3 sm:p-4 md:p-6 rotate-y-180"
+            className="absolute inset-0 backface-hidden p-2 sm:p-4 md:p-6 rotate-y-180"
             style={{ 
               backfaceVisibility: 'hidden',
               transform: 'rotateY(180deg)',
@@ -255,31 +255,31 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
             <div className="h-full flex flex-col overflow-hidden">
               {/* Event Category Badge */}
               {event.category && (
-                <span className="inline-block self-start px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium mb-2">
+                <span className="inline-block self-start px-1.5 sm:px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] sm:text-xs font-medium mb-1 sm:mb-2">
                   {event.category}
                 </span>
               )}
               
               {/* Event Title */}
-              <h3 className="font-heading text-base sm:text-lg font-semibold text-foreground mb-2 line-clamp-2">
+              <h3 className="font-heading text-xs sm:text-lg font-semibold text-foreground mb-1 sm:mb-2 line-clamp-2">
                 {event.title}
               </h3>
 
               {/* Event Details */}
-              <div className="space-y-1.5 text-xs sm:text-sm text-muted-foreground mb-3">
-                <div className="flex items-center gap-2">
-                  <Calendar size={14} className="text-primary flex-shrink-0" />
+              <div className="space-y-0.5 sm:space-y-1.5 text-[10px] sm:text-sm text-muted-foreground mb-1.5 sm:mb-3">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Calendar size={10} className="text-primary flex-shrink-0 sm:w-[14px] sm:h-[14px]" />
                   <span>{format(new Date(event.start_date), 'MMMM d, yyyy')}</span>
                 </div>
                 {event.time && (
-                  <div className="flex items-center gap-2">
-                    <Clock size={14} className="text-primary flex-shrink-0" />
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Clock size={10} className="text-primary flex-shrink-0 sm:w-[14px] sm:h-[14px]" />
                     <span>{event.time}</span>
                   </div>
                 )}
                 {event.location && (
-                  <div className="flex items-start gap-2">
-                    <MapPin size={14} className="text-primary flex-shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-1 sm:gap-2">
+                    <MapPin size={10} className="text-primary flex-shrink-0 mt-0.5 sm:w-[14px] sm:h-[14px]" />
                     <span className="line-clamp-2">{event.location}</span>
                   </div>
                 )}
@@ -287,22 +287,22 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
 
               {/* Media Button - after event details */}
               {hasMedia && (
-                <div onClick={(e) => e.stopPropagation()} className="mb-3">
+                <div onClick={(e) => e.stopPropagation()} className="mb-1.5 sm:mb-3">
                   {renderMediaGallery(event)}
                 </div>
               )}
 
               {/* Description */}
               {event.description && (
-                <div className="flex-1 overflow-y-auto mb-3">
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                <div className="flex-1 overflow-y-auto mb-1.5 sm:mb-3">
+                  <p className="text-[10px] sm:text-sm text-muted-foreground leading-relaxed">
                     {event.description}
                   </p>
                 </div>
               )}
 
               {/* Flip back hint - always at bottom */}
-              <p className="text-xs text-primary text-center italic mt-auto">Click to flip back</p>
+              <p className="text-[10px] sm:text-xs text-primary text-center italic mt-auto">Click to flip back</p>
             </div>
           </div>
         </div>
@@ -410,7 +410,7 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
         <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-3 sm:w-4 md:w-6 bg-gradient-to-r from-stone-400 via-stone-300 to-stone-400 z-20 rounded-sm shadow-md" />
         
         {/* Book Pages Container - lighter cream/white tones */}
-        <div className={`relative flex bg-gradient-to-b from-stone-50 to-stone-100/80 rounded-lg shadow-2xl border-4 sm:border-6 md:border-8 border-stone-300 min-h-[450px] sm:min-h-[550px] md:min-h-[650px] transition-opacity duration-200 ${isFlipping ? 'opacity-90' : 'opacity-100'}`}>
+        <div className={`relative flex bg-gradient-to-b from-stone-50 to-stone-100/80 rounded-lg shadow-2xl border-2 sm:border-4 md:border-8 border-stone-300 min-h-[340px] sm:min-h-[550px] md:min-h-[650px] transition-opacity duration-200 ${isFlipping ? 'opacity-90' : 'opacity-100'}`}>
           {/* Left Page */}
           <div className="w-1/2 bg-gradient-to-br from-white via-stone-50 to-stone-100/50 border-r border-stone-200/50 relative overflow-hidden">
             {/* Page texture lines */}
