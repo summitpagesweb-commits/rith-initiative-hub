@@ -3,11 +3,9 @@ import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
 import { SectionDivider } from "@/components/shared/SectionDivider";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
-import { PosterBook } from "@/components/shared/PosterBook";
-import diwaliPoster2025 from "@/assets/diwali-poster-2025.jpg";
-import diwaliPoster2024 from "@/assets/diwali-poster-2024.png";
+import { PastEventsBook } from "@/components/shared/PastEventsBook";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Clock, ArrowRight, ChevronDown, ExternalLink, Image } from "lucide-react";
+import { Calendar, MapPin, Clock, ArrowRight, ExternalLink, Image } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -46,7 +44,6 @@ export default function Events() {
   const [pastEvents, setPastEvents] = useState<Event[]>([]);
   const [eventMedia, setEventMedia] = useState<Record<string, MediaItem[]>>({});
   const [isLoading, setIsLoading] = useState(true);
-  const [showAllPast, setShowAllPast] = useState(false);
   const [expandedDescriptions, setExpandedDescriptions] = useState<Set<string>>(new Set());
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxMedia, setLightboxMedia] = useState<MediaItem[]>([]);
@@ -124,7 +121,7 @@ export default function Events() {
     fetchEvents();
   }, []);
 
-  const displayedPastEvents = showAllPast ? pastEvents : pastEvents.slice(0, 2);
+  
 
   const toggleDescription = (eventId: string) => {
     setExpandedDescriptions(prev => {
@@ -351,13 +348,14 @@ export default function Events() {
 
       <SectionDivider />
 
-      {/* Past Events */}
-      <section className="section-padding bg-secondary/30">
+      {/* Past Events - Book Style Gallery */}
+      <section className="section-padding bg-secondary/20">
         <div className="container-wide">
           <ScrollReveal variant="fade-up">
             <SectionHeading 
               title="Past Events"
-              subtitle="Highlights from our previous programs and celebrations"
+              subtitle="Flip through our past celebrations and memories"
+              centered
             />
           </ScrollReveal>
           
@@ -365,113 +363,15 @@ export default function Events() {
             <div className="flex justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
-          ) : pastEvents.length > 0 ? (
-            <>
-              <div className="grid md:grid-cols-2 gap-8">
-                {displayedPastEvents.map((event, index) => (
-                  <ScrollReveal key={event.id} variant="fade-up" delay={index * 100}>
-                    <div className="bg-card rounded-2xl overflow-hidden border border-border/50 shadow-soft h-full">
-                      {event.featured_image_url ? (
-                        <div className="w-full bg-secondary/30 overflow-hidden flex items-center justify-center p-4">
-                          <img 
-                            src={event.featured_image_url} 
-                            alt={event.title}
-                            className="w-full h-auto max-h-[400px] object-contain rounded-lg"
-                          />
-                        </div>
-                      ) : (
-                        <PlaceholderImage 
-                          aspectRatio="video" 
-                          label={`${event.title} photos`}
-                          className="rounded-none"
-                        />
-                      )}
-                      <div className="p-6">
-                        <div className="flex items-center gap-2 text-sm text-primary font-medium mb-2">
-                          <Calendar size={14} />
-                          {format(new Date(event.start_date), 'MMMM d, yyyy')}
-                        </div>
-                        <h3 className="font-heading text-xl font-semibold text-foreground mb-2">
-                          {event.title}
-                        </h3>
-                        {event.location && (
-                          <p className="text-muted-foreground text-sm mb-3">
-                            <MapPin size={14} className="inline mr-1" />
-                            <span className="break-words">{event.location}</span>
-                          </p>
-                        )}
-                        {event.description && (
-                          <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3 break-words mb-4">
-                            {event.description}
-                          </p>
-                        )}
-                        {renderMediaGallery(event.id, event.title)}
-                      </div>
-                    </div>
-                  </ScrollReveal>
-                ))}
-              </div>
-              {!showAllPast && pastEvents.length > 2 && (
-                <div className="text-center mt-8">
-                  <Button variant="subtle" onClick={() => setShowAllPast(true)}>
-                    Show More Events
-                    <ChevronDown size={16} />
-                  </Button>
-                </div>
-              )}
-            </>
           ) : (
-            <ScrollReveal variant="fade-up">
-              <div className="text-center py-12 bg-card rounded-2xl border border-border/50">
-                <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                <p className="text-muted-foreground">No past events to display.</p>
-              </div>
+            <ScrollReveal variant="fade-up" delay={100}>
+              <PastEventsBook 
+                events={pastEvents}
+                eventMedia={eventMedia}
+                onMediaClick={openMediaLightbox}
+              />
             </ScrollReveal>
           )}
-        </div>
-      </section>
-
-      <SectionDivider />
-
-      {/* Event Posters Section - Book Style Gallery */}
-      <section className="section-padding bg-secondary/20">
-        <div className="container-wide">
-          <ScrollReveal variant="fade-up">
-            <SectionHeading 
-              title="Event Posters"
-              subtitle="Flip through our festival memories"
-              centered
-            />
-          </ScrollReveal>
-          
-          <ScrollReveal variant="fade-up" delay={100}>
-            <PosterBook 
-              posters={[
-                {
-                  src: diwaliPoster2025,
-                  alt: "Diwali Music & Arts Festival 2025 - October 18 at Virginia Museum of History & Culture",
-                  year: "2025",
-                  title: "Diwali Music & Arts Festival"
-                },
-                {
-                  src: diwaliPoster2024,
-                  alt: "Diwali Music and Arts Festival 2024 - October 26 at Lewis Ginter Botanical Garden",
-                  year: "2024",
-                  title: "Diwali Music & Arts Festival"
-                },
-                {
-                  src: "",
-                  alt: "Coming soon",
-                  year: "",
-                  title: ""
-                }
-              ]}
-            />
-          </ScrollReveal>
-          
-          <div className="text-center mt-8 text-muted-foreground text-sm">
-            <p>Click on the right page or use the arrows to flip through</p>
-          </div>
         </div>
       </section>
 
