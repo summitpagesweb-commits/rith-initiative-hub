@@ -294,15 +294,18 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
                 </div>
               )}
 
+              {/* Spacer to push content to bottom */}
+              <div className="flex-1" />
+
               {/* Media Button */}
               {hasMedia && (
-                <div onClick={(e) => e.stopPropagation()}>
+                <div onClick={(e) => e.stopPropagation()} className="mb-2">
                   {renderMediaGallery(event)}
                 </div>
               )}
 
-              {/* Flip back hint */}
-              <p className="text-xs text-primary mt-2 text-center italic">Click to flip back</p>
+              {/* Flip back hint - always at bottom */}
+              <p className="text-xs text-primary text-center italic mt-auto">Click to flip back</p>
             </div>
           </div>
         </div>
