@@ -46,6 +46,9 @@ function HeroSection() {
                 Celebrating & Preserving{" "}
                 <span className="text-primary">Indian Culture</span>
               </h1>
+              <p className="text-sm md:text-base text-muted-foreground italic">
+                Through arts, stories and community
+              </p>
               {/* Buttons - hidden on mobile/tablet, shown on desktop */}
               <div className="hidden lg:flex flex-col sm:flex-row gap-4">
                 <Button variant="hero" size="xl" asChild>
