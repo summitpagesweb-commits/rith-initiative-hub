@@ -34,15 +34,15 @@ interface Update {
 // Hero Section
 function HeroSection() {
   return (
-    <section className="relative min-h-[90vh] flex items-center bg-gradient-to-b from-background to-secondary/30">
-      <div className="container-wide py-20 md:py-32">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+    <section className="relative min-h-[85vh] md:min-h-[90vh] flex items-center bg-gradient-to-b from-background to-secondary/30">
+      <div className="container-wide py-12 md:py-20 lg:py-32">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           <ScrollReveal variant="fade-up">
-            <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+            <div className="space-y-4 md:space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-primary/10 text-primary text-xs md:text-sm font-medium">
                 501(c)(3) Nonprofit Organization
               </div>
-              <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold text-foreground leading-tight">
+              <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold text-foreground leading-tight">
                 Celebrating & Preserving{" "}
                 <span className="text-primary">Indian Culture</span>
               </h1>
@@ -101,7 +101,7 @@ function VisionPreview() {
   return (
     <section className="section-padding bg-secondary/30">
       <div className="container-wide">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           <ScrollReveal variant="slide-left" className="order-2 lg:order-1">
             <img 
               src={communityGatheringImage} 
@@ -110,7 +110,7 @@ function VisionPreview() {
             />
           </ScrollReveal>
           <ScrollReveal variant="slide-right" className="order-1 lg:order-2">
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               <SectionHeading title="Our Vision" subtitle="Art as a bridge for connection" />
               <p className="text-muted-foreground leading-relaxed">
                 Our vision is a world where art nurtures connection — bridging cultures, generations, 
@@ -169,7 +169,7 @@ function UpdatesPreviewSection() {
     <section className="section-padding bg-secondary/30">
       <div className="container-wide">
         <ScrollReveal variant="fade-up">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-8 md:mb-12">
             <SectionHeading title="Latest Updates" subtitle="News and announcements from our community" className="mb-0" />
           </div>
         </ScrollReveal>
@@ -294,7 +294,7 @@ function EventsPreviewSection() {
   return (
     <section className="section-padding">
       <div className="container-wide">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           <ScrollReveal variant="slide-left">
             <div>
               <SectionHeading title="Upcoming Events" subtitle="Join us for cultural celebrations and community gatherings" />
@@ -393,10 +393,10 @@ function CTASection() {
     <section className="section-padding bg-foreground text-background">
       <div className="container-narrow text-center">
         <ScrollReveal variant="fade-up">
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-semibold mb-6">
+          <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-semibold mb-4">
             Support Our Mission
           </h2>
-          <p className="text-background/70 text-lg md:text-xl max-w-2xl mx-auto mb-8 leading-relaxed">
+          <p className="text-background/70 text-base md:text-lg max-w-2xl mx-auto mb-6 leading-relaxed">
             Your contribution helps us continue sharing Indian culture and traditions with 
             communities across Virginia. Every donation makes a difference.
           </p>
