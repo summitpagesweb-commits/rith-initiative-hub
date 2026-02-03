@@ -217,13 +217,13 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
             className="absolute inset-0 backface-hidden p-3 sm:p-4 md:p-6"
             style={{ backfaceVisibility: 'hidden' }}
           >
-            <div className="h-full flex flex-col">
+          <div className="h-full flex flex-col">
               {event.featured_image_url ? (
-                <div className="flex-1 flex items-start justify-center overflow-hidden rounded-lg pt-2">
+                <div className="flex-1 flex items-start justify-center overflow-hidden rounded-lg bg-secondary/20 p-2">
                   <img
                     src={event.featured_image_url}
                     alt={event.title}
-                    className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-md"
+                    className="w-auto h-full max-w-full object-contain rounded-lg shadow-md"
                   />
                 </div>
               ) : (
