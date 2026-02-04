@@ -108,13 +108,13 @@ export default function About() {
       {/* Story Section */}
       <section className="section-padding bg-secondary/30">
         <div className="container-wide">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-stretch">
-          <ScrollReveal variant="slide-left" className="order-2 lg:order-1 h-full">
-            <div className="h-full min-h-[300px] lg:min-h-0">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+          <ScrollReveal variant="slide-left" className="order-2 lg:order-1">
+            <div>
               <img 
                 src={ourStoryFoundingImage} 
                 alt="Women in colorful sarees at cultural event"
-                className="rounded-2xl shadow-soft w-full h-full object-cover"
+                className="rounded-2xl shadow-soft w-full h-auto object-cover"
               />
             </div>
           </ScrollReveal>
