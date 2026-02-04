@@ -113,8 +113,7 @@ function VisionPreview() {
             <div className="space-y-4 md:space-y-6">
               <SectionHeading title="Our Vision" subtitle="Art as a bridge for connection" />
               <p className="text-muted-foreground leading-relaxed">
-                Our vision is a world where art nurtures connection — bridging cultures, generations, 
-                and ideas — fostering creativity, sustainability, and conscious living in harmony with the earth.
+                A world where art nurtures connection—bridging cultures, generations, and ideas—while fostering creativity, sustainability, and conscious living.
               </p>
               <Button variant="subtle" size="lg" asChild>
                 <Link to="/about">
