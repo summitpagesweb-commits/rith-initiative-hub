@@ -222,7 +222,7 @@ export default function Events() {
               </h1>
             </ScrollReveal>
             <ScrollReveal variant="fade-up" delay={100}>
-              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+              <p className="text-base text-muted-foreground leading-relaxed italic">
                 Join us for cultural celebrations, educational workshops, and community gatherings 
                 that bring the beauty of Indian heritage to life.
               </p>

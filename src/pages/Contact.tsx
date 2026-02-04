@@ -77,7 +77,7 @@ export default function Contact() {
               </h1>
             </ScrollReveal>
             <ScrollReveal variant="fade-up" delay={100}>
-              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+              <p className="text-base text-muted-foreground leading-relaxed italic">
                 Have questions about our programs? Want to get involved? We'd love to hear from you.
               </p>
             </ScrollReveal>

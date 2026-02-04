@@ -50,7 +50,7 @@ export default function Donate() {
               </h1>
             </ScrollReveal>
             <ScrollReveal variant="fade-up" delay={200}>
-              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+              <p className="text-base text-muted-foreground leading-relaxed italic">
                 Your generous contribution helps us share the beauty of Indian culture with communities across Virginia.
                 Every donation makes a lasting impact.
               </p>
