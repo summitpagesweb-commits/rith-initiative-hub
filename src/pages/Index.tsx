@@ -43,7 +43,7 @@ function HeroSection() {
                 501(c)(3) Nonprofit Organization
               </div>
               <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold text-foreground leading-tight">
-                Celebrating & Preserving{" "}
+                Exploring & Celebrating{" "}
                 <span className="text-primary">Indian Culture</span>
               </h1>
               <p className="text-sm md:text-base text-muted-foreground italic">
