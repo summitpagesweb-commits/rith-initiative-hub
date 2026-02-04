@@ -31,7 +31,7 @@ function HeroSection() {
             <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground mb-6">
               Our <span className="text-primary">Stories</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+            <p className="text-base text-muted-foreground leading-relaxed italic">
               Discover the latest news, updates, and inspiring stories from The Rith Initiative 
               community. Stay connected with our cultural journey.
             </p>

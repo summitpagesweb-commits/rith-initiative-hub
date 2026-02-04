@@ -49,7 +49,7 @@ export default function About() {
               </h1>
             </ScrollReveal>
             <ScrollReveal variant="fade-up" delay={100}>
-              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+              <p className="text-base text-muted-foreground leading-relaxed italic">
                 We are a 501(c)(3) nonprofit exploring and celebrating living Indian culture 
                 through community events, arts, and programming in Virginia.
               </p>

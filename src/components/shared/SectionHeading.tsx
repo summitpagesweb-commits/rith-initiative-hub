@@ -17,7 +17,7 @@ export function SectionHeading({
         {title}
       </h2>
       {subtitle && (
-        <p className={`text-base md:text-lg text-muted-foreground max-w-2xl ${centered ? "mx-auto" : ""}`}>
+        <p className={`text-base text-muted-foreground italic max-w-2xl ${centered ? "mx-auto" : ""}`}>
           {subtitle}
         </p>
       )}
