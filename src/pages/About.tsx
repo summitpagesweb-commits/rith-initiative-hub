@@ -72,20 +72,19 @@ export default function About() {
                 />
                 <div className="space-y-6 text-muted-foreground leading-relaxed">
                   <p>
-                    Rith Initiative exists to preserve, share, and evolve Indian culture through 
-                    the arts. We believe creativity is a bridge — connecting generations, fostering 
-                    understanding, and deepening a sense of belonging.
+                    Rith Initiative exists to explore, share, and grow Indian culture through 
+                    the arts. We see creativity as a bridge that connects generations and 
+                    geographies, fostering understanding and a deeper sense of belonging.
                   </p>
                   <p>
                     Our mission is to create spaces where Indian traditions meet contemporary 
-                    expression, inviting artists and audiences alike to explore heritage with 
-                    openness and curiosity. Through exhibitions, performances, storytelling, and 
-                    community engagement, we aim to spark dialogue, nurture collaboration, and 
-                    celebrate the many ways culture continues to grow and transform.
+                    expression, inviting artists and audiences of all ages to engage with 
+                    heritage with openness and curiosity.
                   </p>
                   <p>
-                    At the heart of our work is the conviction that art can shape more connected, 
-                    compassionate communities — rhythm by rhythm, story by story.
+                    Through exhibitions, performances, storytelling, and community engagement, 
+                    we spark dialogue, nurture collaboration, and celebrate the many ways 
+                    culture continues to evolve — rhythm by rhythm, story by story.
                   </p>
                 </div>
               </div>
