@@ -30,10 +30,15 @@ const values = [
   }
 ];
 
-const team = [
-  { name: "Ruchi Gupta", role: "Founder & Board Member" },
-  { name: "Prabir Gupta", role: "Founder & Board Member" },
-  { name: "Priti Patil", role: "Advisory" },
+const boardMembers = [
+  { name: "Ruchi Gupta", role: "President" },
+  { name: "Prabir Mehta", role: "Vice President" },
+  { name: "Sumeet Gupta", role: "Treasurer" },
+];
+
+const advisoryMembers = [
+  { name: "Priti Patil" },
+  { name: "Niraj Verma" },
 ];
 
 export default function About() {
@@ -203,22 +208,52 @@ export default function About() {
               centered
             />
           </ScrollReveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
-            {team.map((member, index) => (
-              <ScrollReveal key={index} variant="fade-up" delay={index * 100}>
-                <div className="text-center">
-                  <PlaceholderImage 
-                    aspectRatio="square" 
-                    label={member.name}
-                    className="rounded-2xl mb-4 shadow-soft"
-                  />
-                  <h4 className="font-heading text-lg font-semibold text-foreground">
-                    {member.name}
-                  </h4>
-                  <p className="text-muted-foreground text-sm">{member.role}</p>
-                </div>
-              </ScrollReveal>
-            ))}
+          
+          {/* Board */}
+          <div className="mb-12">
+            <ScrollReveal variant="fade-up">
+              <h3 className="font-heading text-xl font-semibold text-foreground text-center mb-8">Board</h3>
+            </ScrollReveal>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
+              {boardMembers.map((member, index) => (
+                <ScrollReveal key={index} variant="fade-up" delay={index * 100}>
+                  <div className="text-center">
+                    <PlaceholderImage 
+                      aspectRatio="square" 
+                      label={member.name}
+                      className="rounded-2xl mb-4 shadow-soft"
+                    />
+                    <h4 className="font-heading text-lg font-semibold text-foreground">
+                      {member.name}
+                    </h4>
+                    <p className="text-muted-foreground text-sm">{member.role}</p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+
+          {/* Advisory */}
+          <div>
+            <ScrollReveal variant="fade-up">
+              <h3 className="font-heading text-xl font-semibold text-foreground text-center mb-8">Advisory</h3>
+            </ScrollReveal>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-xl mx-auto">
+              {advisoryMembers.map((member, index) => (
+                <ScrollReveal key={index} variant="fade-up" delay={index * 100}>
+                  <div className="text-center">
+                    <PlaceholderImage 
+                      aspectRatio="square" 
+                      label={member.name}
+                      className="rounded-2xl mb-4 shadow-soft"
+                    />
+                    <h4 className="font-heading text-lg font-semibold text-foreground">
+                      {member.name}
+                    </h4>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
           </div>
         </div>
       </section>
