@@ -43,12 +43,9 @@ function HeroSection() {
                 501(c)(3) Nonprofit Organization
               </div>
               <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold text-foreground leading-tight">
-                Exploring & Celebrating{" "}
-                <span className="text-primary">Indian Culture</span>
+                Exploring & Celebrating <span className="text-primary">Indian Wisdom & Culture</span>
               </h1>
-              <p className="text-sm md:text-base text-muted-foreground italic">
-                Through arts, stories and community
-              </p>
+              <p className="text-sm md:text-base text-muted-foreground italic">Through arts, stories and community</p>
               {/* Buttons - hidden on mobile/tablet, shown on desktop */}
               <div className="hidden lg:flex flex-col sm:flex-row gap-4">
                 <Button variant="hero" size="xl" asChild>
@@ -66,9 +63,9 @@ function HeroSection() {
           <ScrollReveal variant="fade-up" delay={200}>
             <div className="relative">
               <div className="relative z-10">
-                <img 
-                  src={heroCulturalEventImage} 
-                  alt="Community members creating traditional Rangoli art with the message: Rith means cosmic rhythms, calling us to listen deeply to the echoes of our heritage, the voices around us and the possibilities before us" 
+                <img
+                  src={heroCulturalEventImage}
+                  alt="Community members creating traditional Rangoli art with the message: Rith means cosmic rhythms, calling us to listen deeply to the echoes of our heritage, the voices around us and the possibilities before us"
                   className="rounded-2xl shadow-elevated w-full h-auto object-cover"
                 />
               </div>
@@ -103,9 +100,9 @@ function VisionPreview() {
       <div className="container-wide">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           <ScrollReveal variant="slide-left" className="order-2 lg:order-1">
-            <img 
-              src={communityGatheringImage} 
-              alt="Community gathering at Virginia Historical Society" 
+            <img
+              src={communityGatheringImage}
+              alt="Community gathering at Virginia Historical Society"
               className="rounded-2xl shadow-soft w-full h-auto object-cover"
             />
           </ScrollReveal>
@@ -113,7 +110,8 @@ function VisionPreview() {
             <div className="space-y-4 md:space-y-6">
               <SectionHeading title="Our Vision" subtitle="Art as a bridge for connection" />
               <p className="text-muted-foreground leading-relaxed">
-                A world where art nurtures connection—bridging cultures, generations, and ideas—while fostering creativity, sustainability, and conscious living.
+                A world where art nurtures connection—bridging cultures, generations, and ideas—while fostering
+                creativity, sustainability, and conscious living.
               </p>
               <Button variant="subtle" size="lg" asChild>
                 <Link to="/about">
@@ -129,7 +127,6 @@ function VisionPreview() {
   );
 }
 
-
 // Latest Updates Section (shows Updates, not blog posts)
 function UpdatesPreviewSection() {
   const [updates, setUpdates] = useState<Update[]>([]);
@@ -139,17 +136,17 @@ function UpdatesPreviewSection() {
     const fetchUpdates = async () => {
       try {
         const { data, error } = await supabase
-          .from('updates')
-          .select('id, title, description, media_url, media_type, thumbnail_url, published_at, created_at')
-          .eq('is_published', true)
-          .eq('is_archived', false)
-          .order('published_at', { ascending: false })
+          .from("updates")
+          .select("id, title, description, media_url, media_type, thumbnail_url, published_at, created_at")
+          .eq("is_published", true)
+          .eq("is_archived", false)
+          .order("published_at", { ascending: false })
           .limit(3);
 
         if (error) throw error;
         setUpdates(data || []);
       } catch (error) {
-        console.error('Error fetching updates:', error);
+        console.error("Error fetching updates:", error);
       } finally {
         setIsLoading(false);
       }
@@ -159,8 +156,8 @@ function UpdatesPreviewSection() {
   }, []);
 
   const handleUpdateClick = (update: Update) => {
-    if (update.media_type === 'link' && update.media_url) {
-      window.open(update.media_url, '_blank', 'noopener,noreferrer');
+    if (update.media_type === "link" && update.media_url) {
+      window.open(update.media_url, "_blank", "noopener,noreferrer");
     }
   };
 
@@ -169,10 +166,14 @@ function UpdatesPreviewSection() {
       <div className="container-wide">
         <ScrollReveal variant="fade-up">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-8 md:mb-12">
-            <SectionHeading title="Latest Updates" subtitle="News and announcements from our community" className="mb-0" />
+            <SectionHeading
+              title="Latest Updates"
+              subtitle="News and announcements from our community"
+              className="mb-0"
+            />
           </div>
         </ScrollReveal>
-        
+
         {isLoading ? (
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -181,51 +182,47 @@ function UpdatesPreviewSection() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {updates.map((update, index) => (
               <ScrollReveal key={update.id} variant="fade-up" delay={index * 100}>
-                <article 
-                  className={`group bg-card rounded-2xl overflow-hidden border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300 h-full ${update.media_type === 'link' ? 'cursor-pointer' : ''}`}
+                <article
+                  className={`group bg-card rounded-2xl overflow-hidden border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300 h-full ${update.media_type === "link" ? "cursor-pointer" : ""}`}
                   onClick={() => handleUpdateClick(update)}
                 >
                   {/* Media Display */}
-                  {update.media_type === 'image' && update.media_url && (
+                  {update.media_type === "image" && update.media_url && (
                     <div className="aspect-video overflow-hidden">
-                      <img 
-                        src={update.media_url} 
-                        alt={update.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                  )}
-                  {update.media_type === 'video' && update.media_url && (
-                    <div className="aspect-video overflow-hidden">
-                      <video 
+                      <img
                         src={update.media_url}
-                        className="w-full h-full object-cover"
-                        controls
-                      />
-                    </div>
-                  )}
-                  {update.media_type === 'link' && update.thumbnail_url && (
-                    <div className="aspect-video overflow-hidden">
-                      <img 
-                        src={update.thumbnail_url} 
                         alt={update.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
                   )}
-                  {!((update.media_type === 'image' && update.media_url) || 
-                     (update.media_type === 'video' && update.media_url) || 
-                     (update.media_type === 'link' && update.thumbnail_url)) && (
-                    <PlaceholderImage aspectRatio="video" label="Update" className="rounded-none" />
+                  {update.media_type === "video" && update.media_url && (
+                    <div className="aspect-video overflow-hidden">
+                      <video src={update.media_url} className="w-full h-full object-cover" controls />
+                    </div>
                   )}
-                  
+                  {update.media_type === "link" && update.thumbnail_url && (
+                    <div className="aspect-video overflow-hidden">
+                      <img
+                        src={update.thumbnail_url}
+                        alt={update.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
+                  {!(
+                    (update.media_type === "image" && update.media_url) ||
+                    (update.media_type === "video" && update.media_url) ||
+                    (update.media_type === "link" && update.thumbnail_url)
+                  ) && <PlaceholderImage aspectRatio="video" label="Update" className="rounded-none" />}
+
                   <div className="p-6">
                     <p className="text-sm text-muted-foreground mb-2">
-                      {format(new Date(update.published_at || update.created_at), 'MMMM d, yyyy')}
+                      {format(new Date(update.published_at || update.created_at), "MMMM d, yyyy")}
                     </p>
                     <h3 className="font-heading text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors flex items-center gap-2">
                       {update.title}
-                      {update.media_type === 'link' && <ExternalLink size={16} className="text-muted-foreground" />}
+                      {update.media_type === "link" && <ExternalLink size={16} className="text-muted-foreground" />}
                     </h3>
                     {update.description && (
                       <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">{update.description}</p>
@@ -255,14 +252,14 @@ function EventsPreviewSection() {
     const fetchEvents = async () => {
       try {
         const now = new Date().toISOString();
-        
+
         // Fetch upcoming events
         const { data, error } = await supabase
-          .from('events')
-          .select('id, title, start_date, time, location')
-          .gte('start_date', now)
-          .eq('is_archived', false)
-          .order('start_date', { ascending: true })
+          .from("events")
+          .select("id, title, start_date, time, location")
+          .gte("start_date", now)
+          .eq("is_archived", false)
+          .order("start_date", { ascending: true })
           .limit(2);
 
         if (error) throw error;
@@ -270,10 +267,10 @@ function EventsPreviewSection() {
 
         // Fetch random media from all events for the photo slots
         const { data: mediaData, error: mediaError } = await supabase
-          .from('media')
-          .select('url, title')
-          .eq('entity_type', 'event')
-          .eq('media_type', 'image');
+          .from("media")
+          .select("url, title")
+          .eq("entity_type", "event")
+          .eq("media_type", "image");
 
         if (!mediaError && mediaData && mediaData.length > 0) {
           // Shuffle and pick 2 random images
@@ -281,7 +278,7 @@ function EventsPreviewSection() {
           setEventPhotos(shuffled.slice(0, 2));
         }
       } catch (error) {
-        console.error('Error fetching events:', error);
+        console.error("Error fetching events:", error);
       } finally {
         setIsLoading(false);
       }
@@ -296,8 +293,11 @@ function EventsPreviewSection() {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           <ScrollReveal variant="slide-left">
             <div>
-              <SectionHeading title="Upcoming Events" subtitle="Join us for cultural celebrations and community gatherings" />
-              
+              <SectionHeading
+                title="Upcoming Events"
+                subtitle="Join us for cultural celebrations and community gatherings"
+              />
+
               {isLoading ? (
                 <div className="flex justify-center py-12">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -312,16 +312,12 @@ function EventsPreviewSection() {
                             <Calendar className="w-7 h-7 text-primary" />
                           </div>
                           <div>
-                            <h4 className="font-heading text-lg font-semibold text-foreground mb-1">
-                              {event.title}
-                            </h4>
+                            <h4 className="font-heading text-lg font-semibold text-foreground mb-1">{event.title}</h4>
                             <p className="text-primary font-medium text-sm">
-                              {format(new Date(event.start_date), 'MMMM d, yyyy')}
+                              {format(new Date(event.start_date), "MMMM d, yyyy")}
                               {event.time && ` • ${event.time}`}
                             </p>
-                            {event.location && (
-                              <p className="text-muted-foreground text-sm">{event.location}</p>
-                            )}
+                            {event.location && <p className="text-muted-foreground text-sm">{event.location}</p>}
                           </div>
                         </div>
                       </div>
@@ -333,7 +329,7 @@ function EventsPreviewSection() {
                   <p className="text-muted-foreground">No upcoming events at the moment. Check back soon!</p>
                 </div>
               )}
-              
+
               <Button variant="hero" size="lg" className="mt-8" asChild>
                 <Link to="/events">
                   View All Events
@@ -347,16 +343,16 @@ function EventsPreviewSection() {
               {eventPhotos.length >= 2 ? (
                 <>
                   <div className="aspect-[3/4] rounded-xl overflow-hidden bg-secondary/30">
-                    <img 
-                      src={eventPhotos[0].url} 
-                      alt={eventPhotos[0].title || "Event photo"} 
+                    <img
+                      src={eventPhotos[0].url}
+                      alt={eventPhotos[0].title || "Event photo"}
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <div className="aspect-[3/4] rounded-xl overflow-hidden bg-secondary/30 mt-8">
-                    <img 
-                      src={eventPhotos[1].url} 
-                      alt={eventPhotos[1].title || "Event photo"} 
+                    <img
+                      src={eventPhotos[1].url}
+                      alt={eventPhotos[1].title || "Event photo"}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -364,9 +360,9 @@ function EventsPreviewSection() {
               ) : eventPhotos.length === 1 ? (
                 <>
                   <div className="aspect-[3/4] rounded-xl overflow-hidden bg-secondary/30">
-                    <img 
-                      src={eventPhotos[0].url} 
-                      alt={eventPhotos[0].title || "Event photo"} 
+                    <img
+                      src={eventPhotos[0].url}
+                      alt={eventPhotos[0].title || "Event photo"}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -392,12 +388,10 @@ function CTASection() {
     <section className="section-padding bg-foreground text-background">
       <div className="container-narrow text-center">
         <ScrollReveal variant="fade-up">
-          <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-semibold mb-4">
-            Support Our Mission
-          </h2>
+          <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-semibold mb-4">Support Our Mission</h2>
           <p className="text-background/70 text-base md:text-lg max-w-2xl mx-auto mb-6 leading-relaxed">
-            Your contribution helps us continue sharing Indian culture and traditions with 
-            communities across Virginia. Every donation makes a difference.
+            Your contribution helps us continue sharing Indian culture and traditions with communities across Virginia.
+            Every donation makes a difference.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="hero" size="xl" asChild>
@@ -406,7 +400,12 @@ function CTASection() {
                 <Heart size={20} />
               </Link>
             </Button>
-            <Button variant="heroOutline" size="xl" className="border-background/30 text-background hover:bg-background hover:text-foreground" asChild>
+            <Button
+              variant="heroOutline"
+              size="xl"
+              className="border-background/30 text-background hover:bg-background hover:text-foreground"
+              asChild
+            >
               <Link to="/contact">Get Involved</Link>
             </Button>
           </div>
@@ -426,10 +425,10 @@ function GalleryPreview() {
       try {
         // First try to get images from site_gallery
         const { data: siteImages, error: siteError } = await supabase
-          .from('site_gallery')
-          .select('id, url, title')
-          .eq('section_key', 'home_gallery')
-          .order('display_order', { ascending: true })
+          .from("site_gallery")
+          .select("id, url, title")
+          .eq("section_key", "home_gallery")
+          .order("display_order", { ascending: true })
           .limit(8);
 
         if (!siteError && siteImages && siteImages.length > 0) {
@@ -437,10 +436,10 @@ function GalleryPreview() {
         } else {
           // Fallback to event media if no site gallery images
           const { data: eventMedia, error: eventError } = await supabase
-            .from('media')
-            .select('id, url, title')
-            .eq('entity_type', 'event')
-            .eq('media_type', 'image')
+            .from("media")
+            .select("id, url, title")
+            .eq("entity_type", "event")
+            .eq("media_type", "image")
             .limit(8);
 
           if (!eventError && eventMedia) {
@@ -448,7 +447,7 @@ function GalleryPreview() {
           }
         }
       } catch (error) {
-        console.error('Error fetching gallery:', error);
+        console.error("Error fetching gallery:", error);
       } finally {
         setIsLoading(false);
       }
@@ -461,7 +460,11 @@ function GalleryPreview() {
     <section className="section-padding">
       <div className="container-wide">
         <ScrollReveal variant="fade-up">
-          <SectionHeading title="Moments From Our Events" subtitle="Glimpses of culture, community, and celebration" centered />
+          <SectionHeading
+            title="Moments From Our Events"
+            subtitle="Glimpses of culture, community, and celebration"
+            centered
+          />
         </ScrollReveal>
         {isLoading ? (
           <div className="flex justify-center py-12">
@@ -472,9 +475,9 @@ function GalleryPreview() {
             {galleryImages.map((img, i) => (
               <ScrollReveal key={img.id} variant="scale" delay={i * 50}>
                 <div className="aspect-square rounded-xl overflow-hidden bg-secondary/30 hover:scale-105 transition-transform duration-300">
-                  <img 
-                    src={img.url} 
-                    alt={img.title || `Gallery image ${i + 1}`} 
+                  <img
+                    src={img.url}
+                    alt={img.title || `Gallery image ${i + 1}`}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -485,7 +488,11 @@ function GalleryPreview() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <ScrollReveal key={i} variant="scale" delay={i * 50}>
-                <PlaceholderImage aspectRatio="square" label={`Gallery image ${i}`} className="rounded-xl hover:scale-105 transition-transform duration-300" />
+                <PlaceholderImage
+                  aspectRatio="square"
+                  label={`Gallery image ${i}`}
+                  className="rounded-xl hover:scale-105 transition-transform duration-300"
+                />
               </ScrollReveal>
             ))}
           </div>
