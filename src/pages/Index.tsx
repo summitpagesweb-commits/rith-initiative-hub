@@ -43,9 +43,11 @@ function HeroSection() {
                 501(c)(3) Nonprofit Organization
               </div>
               <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold text-foreground leading-tight">
-                Exploring & Celebrating <span className="text-primary">Indian Wisdom & Culture</span>
+                Exploring <span className="text-primary">Indian Wisdom & Culture</span>
               </h1>
-              <p className="text-sm md:text-base text-muted-foreground italic">Through arts, stories and community</p>
+              <p className="text-sm md:text-base text-muted-foreground italic">
+                Celebrating through arts, stories & community
+              </p>
               {/* Buttons - hidden on mobile/tablet, shown on desktop */}
               <div className="hidden lg:flex flex-col sm:flex-row gap-4">
                 <Button variant="hero" size="xl" asChild>
