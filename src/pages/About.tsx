@@ -221,7 +221,7 @@ export default function About() {
                     <PlaceholderImage 
                       aspectRatio="square" 
                       label={member.name}
-                      className="rounded-2xl mb-4 shadow-soft"
+                      className="w-full max-w-[260px] mx-auto rounded-2xl mb-4 shadow-soft"
                     />
                     <h4 className="font-heading text-lg font-semibold text-foreground">
                       {member.name}
@@ -245,7 +245,7 @@ export default function About() {
                     <PlaceholderImage 
                       aspectRatio="square" 
                       label={member.name}
-                      className="rounded-2xl mb-4 shadow-soft"
+                      className="w-full max-w-[260px] mx-auto rounded-2xl mb-4 shadow-soft"
                     />
                     <h4 className="font-heading text-lg font-semibold text-foreground">
                       {member.name}
