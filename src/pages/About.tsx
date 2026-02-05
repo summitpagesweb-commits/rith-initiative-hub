@@ -238,7 +238,7 @@ export default function About() {
             <ScrollReveal variant="fade-up">
               <h3 className="font-heading text-xl font-semibold text-foreground text-center mb-8">Advisory</h3>
             </ScrollReveal>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
               {advisoryMembers.map((member, index) => (
                 <ScrollReveal key={index} variant="fade-up" delay={index * 100}>
                   <div className="text-center">
