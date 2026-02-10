@@ -1,4 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
+import { PageMeta } from "@/components/shared/PageMeta";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { SectionDivider } from "@/components/shared/SectionDivider";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
@@ -7,6 +8,11 @@ import { ShoppingBag } from "lucide-react";
 export default function Shop() {
   return (
     <Layout>
+      <PageMeta
+        title="Shop"
+        description="Browse cultural merchandise and products from The Rith Initiative. Support Indian arts and heritage with your purchase."
+        path="/shop"
+      />
       {/* Hero Section */}
       <section className="section-padding bg-gradient-to-b from-secondary/30 to-background">
         <div className="container-wide">

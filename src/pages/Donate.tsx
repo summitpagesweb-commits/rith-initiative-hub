@@ -1,4 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
+import { PageMeta } from "@/components/shared/PageMeta";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { SectionDivider } from "@/components/shared/SectionDivider";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
@@ -34,6 +35,11 @@ const impactAreas = [
 export default function Donate() {
   return (
     <Layout>
+      <PageMeta
+        title="Donate"
+        description="Support The Rith Initiative's mission to preserve and share Indian culture in Virginia. Every donation makes a difference."
+        path="/donate"
+      />
       {/* Hero Section */}
       <section className="section-padding bg-gradient-to-b from-secondary/30 to-background">
         <div className="container-wide">

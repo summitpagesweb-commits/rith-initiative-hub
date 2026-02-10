@@ -1,4 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
+import { PageMeta } from "@/components/shared/PageMeta";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
 import { SectionDivider } from "@/components/shared/SectionDivider";
@@ -44,6 +45,11 @@ const advisoryMembers = [
 export default function About() {
   return (
     <Layout>
+      <PageMeta
+        title="About Us"
+        description="Learn about The Rith Initiative, a 501(c)(3) nonprofit exploring and celebrating Indian culture through arts, events, and community programming in Virginia."
+        path="/about"
+      />
       {/* Hero Section */}
       <section className="section-padding bg-gradient-to-b from-secondary/30 to-background">
         <div className="container-wide">

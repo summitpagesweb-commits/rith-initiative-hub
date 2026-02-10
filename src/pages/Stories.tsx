@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
+import { PageMeta } from "@/components/shared/PageMeta";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
 import { SectionDivider } from "@/components/shared/SectionDivider";
@@ -189,6 +190,11 @@ function CTASection() {
 const Stories = () => {
   return (
     <Layout>
+      <PageMeta
+        title="Stories"
+        description="Read stories, articles, and cultural insights from The Rith Initiative community celebrating Indian heritage in Virginia."
+        path="/stories"
+      />
       <HeroSection />
       <SectionDivider />
       <StoriesSection />
