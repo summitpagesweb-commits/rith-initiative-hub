@@ -1,4 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
+import { PageMeta } from "@/components/shared/PageMeta";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { SectionDivider } from "@/components/shared/SectionDivider";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
@@ -67,6 +68,11 @@ export default function Contact() {
 
   return (
     <Layout>
+      <PageMeta
+        title="Contact"
+        description="Get in touch with The Rith Initiative. Reach out for event inquiries, volunteer opportunities, or partnership information."
+        path="/contact"
+      />
       {/* Hero Section */}
       <section className="section-padding bg-gradient-to-b from-secondary/30 to-background">
         <div className="container-wide">

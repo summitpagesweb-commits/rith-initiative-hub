@@ -1,4 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
+import { PageMeta } from "@/components/shared/PageMeta";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
 import { SectionDivider } from "@/components/shared/SectionDivider";
@@ -212,6 +213,11 @@ export default function Events() {
 
   return (
     <Layout>
+      <PageMeta
+        title="Events"
+        description="Discover upcoming cultural events, festivals, and community gatherings hosted by The Rith Initiative in Virginia."
+        path="/events"
+      />
       {/* Hero Section */}
       <section className="section-padding bg-gradient-to-b from-secondary/30 to-background">
         <div className="container-wide">

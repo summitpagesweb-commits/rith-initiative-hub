@@ -6,6 +6,7 @@ import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
 import { SectionDivider } from "@/components/shared/SectionDivider";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
+import { PageMeta } from "@/components/shared/PageMeta";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -505,8 +506,31 @@ function GalleryPreview() {
 }
 
 const Index = () => {
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NonprofitOrganization",
+    "name": "The Rith Initiative",
+    "url": "https://therithinitiative.org",
+    "logo": "https://therithinitiative.org/og-image.png",
+    "description": "A 501(c)(3) nonprofit dedicated to sharing and exploring Indian culture through community events, arts, and cultural programming in Virginia.",
+    "address": {
+      "@type": "PostalAddress",
+      "addressRegion": "VA",
+      "addressCountry": "US"
+    },
+    "sameAs": [
+      "https://www.instagram.com/rithinitiative/",
+      "https://www.facebook.com/p/The-Rith-Initiative-61580213405598/"
+    ]
+  };
+
   return (
     <Layout>
+      <PageMeta
+        title="The Rith Initiative | Exploring & Celebrating Indian Wisdom & Culture in Virginia"
+        description="A 501(c)(3) nonprofit dedicated to sharing and exploring Indian culture through community events, arts, and cultural programming in Virginia."
+        jsonLd={orgJsonLd}
+      />
       <HeroSection />
       <SectionDivider />
       <VisionPreview />
