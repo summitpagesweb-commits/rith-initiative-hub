@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Calendar, MapPin, Clock, Image, ExternalLink, Sparkles, BookOpen } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, MapPin, Clock, Image, ExternalLink, Sparkles, BookOpen, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,6 +36,7 @@ interface PastEvent {
   location: string | null;
   category: string | null;
   featured_image_url: string | null;
+  registration_link?: string | null;
 }
 
 interface PastEventsBookProps {
@@ -323,6 +324,21 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
                 </div>
               )}
 
+              {/* Registration button for upcoming events */}
+              {event.registration_link && (
+                <div onClick={(e) => e.stopPropagation()} className="mb-1.5 sm:mb-2">
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    className="gap-1 w-full text-[10px] sm:text-sm"
+                    onClick={() => window.open(event.registration_link!, '_blank')}
+                  >
+                    Register Now
+                    <ArrowRight size={12} />
+                  </Button>
+                </div>
+              )}
+
               {/* Flip back hint - always at bottom */}
               <p className="text-[10px] sm:text-xs text-primary text-center italic mt-auto">Click to flip back</p>
             </div>
@@ -529,6 +545,20 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
                             <p className="text-sm text-muted-foreground leading-relaxed">
                               {event.description}
                             </p>
+                          </div>
+                        )}
+
+                        {event.registration_link && (
+                          <div onClick={(e) => e.stopPropagation()} className="mb-2">
+                            <Button 
+                              variant="default" 
+                              size="sm" 
+                              className="gap-1 w-full"
+                              onClick={() => window.open(event.registration_link!, '_blank')}
+                            >
+                              Register Now
+                              <ArrowRight size={14} />
+                            </Button>
                           </div>
                         )}
 
