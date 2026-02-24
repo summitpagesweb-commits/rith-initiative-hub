@@ -4,7 +4,8 @@ import { SectionHeading } from "@/components/shared/SectionHeading";
 import { SectionDivider } from "@/components/shared/SectionDivider";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, ExternalLink } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ShoppingBag, ExternalLink, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -21,6 +22,7 @@ interface ShopItem {
 export default function Shop() {
   const [items, setItems] = useState<ShopItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -42,8 +44,6 @@ export default function Shop() {
     };
     fetchItems();
   }, []);
-
-  const categories = [...new Set(items.filter(i => i.category).map(i => i.category!))];
 
   return (
     <Layout>
@@ -107,8 +107,10 @@ export default function Shop() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
               {items.map((item, index) => (
                 <ScrollReveal key={item.id} variant="fade-up" delay={index * 80}>
-                  <div className="group bg-card rounded-2xl border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300 overflow-hidden flex flex-col h-full">
-                    {/* Image */}
+                  <div
+                    onClick={() => setSelectedItem(item)}
+                    className="group bg-card rounded-2xl border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300 overflow-hidden flex flex-col h-full cursor-pointer"
+                  >
                     {item.image_url ? (
                       <div className="aspect-square bg-secondary/20 overflow-hidden">
                         <img
@@ -124,7 +126,6 @@ export default function Shop() {
                       </div>
                     )}
 
-                    {/* Content */}
                     <div className="p-5 flex flex-col flex-1">
                       {item.category && (
                         <span className="text-xs font-medium text-primary mb-2">{item.category}</span>
@@ -145,7 +146,10 @@ export default function Shop() {
                           <Button
                             variant="default"
                             size="sm"
-                            onClick={() => window.open(item.purchase_link!, '_blank')}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(item.purchase_link!, '_blank');
+                            }}
                             className="gap-2"
                           >
                             Buy Now
@@ -161,6 +165,66 @@ export default function Shop() {
           )}
         </div>
       </section>
+
+      {/* Product Detail Modal */}
+      <Dialog open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden gap-0">
+          {selectedItem && (
+            <div className="flex flex-col md:flex-row">
+              {/* Left: Image */}
+              <div className="md:w-1/2 bg-secondary/20 flex items-center justify-center p-6 min-h-[300px] md:min-h-[450px]">
+                {selectedItem.image_url ? (
+                  <img
+                    src={selectedItem.image_url}
+                    alt={selectedItem.title}
+                    className="w-full h-full max-h-[450px] object-contain"
+                  />
+                ) : (
+                  <ShoppingBag className="w-24 h-24 text-muted-foreground/30" />
+                )}
+              </div>
+
+              {/* Right: Details */}
+              <div className="md:w-1/2 p-6 md:p-8 flex flex-col">
+                {selectedItem.category && (
+                  <span className="text-xs font-medium text-primary uppercase tracking-wider mb-2">
+                    {selectedItem.category}
+                  </span>
+                )}
+
+                <h2 className="font-heading text-2xl md:text-3xl font-semibold text-foreground mb-3">
+                  {selectedItem.title}
+                </h2>
+
+                <span className="text-2xl font-bold text-foreground mb-5">
+                  ${Number(selectedItem.price).toFixed(2)}
+                </span>
+
+                <hr className="border-border/50 mb-5" />
+
+                {selectedItem.description ? (
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-1">
+                    {selectedItem.description}
+                  </p>
+                ) : (
+                  <div className="flex-1" />
+                )}
+
+                {selectedItem.purchase_link && (
+                  <Button
+                    size="lg"
+                    className="w-full gap-2"
+                    onClick={() => window.open(selectedItem.purchase_link!, '_blank')}
+                  >
+                    Buy Now
+                    <ExternalLink size={16} />
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }
