@@ -26,6 +26,8 @@ import AdminUpdateForm from "./pages/admin/AdminUpdateForm";
 import AdminGallery from "./pages/admin/AdminGallery";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminSubscribers from "./pages/admin/AdminSubscribers";
+import AdminShop from "./pages/admin/AdminShop";
+import AdminShopItemForm from "./pages/admin/AdminShopItemForm";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +65,9 @@ const App = () => (
               <Route path="gallery" element={<AdminGallery />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="subscribers" element={<AdminSubscribers />} />
+              <Route path="shop" element={<AdminShop />} />
+              <Route path="shop/new" element={<AdminShopItemForm />} />
+              <Route path="shop/:id" element={<AdminShopItemForm />} />
             </Route>
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
