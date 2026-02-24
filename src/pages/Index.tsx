@@ -69,8 +69,8 @@ function HeroSection() {
                 <img
                   src={heroCulturalEventImage}
                   alt="Community members creating traditional Rangoli art with the message: Rith means cosmic rhythms, calling us to listen deeply to the echoes of our heritage, the voices around us and the possibilities before us"
-                  className="rounded-2xl shadow-elevated w-full h-auto object-cover"
-                />
+                  className="rounded-2xl shadow-elevated w-full h-auto object-cover" />
+
               </div>
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-primary/20 rounded-full blur-2xl" />
               <div className="absolute -top-6 -right-6 w-40 h-40 bg-accent/20 rounded-full blur-2xl" />
@@ -92,8 +92,8 @@ function HeroSection() {
           </ScrollReveal>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 // Vision Preview Section
@@ -106,15 +106,15 @@ function VisionPreview() {
             <img
               src={communityGatheringImage}
               alt="Community gathering at Virginia Historical Society"
-              className="rounded-2xl shadow-soft w-full h-auto object-cover"
-            />
+              className="rounded-2xl shadow-soft w-full h-auto object-cover" />
+
           </ScrollReveal>
           <ScrollReveal variant="slide-right" className="order-1 lg:order-2">
             <div className="space-y-4 md:space-y-6">
               <SectionHeading title="Our Vision" subtitle="Art as a bridge for connection" />
               <p className="text-muted-foreground leading-relaxed">
-                A world where art nurtures connection—bridging cultures, generations, and ideas—while fostering
-                creativity, sustainability, and conscious living.
+                A world where art serves as a bridge for communities to care, connect and sustain their culture and wisdom
+              
               </p>
               <Button variant="subtle" size="lg" asChild>
                 <Link to="/about">
@@ -126,8 +126,8 @@ function VisionPreview() {
           </ScrollReveal>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 // Latest Updates Section (shows Updates, not blog posts)
@@ -138,13 +138,13 @@ function UpdatesPreviewSection() {
   useEffect(() => {
     const fetchUpdates = async () => {
       try {
-        const { data, error } = await supabase
-          .from("updates")
-          .select("id, title, description, media_url, media_type, thumbnail_url, published_at, created_at")
-          .eq("is_published", true)
-          .eq("is_archived", false)
-          .order("published_at", { ascending: false })
-          .limit(3);
+        const { data, error } = await supabase.
+        from("updates").
+        select("id, title, description, media_url, media_type, thumbnail_url, published_at, created_at").
+        eq("is_published", true).
+        eq("is_archived", false).
+        order("published_at", { ascending: false }).
+        limit(3);
 
         if (error) throw error;
         setUpdates(data || []);
@@ -172,52 +172,52 @@ function UpdatesPreviewSection() {
             <SectionHeading
               title="Latest Updates"
               subtitle="News and announcements from our community"
-              className="mb-0"
-            />
+              className="mb-0" />
+
           </div>
         </ScrollReveal>
 
-        {isLoading ? (
-          <div className="flex justify-center py-12">
+        {isLoading ?
+        <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        ) : updates.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {updates.map((update, index) => (
-              <ScrollReveal key={update.id} variant="fade-up" delay={index * 100}>
+          </div> :
+        updates.length > 0 ?
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {updates.map((update, index) =>
+          <ScrollReveal key={update.id} variant="fade-up" delay={index * 100}>
                 <article
-                  className={`group bg-card rounded-2xl overflow-hidden border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300 h-full ${update.media_type === "link" ? "cursor-pointer" : ""}`}
-                  onClick={() => handleUpdateClick(update)}
-                >
+              className={`group bg-card rounded-2xl overflow-hidden border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300 h-full ${update.media_type === "link" ? "cursor-pointer" : ""}`}
+              onClick={() => handleUpdateClick(update)}>
+
                   {/* Media Display */}
-                  {update.media_type === "image" && update.media_url && (
-                    <div className="aspect-video overflow-hidden">
+                  {update.media_type === "image" && update.media_url &&
+              <div className="aspect-video overflow-hidden">
                       <img
-                        src={update.media_url}
-                        alt={update.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                  src={update.media_url}
+                  alt={update.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+
                     </div>
-                  )}
-                  {update.media_type === "video" && update.media_url && (
-                    <div className="aspect-video overflow-hidden">
+              }
+                  {update.media_type === "video" && update.media_url &&
+              <div className="aspect-video overflow-hidden">
                       <video src={update.media_url} className="w-full h-full object-cover" controls />
                     </div>
-                  )}
-                  {update.media_type === "link" && update.thumbnail_url && (
-                    <div className="aspect-video overflow-hidden">
+              }
+                  {update.media_type === "link" && update.thumbnail_url &&
+              <div className="aspect-video overflow-hidden">
                       <img
-                        src={update.thumbnail_url}
-                        alt={update.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                  src={update.thumbnail_url}
+                  alt={update.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+
                     </div>
-                  )}
+              }
                   {!(
-                    (update.media_type === "image" && update.media_url) ||
-                    (update.media_type === "video" && update.media_url) ||
-                    (update.media_type === "link" && update.thumbnail_url)
-                  ) && <PlaceholderImage aspectRatio="video" label="Update" className="rounded-none" />}
+              update.media_type === "image" && update.media_url ||
+              update.media_type === "video" && update.media_url ||
+              update.media_type === "link" && update.thumbnail_url) &&
+              <PlaceholderImage aspectRatio="video" label="Update" className="rounded-none" />}
 
                   <div className="p-6">
                     <p className="text-sm text-muted-foreground mb-2">
@@ -227,28 +227,28 @@ function UpdatesPreviewSection() {
                       {update.title}
                       {update.media_type === "link" && <ExternalLink size={16} className="text-muted-foreground" />}
                     </h3>
-                    {update.description && (
-                      <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">{update.description}</p>
-                    )}
+                    {update.description &&
+                <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">{update.description}</p>
+                }
                   </div>
                 </article>
               </ScrollReveal>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 bg-card rounded-2xl border border-border/50">
+          )}
+          </div> :
+
+        <div className="text-center py-12 bg-card rounded-2xl border border-border/50">
             <p className="text-muted-foreground">No updates yet. Check back soon!</p>
           </div>
-        )}
+        }
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 // Events Preview Section
 function EventsPreviewSection() {
   const [events, setEvents] = useState<Event[]>([]);
-  const [eventPhotos, setEventPhotos] = useState<{ url: string; title: string | null }[]>([]);
+  const [eventPhotos, setEventPhotos] = useState<{url: string;title: string | null;}[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -257,23 +257,23 @@ function EventsPreviewSection() {
         const now = new Date().toISOString();
 
         // Fetch upcoming events
-        const { data, error } = await supabase
-          .from("events")
-          .select("id, title, start_date, time, location")
-          .gte("start_date", now)
-          .eq("is_archived", false)
-          .order("start_date", { ascending: true })
-          .limit(2);
+        const { data, error } = await supabase.
+        from("events").
+        select("id, title, start_date, time, location").
+        gte("start_date", now).
+        eq("is_archived", false).
+        order("start_date", { ascending: true }).
+        limit(2);
 
         if (error) throw error;
         setEvents(data || []);
 
         // Fetch random media from all events for the photo slots
-        const { data: mediaData, error: mediaError } = await supabase
-          .from("media")
-          .select("url, title")
-          .eq("entity_type", "event")
-          .eq("media_type", "image");
+        const { data: mediaData, error: mediaError } = await supabase.
+        from("media").
+        select("url, title").
+        eq("entity_type", "event").
+        eq("media_type", "image");
 
         if (!mediaError && mediaData && mediaData.length > 0) {
           // Shuffle and pick 2 random images
@@ -298,17 +298,17 @@ function EventsPreviewSection() {
             <div>
               <SectionHeading
                 title="Upcoming Events"
-                subtitle="Join us for cultural celebrations and community gatherings"
-              />
+                subtitle="Join us for cultural celebrations and community gatherings" />
 
-              {isLoading ? (
-                <div className="flex justify-center py-12">
+
+              {isLoading ?
+              <div className="flex justify-center py-12">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                </div>
-              ) : events.length > 0 ? (
-                <div className="space-y-6">
-                  {events.map((event, index) => (
-                    <ScrollReveal key={event.id} variant="fade-up" delay={index * 100}>
+                </div> :
+              events.length > 0 ?
+              <div className="space-y-6">
+                  {events.map((event, index) =>
+                <ScrollReveal key={event.id} variant="fade-up" delay={index * 100}>
                       <div className="p-6 rounded-xl bg-card border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300">
                         <div className="flex items-start gap-4">
                           <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -325,13 +325,13 @@ function EventsPreviewSection() {
                         </div>
                       </div>
                     </ScrollReveal>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-6 rounded-xl bg-card border border-border/50 text-center">
+                )}
+                </div> :
+
+              <div className="p-6 rounded-xl bg-card border border-border/50 text-center">
                   <p className="text-muted-foreground">No upcoming events at the moment. Check back soon!</p>
                 </div>
-              )}
+              }
 
               <Button variant="hero" size="lg" className="mt-8" asChild>
                 <Link to="/events">
@@ -343,46 +343,46 @@ function EventsPreviewSection() {
           </ScrollReveal>
           <ScrollReveal variant="slide-right" delay={100}>
             <div className="grid grid-cols-2 gap-4">
-              {eventPhotos.length >= 2 ? (
-                <>
+              {eventPhotos.length >= 2 ?
+              <>
                   <div className="aspect-[3/4] rounded-xl overflow-hidden bg-secondary/30">
                     <img
-                      src={eventPhotos[0].url}
-                      alt={eventPhotos[0].title || "Event photo"}
-                      className="w-full h-full object-cover"
-                    />
+                    src={eventPhotos[0].url}
+                    alt={eventPhotos[0].title || "Event photo"}
+                    className="w-full h-full object-cover" />
+
                   </div>
                   <div className="aspect-[3/4] rounded-xl overflow-hidden bg-secondary/30 mt-8">
                     <img
-                      src={eventPhotos[1].url}
-                      alt={eventPhotos[1].title || "Event photo"}
-                      className="w-full h-full object-cover"
-                    />
+                    src={eventPhotos[1].url}
+                    alt={eventPhotos[1].title || "Event photo"}
+                    className="w-full h-full object-cover" />
+
                   </div>
-                </>
-              ) : eventPhotos.length === 1 ? (
-                <>
+                </> :
+              eventPhotos.length === 1 ?
+              <>
                   <div className="aspect-[3/4] rounded-xl overflow-hidden bg-secondary/30">
                     <img
-                      src={eventPhotos[0].url}
-                      alt={eventPhotos[0].title || "Event photo"}
-                      className="w-full h-full object-cover"
-                    />
+                    src={eventPhotos[0].url}
+                    alt={eventPhotos[0].title || "Event photo"}
+                    className="w-full h-full object-cover" />
+
                   </div>
                   <PlaceholderImage aspectRatio="portrait" label="Event photo 2" className="rounded-xl mt-8" />
-                </>
-              ) : (
-                <>
+                </> :
+
+              <>
                   <PlaceholderImage aspectRatio="portrait" label="Event photo 1" className="rounded-xl" />
                   <PlaceholderImage aspectRatio="portrait" label="Event photo 2" className="rounded-xl mt-8" />
                 </>
-              )}
+              }
             </div>
           </ScrollReveal>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 // CTA Section
@@ -407,43 +407,43 @@ function CTASection() {
               variant="heroOutline"
               size="xl"
               className="border-background/30 text-background hover:bg-background hover:text-foreground"
-              asChild
-            >
+              asChild>
+
               <Link to="/contact">Get Involved</Link>
             </Button>
           </div>
         </ScrollReveal>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 // Gallery Preview
 function GalleryPreview() {
-  const [galleryImages, setGalleryImages] = useState<{ id: string; url: string; title: string | null }[]>([]);
+  const [galleryImages, setGalleryImages] = useState<{id: string;url: string;title: string | null;}[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchGallery = async () => {
       try {
         // First try to get images from site_gallery
-        const { data: siteImages, error: siteError } = await supabase
-          .from("site_gallery")
-          .select("id, url, title")
-          .eq("section_key", "home_gallery")
-          .order("display_order", { ascending: true })
-          .limit(8);
+        const { data: siteImages, error: siteError } = await supabase.
+        from("site_gallery").
+        select("id, url, title").
+        eq("section_key", "home_gallery").
+        order("display_order", { ascending: true }).
+        limit(8);
 
         if (!siteError && siteImages && siteImages.length > 0) {
           setGalleryImages(siteImages);
         } else {
           // Fallback to event media if no site gallery images
-          const { data: eventMedia, error: eventError } = await supabase
-            .from("media")
-            .select("id, url, title")
-            .eq("entity_type", "event")
-            .eq("media_type", "image")
-            .limit(8);
+          const { data: eventMedia, error: eventError } = await supabase.
+          from("media").
+          select("id, url, title").
+          eq("entity_type", "event").
+          eq("media_type", "image").
+          limit(8);
 
           if (!eventError && eventMedia) {
             setGalleryImages(eventMedia);
@@ -466,43 +466,43 @@ function GalleryPreview() {
           <SectionHeading
             title="Moments From Our Events"
             subtitle="Glimpses of culture, community, and celebration"
-            centered
-          />
+            centered />
+
         </ScrollReveal>
-        {isLoading ? (
-          <div className="flex justify-center py-12">
+        {isLoading ?
+        <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        ) : galleryImages.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {galleryImages.map((img, i) => (
-              <ScrollReveal key={img.id} variant="scale" delay={i * 50}>
+          </div> :
+        galleryImages.length > 0 ?
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {galleryImages.map((img, i) =>
+          <ScrollReveal key={img.id} variant="scale" delay={i * 50}>
                 <div className="aspect-square rounded-xl overflow-hidden bg-secondary/30 hover:scale-105 transition-transform duration-300">
                   <img
-                    src={img.url}
-                    alt={img.title || `Gallery image ${i + 1}`}
-                    className="w-full h-full object-cover"
-                  />
+                src={img.url}
+                alt={img.title || `Gallery image ${i + 1}`}
+                className="w-full h-full object-cover" />
+
                 </div>
               </ScrollReveal>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <ScrollReveal key={i} variant="scale" delay={i * 50}>
+          )}
+          </div> :
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) =>
+          <ScrollReveal key={i} variant="scale" delay={i * 50}>
                 <PlaceholderImage
-                  aspectRatio="square"
-                  label={`Gallery image ${i}`}
-                  className="rounded-xl hover:scale-105 transition-transform duration-300"
-                />
+              aspectRatio="square"
+              label={`Gallery image ${i}`}
+              className="rounded-xl hover:scale-105 transition-transform duration-300" />
+
               </ScrollReveal>
-            ))}
+          )}
           </div>
-        )}
+        }
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 const Index = () => {
@@ -519,9 +519,9 @@ const Index = () => {
       "addressCountry": "US"
     },
     "sameAs": [
-      "https://www.instagram.com/rithinitiative/",
-      "https://www.facebook.com/p/The-Rith-Initiative-61580213405598/"
-    ]
+    "https://www.instagram.com/rithinitiative/",
+    "https://www.facebook.com/p/The-Rith-Initiative-61580213405598/"]
+
   };
 
   return (
@@ -529,8 +529,8 @@ const Index = () => {
       <PageMeta
         title="The Rith Initiative | Exploring & Celebrating Indian Wisdom & Culture in Virginia"
         description="A 501(c)(3) nonprofit dedicated to sharing and exploring Indian culture through community events, arts, and cultural programming in Virginia."
-        jsonLd={orgJsonLd}
-      />
+        jsonLd={orgJsonLd} />
+
       <HeroSection />
       <SectionDivider />
       <VisionPreview />
@@ -541,8 +541,8 @@ const Index = () => {
       <SectionDivider />
       <GalleryPreview />
       <CTASection />
-    </Layout>
-  );
+    </Layout>);
+
 };
 
 export default Index;
