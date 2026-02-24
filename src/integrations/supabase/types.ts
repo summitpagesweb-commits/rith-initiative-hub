@@ -352,6 +352,54 @@ export type Database = {
         }
         Relationships: []
       }
+      shop_items: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          image_url: string | null
+          is_archived: boolean
+          is_published: boolean
+          price: number
+          purchase_link: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_archived?: boolean
+          is_published?: boolean
+          price: number
+          purchase_link?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_archived?: boolean
+          is_published?: boolean
+          price?: number
+          purchase_link?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_content: {
         Row: {
           content_type: string
