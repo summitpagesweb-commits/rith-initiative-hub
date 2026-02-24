@@ -37,7 +37,8 @@ export default function Donate() {
     <Layout>
       <PageMeta
         title="Donate"
-        description="Support The Rith Initiative's mission to preserve and share Indian culture in Virginia. Every donation makes a difference."
+        description="Support The Rith Initiative, an Indian American 501(c)(3) nonprofit preserving Indian culture and arts in Virginia. Your tax-deductible donation makes a difference."
+        keywords="donate Indian nonprofit, support Indian culture, Indian American charity, tax deductible donation Indian arts, Indian heritage foundation donate"
         path="/donate"
       />
       {/* Hero Section */}

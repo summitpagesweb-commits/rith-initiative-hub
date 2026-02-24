@@ -114,8 +114,9 @@ export default function Events() {
   return (
     <Layout>
       <PageMeta
-        title="Events"
-        description="Discover upcoming cultural events, festivals, and community gatherings hosted by The Rith Initiative in Virginia."
+        title="Events & Programs"
+        description="Discover upcoming Indian cultural events, festivals, Diwali celebrations, and community gatherings hosted by The Rith Initiative in Virginia."
+        keywords="Indian cultural events Virginia, Indian festivals, Diwali celebration Virginia, Indian American community events, Indian dance performance, Indian music event"
         path="/events"
       />
       {/* Hero Section */}

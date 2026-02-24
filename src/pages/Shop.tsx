@@ -10,7 +10,8 @@ export default function Shop() {
     <Layout>
       <PageMeta
         title="Shop"
-        description="Browse cultural merchandise and products from The Rith Initiative. Support Indian arts and heritage with your purchase."
+        description="Browse Indian cultural merchandise and artisan products from The Rith Initiative. Support Indian American arts and heritage with your purchase."
+        keywords="Indian cultural merchandise, Indian artisan products, Indian American shop, support Indian arts, Indian heritage gifts"
         path="/shop"
       />
       {/* Hero Section */}

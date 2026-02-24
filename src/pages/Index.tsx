@@ -510,25 +510,34 @@ const Index = () => {
     "@context": "https://schema.org",
     "@type": "NonprofitOrganization",
     "name": "The Rith Initiative",
+    "alternateName": "Rith Initiative",
     "url": "https://therithinitiative.org",
     "logo": "https://therithinitiative.org/og-image.png",
-    "description": "A 501(c)(3) nonprofit dedicated to sharing and exploring Indian culture through community events, arts, and cultural programming in Virginia.",
+    "description": "A 501(c)(3) Indian American nonprofit fostering conscious living through Indian arts, cultural events, festivals, and community programming in Virginia.",
+    "foundingDate": "2024",
+    "areaServed": {
+      "@type": "State",
+      "name": "Virginia",
+      "containedInPlace": { "@type": "Country", "name": "United States" }
+    },
     "address": {
       "@type": "PostalAddress",
       "addressRegion": "VA",
       "addressCountry": "US"
     },
+    "knowsAbout": ["Indian culture", "Indian arts", "Indian American heritage", "South Asian traditions", "Cultural programming", "Community events"],
     "sameAs": [
-    "https://www.instagram.com/rithinitiative/",
-    "https://www.facebook.com/p/The-Rith-Initiative-61580213405598/"]
-
+      "https://www.instagram.com/rithinitiative/",
+      "https://www.facebook.com/p/The-Rith-Initiative-61580213405598/"
+    ]
   };
 
   return (
     <Layout>
       <PageMeta
-        title="The Rith Initiative | Exploring & Celebrating Indian Wisdom & Culture in Virginia"
-        description="A 501(c)(3) nonprofit dedicated to sharing and exploring Indian culture through community events, arts, and cultural programming in Virginia."
+        title="The Rith Initiative | Indian American Cultural Nonprofit in Virginia"
+        description="A 501(c)(3) Indian American nonprofit fostering conscious living through Indian arts, cultural events, festivals, and community programming in Virginia."
+        keywords="Indian American community Virginia, Indian cultural events, Indian festivals, Diwali, conscious living, Indian wisdom, Indian dance, Indian music"
         jsonLd={orgJsonLd} />
 
       <HeroSection />
