@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -343,6 +343,13 @@ export function MediaManager({ entityType, entityId, onMediaChange }: MediaManag
                     <div className="flex gap-2">
                       <div
                         onClick={() => fileInputRefs.current[index]?.click()}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const file = e.dataTransfer.files?.[0];
+                          if (file) handleFileUpload(index, file);
+                        }}
+                        onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                         className="flex-1 h-24 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-primary/50 hover:bg-secondary/30 transition-colors"
                       >
                         {uploadingIndex === index ? (
@@ -350,7 +357,7 @@ export function MediaManager({ entityType, entityId, onMediaChange }: MediaManag
                         ) : (
                           <>
                             <Upload className="h-5 w-5 text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground">Upload file</span>
+                            <span className="text-xs text-muted-foreground">Drop or click to upload</span>
                           </>
                         )}
                       </div>

@@ -203,6 +203,13 @@ export default function AdminShopItemForm() {
             <div className="flex gap-2">
               <div
                 onClick={() => fileInputRef.current?.click()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const file = e.dataTransfer.files?.[0];
+                  if (file) handleFileUpload(file);
+                }}
+                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                 className="flex-1 h-32 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 hover:bg-secondary/30 transition-colors"
               >
                 {isUploading ? (
@@ -210,7 +217,7 @@ export default function AdminShopItemForm() {
                 ) : (
                   <>
                     <Upload className="h-6 w-6 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Upload image</span>
+                    <span className="text-sm text-muted-foreground">Drop or click to upload</span>
                   </>
                 )}
               </div>
