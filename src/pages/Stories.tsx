@@ -191,8 +191,9 @@ const Stories = () => {
   return (
     <Layout>
       <PageMeta
-        title="Stories"
-        description="Read stories, articles, and cultural insights from The Rith Initiative community celebrating Indian heritage in Virginia."
+        title="Stories & Insights"
+        description="Read stories, articles, and cultural insights celebrating Indian American heritage, traditions, and wisdom from The Rith Initiative community in Virginia."
+        keywords="Indian American stories, Indian cultural insights, Indian heritage articles, South Asian community stories, Indian wisdom blog"
         path="/stories"
       />
       <HeroSection />

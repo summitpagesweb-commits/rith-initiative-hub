@@ -69,8 +69,9 @@ export default function Contact() {
   return (
     <Layout>
       <PageMeta
-        title="Contact"
-        description="Get in touch with The Rith Initiative. Reach out for event inquiries, volunteer opportunities, or partnership information."
+        title="Contact Us"
+        description="Get in touch with The Rith Initiative for Indian cultural event inquiries, volunteer opportunities, partnerships, or community collaboration in Virginia."
+        keywords="contact Indian nonprofit Virginia, Indian cultural event inquiry, volunteer Indian American organization, Indian community partnership"
         path="/contact"
       />
       {/* Hero Section */}

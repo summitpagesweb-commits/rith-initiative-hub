@@ -47,7 +47,8 @@ export default function About() {
     <Layout>
       <PageMeta
         title="About Us"
-        description="Learn about The Rith Initiative, a 501(c)(3) nonprofit exploring and celebrating Indian culture through arts, events, and community programming in Virginia."
+        description="Learn about The Rith Initiative, a 501(c)(3) Indian American nonprofit exploring Indian wisdom, arts, and culture through community programming in Virginia."
+        keywords="Indian American nonprofit about, Indian cultural organization Virginia, 501c3 Indian foundation, Indian heritage mission"
         path="/about"
       />
       {/* Hero Section */}
