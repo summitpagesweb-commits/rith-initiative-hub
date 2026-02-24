@@ -111,7 +111,7 @@ function VisionPreview() {
           </ScrollReveal>
           <ScrollReveal variant="slide-right" className="order-1 lg:order-2">
             <div className="space-y-4 md:space-y-6">
-              <SectionHeading title="Our Vision" subtitle="Art as a bridge for connection" />
+              <SectionHeading title="Our Vision" subtitle="Fostering conscious living with creativity" />
               <p className="text-muted-foreground leading-relaxed">
                 A world where art serves as a bridge for communities to care, connect and sustain their culture and wisdom
               
