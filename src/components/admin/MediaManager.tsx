@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Upload, X, Image as ImageIcon, Video, Link as LinkIcon, 
-  Loader2, Plus, Trash2, GripVertical 
+  Loader2, Plus, Trash2, GripVertical, Music 
 } from 'lucide-react';
 import {
   Select,
@@ -18,7 +18,7 @@ import {
 
 interface MediaItem {
   id?: string;
-  media_type: 'image' | 'video' | 'link';
+  media_type: 'image' | 'video' | 'link' | 'audio';
   url: string;
   title: string;
   description: string;
@@ -67,7 +67,7 @@ export function MediaManager({ entityType, entityId, onMediaChange }: MediaManag
       
       setMediaItems((data || []).map(item => ({
         id: item.id,
-        media_type: item.media_type as 'image' | 'video' | 'link',
+        media_type: item.media_type as 'image' | 'video' | 'link' | 'audio',
         url: item.url,
         title: item.title || '',
         description: item.description || '',
@@ -133,10 +133,10 @@ export function MediaManager({ entityType, entityId, onMediaChange }: MediaManag
   };
 
   const handleFileUpload = async (index: number, file: File) => {
-    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+    if (!file.type.startsWith('image/') && !file.type.startsWith('video/') && !file.type.startsWith('audio/')) {
       toast({
         title: 'Invalid file type',
-        description: 'Please upload an image or video file.',
+        description: 'Please upload an image, video, or audio file.',
         variant: 'destructive',
       });
       return;
@@ -168,9 +168,10 @@ export function MediaManager({ entityType, entityId, onMediaChange }: MediaManag
         .from('images')
         .getPublicUrl(filePath);
 
+      const detectedType = file.type.startsWith('video/') ? 'video' : file.type.startsWith('audio/') ? 'audio' : 'image';
       updateMediaItem(index, {
         url: publicUrl,
-        media_type: file.type.startsWith('video/') ? 'video' : 'image',
+        media_type: detectedType,
       });
 
       toast({
@@ -192,6 +193,7 @@ export function MediaManager({ entityType, entityId, onMediaChange }: MediaManag
   const getMediaIcon = (type: string) => {
     switch (type) {
       case 'video': return <Video size={16} />;
+      case 'audio': return <Music size={16} />;
       case 'link': return <LinkIcon size={16} />;
       default: return <ImageIcon size={16} />;
     }
@@ -270,7 +272,7 @@ export function MediaManager({ entityType, entityId, onMediaChange }: MediaManag
                   <Label className="text-xs">Type</Label>
                   <Select
                     value={item.media_type}
-                    onValueChange={(value: 'image' | 'video' | 'link') => 
+                    onValueChange={(value: 'image' | 'video' | 'link' | 'audio') => 
                       updateMediaItem(index, { media_type: value })
                     }
                   >
@@ -280,6 +282,7 @@ export function MediaManager({ entityType, entityId, onMediaChange }: MediaManag
                     <SelectContent>
                       <SelectItem value="image">Image</SelectItem>
                       <SelectItem value="video">Video</SelectItem>
+                      <SelectItem value="audio">Audio</SelectItem>
                       <SelectItem value="link">Link</SelectItem>
                     </SelectContent>
                   </Select>
@@ -316,6 +319,11 @@ export function MediaManager({ entityType, entityId, onMediaChange }: MediaManag
                           className="w-full max-h-64 object-contain rounded-lg border border-border bg-secondary/30"
                           controls
                         />
+                      ) : item.media_type === 'audio' ? (
+                        <div className="p-4 rounded-lg border border-border bg-secondary/30 flex flex-col items-center gap-2">
+                          <Music className="h-8 w-8 text-muted-foreground" />
+                          <audio src={item.url} controls className="w-full" />
+                        </div>
                       ) : (
                         <img
                           src={item.url}
@@ -349,7 +357,7 @@ export function MediaManager({ entityType, entityId, onMediaChange }: MediaManag
                       <input
                         ref={el => fileInputRefs.current[index] = el}
                         type="file"
-                        accept={item.media_type === 'video' ? 'video/*' : 'image/*'}
+                        accept={item.media_type === 'video' ? 'video/*' : item.media_type === 'audio' ? 'audio/*' : 'image/*'}
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) handleFileUpload(index, file);
