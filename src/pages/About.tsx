@@ -132,26 +132,20 @@ export default function About() {
                 <SectionHeading title="Our Story" subtitle="From a small gathering to a thriving community" />
                 <div className="space-y-6 text-muted-foreground leading-relaxed">
                   <p>
-                    Rith Initiative emerged from a simple but powerful intention — to celebrate India through the arts
-                    in a way that feels authentic, accessible, and rooted in community. Founded in Richmond, Virginia,
-                    by artists Ruchi Gupta and Prabir Mehta, Rith Initiative was born at the intersection of culture,
-                    creativity, and public engagement.
+                    We believe culture is not static. It is alive, adapting, growing, traveling, and constantly being
+                    reinterpreted. The greatest threat to culture is not change, but disconnection: when future
+                    generations feel embarrassed by it, or abandon it altogether in indifference.
                   </p>
                   <p>
-                    Years earlier, their paths crossed at Mother India, an event hosted by Mehta at Gallery5 that
-                    explored Indian identity through performance and visual art. That moment planted the seed of
-                    collaboration. In 2024, that seed blossomed into the first Diwali Festival at Lewis Ginter Botanical
-                    Garden, a community‑driven celebration that brought together families, artists, dancers, musicians,
-                    and volunteers from across the region — revealing a shared desire for spaces where Indian culture
-                    could be experienced with depth, joy, and openness.
+                    Our work is to ensure the opposite. We do not seek to protect culture from change, but to evolve
+                    it so compellingly and beautifully that it thrives. We want the next generation to naturally care
+                    for it, not out of duty, but out of joy and curiosity. What the young needs are bridges that
+                    connect what their grandmothers knew with what today's world needs to know.
                   </p>
                   <p>
-                    In 2025, the vision expanded with the second Diwali Music and Arts Festival, hosted in partnership
-                    with the Virginia Museum of History and Culture. This event introduced new dimensions of
-                    sustainability and environmental consciousness — from composting food waste to installing refillable
-                    water stations — showing how cultural celebration and ecological care can move in rhythm together.
-                    That same year, Rith Initiative became a 501(c)(3) nonprofit dedicated to preserving and sharing
-                    Indian culture through the arts.
+                    Founded in Richmond, Virginia, by artists Ruchi Gupta and Prabir Mehta, Rith Initiative intents
+                    to grow as a platform for intergenerational learning, artistic collaboration, and the celebration
+                    of heritage in all its evolving forms. For us, culture is not about survival. It is about vitality.
                   </p>
                 </div>
               </div>
