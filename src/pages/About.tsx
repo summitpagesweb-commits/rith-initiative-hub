@@ -123,7 +123,7 @@ export default function About() {
                 <img
                   src={ourStoryFoundingImage}
                   alt="Women in colorful sarees at cultural event"
-                  className="rounded-2xl shadow-soft w-full h-auto object-cover max-h-[750px]"
+                  className="rounded-2xl shadow-soft w-full h-auto object-cover max-h-[600px]"
                 />
               </div>
             </ScrollReveal>
