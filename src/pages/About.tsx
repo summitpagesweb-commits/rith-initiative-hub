@@ -123,7 +123,7 @@ export default function About() {
                 <img
                   src={ourStoryFoundingImage}
                   alt="Women in colorful sarees at cultural event"
-                  className="rounded-2xl shadow-soft w-full h-auto object-cover max-h-[400px]"
+                  className="rounded-2xl shadow-soft w-full h-auto object-cover max-h-[750px]"
                 />
               </div>
             </ScrollReveal>
@@ -137,15 +137,15 @@ export default function About() {
                     generations feel embarrassed by it, or abandon it altogether in indifference.
                   </p>
                   <p>
-                    Our work is to ensure the opposite. We do not seek to protect culture from change, but to evolve
-                    it so compellingly and beautifully that it thrives. We want the next generation to naturally care
-                    for it, not out of duty, but out of joy and curiosity. What the young needs are bridges that
-                    connect what their grandmothers knew with what today's world needs to know.
+                    Our work is to ensure the opposite. We do not seek to protect culture from change, but to evolve it
+                    so compellingly and beautifully that it thrives. We want the next generation to naturally care for
+                    it, not out of duty, but out of joy and curiosity. What the young needs are bridges that connect
+                    what their grandmothers knew with what today's world needs to know.
                   </p>
                   <p>
-                    Founded in Richmond, Virginia, by artists Ruchi Gupta and Prabir Mehta, Rith Initiative intents
-                    to grow as a platform for intergenerational learning, artistic collaboration, and the celebration
-                    of heritage in all its evolving forms. For us, culture is not about survival. It is about vitality.
+                    Founded in Richmond, Virginia, by artists Ruchi Gupta and Prabir Mehta, Rith Initiative intents to
+                    grow as a platform for intergenerational learning, artistic collaboration, and the celebration of
+                    heritage in all its evolving forms. For us, culture is not about survival. It is about vitality.
                   </p>
                 </div>
               </div>
