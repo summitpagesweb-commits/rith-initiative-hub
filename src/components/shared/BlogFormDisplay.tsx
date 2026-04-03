@@ -105,9 +105,9 @@ export function BlogFormDisplay({ postId }: BlogFormDisplayProps) {
       const parsedResponses: Record<string, string | boolean | Date> = {};
       
       for (const [key, value] of Object.entries(existingResponses)) {
-        // Try to parse dates
+        // Try to parse dates — use explicit UTC midnight to avoid timezone boundary shifts
         if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
-          parsedResponses[key] = new Date(value);
+          parsedResponses[key] = new Date(value.substring(0, 10) + 'T00:00:00Z');
         } else {
           parsedResponses[key] = value;
         }

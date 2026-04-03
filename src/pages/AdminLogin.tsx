@@ -17,15 +17,33 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
-  const { signIn, signUp, user, isAdmin, isLoading } = useAuth();
+  const [loginAttempted, setLoginAttempted] = useState(false);
+  const { signIn, signUp, signOut, user, isAdmin, isLoading, isCheckingAdmin } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Navigate to admin dashboard once authenticated as admin (wait for admin check to settle)
   useEffect(() => {
-    if (!isLoading && user && isAdmin) {
+    if (!isLoading && !isCheckingAdmin && user && isAdmin) {
       navigate('/admin');
     }
-  }, [user, isAdmin, isLoading, navigate]);
+  }, [user, isAdmin, isLoading, isCheckingAdmin, navigate]);
+
+  // After a login attempt, once admin check settles: if not admin, reject access
+  useEffect(() => {
+    if (!loginAttempted || !user || isCheckingAdmin) return;
+
+    if (!isAdmin) {
+      signOut();
+      setLoginAttempted(false);
+      setIsSubmitting(false);
+      toast({
+        title: 'Access denied',
+        description: 'You do not have admin privileges. Contact an existing administrator.',
+        variant: 'destructive',
+      });
+    }
+  }, [loginAttempted, user, isAdmin, isCheckingAdmin]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +61,7 @@ export default function AdminLogin() {
 
     try {
       const { error } = await signIn(email, password);
-      
+
       if (error) {
         toast({
           title: 'Login failed',
@@ -54,24 +72,8 @@ export default function AdminLogin() {
         return;
       }
 
-      // Wait briefly for auth state to update, then check admin status
-      setTimeout(async () => {
-        // Re-check if user is admin after login
-        const { data: roleData } = await import('@/integrations/supabase/client').then(m => 
-          m.supabase.from('user_roles').select('role').in('role', ['admin', 'moderator'])
-        );
-        
-        if (!roleData || roleData.length === 0) {
-          toast({
-            title: 'Access denied',
-            description: 'You do not have admin privileges. Please contact an administrator.',
-            variant: 'destructive',
-          });
-          // Sign out since they don't have admin access
-          await import('@/integrations/supabase/client').then(m => m.supabase.auth.signOut());
-        }
-        setIsSubmitting(false);
-      }, 500);
+      // Mark that we attempted login; useEffect above handles access denial
+      setLoginAttempted(true);
     } catch (err) {
       toast({
         title: 'Login failed',
@@ -120,7 +122,7 @@ export default function AdminLogin() {
 
       toast({
         title: 'Account created!',
-        description: 'You can now sign in with your credentials.',
+        description: 'Please check your email to confirm your account. Once confirmed, return here to sign in.',
       });
       
       setActiveTab('login');
@@ -205,6 +207,7 @@ export default function AdminLogin() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -274,6 +277,7 @@ export default function AdminLogin() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}

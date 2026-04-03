@@ -19,37 +19,37 @@ export default function AdminHome() {
       try {
         const now = new Date().toISOString();
 
-        // Fetch events stats
-        const { data: upcomingEvents } = await supabase
+        // Fetch events stats — use head:true so we only get the count, not all rows
+        const { count: upcomingEvents } = await supabase
           .from('events')
-          .select('id', { count: 'exact' })
+          .select('*', { count: 'exact', head: true })
           .gte('start_date', now)
           .eq('is_archived', false);
 
-        const { data: pastEvents } = await supabase
+        const { count: pastEvents } = await supabase
           .from('events')
-          .select('id', { count: 'exact' })
+          .select('*', { count: 'exact', head: true })
           .lt('start_date', now)
           .eq('is_archived', false);
 
         // Fetch updates stats
-        const { data: publishedUpdates } = await supabase
+        const { count: publishedUpdates } = await supabase
           .from('updates')
-          .select('id', { count: 'exact' })
+          .select('*', { count: 'exact', head: true })
           .eq('is_published', true)
           .eq('is_archived', false);
 
-        const { data: draftUpdates } = await supabase
+        const { count: draftUpdates } = await supabase
           .from('updates')
-          .select('id', { count: 'exact' })
+          .select('*', { count: 'exact', head: true })
           .eq('is_published', false)
           .eq('is_archived', false);
 
         setStats({
-          upcomingEvents: upcomingEvents?.length || 0,
-          pastEvents: pastEvents?.length || 0,
-          publishedUpdates: publishedUpdates?.length || 0,
-          draftUpdates: draftUpdates?.length || 0,
+          upcomingEvents: upcomingEvents ?? 0,
+          pastEvents: pastEvents ?? 0,
+          publishedUpdates: publishedUpdates ?? 0,
+          draftUpdates: draftUpdates ?? 0,
         });
       } catch (error) {
         console.error('Error fetching stats:', error);

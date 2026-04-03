@@ -119,6 +119,24 @@ export default function AdminEventForm() {
       return;
     }
 
+    if (formData.capacity && (isNaN(Number(formData.capacity)) || parseInt(formData.capacity) <= 0)) {
+      toast({
+        title: 'Invalid capacity',
+        description: 'Capacity must be a positive number.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (formData.end_date && formData.end_date < formData.start_date) {
+      toast({
+        title: 'Invalid dates',
+        description: 'End date cannot be before the start date.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {

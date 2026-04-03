@@ -101,8 +101,9 @@ export default function AdminShopItemForm() {
       toast({ title: 'Title is required', variant: 'destructive' });
       return;
     }
-    if (!price || isNaN(Number(price)) || Number(price) < 0) {
-      toast({ title: 'Valid price is required', variant: 'destructive' });
+    const priceNum = Number(price);
+    if (!price || isNaN(priceNum) || priceNum < 0 || priceNum > 999999.99) {
+      toast({ title: 'Valid price is required', description: 'Price must be between $0.00 and $999,999.99', variant: 'destructive' });
       return;
     }
 
