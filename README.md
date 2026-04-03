@@ -1,1 +1,1 @@
-Rith Initiative - Exploring Indian Wisdom & Culture
+#Rith Initiative - Exploring Indian Wisdom & Culture
