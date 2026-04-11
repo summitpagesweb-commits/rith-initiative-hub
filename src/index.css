@@ -212,11 +212,15 @@
   .animate-page-flip {
     animation: pageFlip 0.6s ease-in-out forwards;
     backface-visibility: hidden;
+    transform-style: preserve-3d;
+    will-change: transform;
   }
 
   .animate-page-flip-reverse {
     animation: pageFlipReverse 0.6s ease-in-out forwards;
     backface-visibility: hidden;
+    transform-style: preserve-3d;
+    will-change: transform;
   }
 
   .perspective-\[2000px\] {
