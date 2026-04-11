@@ -511,8 +511,8 @@ const Index = () => {
     "@type": "NonprofitOrganization",
     "name": "The Rith Initiative",
     "alternateName": "Rith Initiative",
-    "url": "https://therithinitiative.org",
-    "logo": "https://therithinitiative.org/og-image.png",
+    "url": "https://rithinitiative.org",
+    "logo": "https://rithinitiative.org/og-image.png",
     "description": "A 501(c)(3) Indian American nonprofit fostering conscious living through Indian arts, cultural events, festivals, and community programming in Virginia.",
     "foundingDate": "2024",
     "areaServed": {

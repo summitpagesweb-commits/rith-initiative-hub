@@ -14,4 +14,4 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 
-Sitemap: https://therithinitiative.org/sitemap.xml
+Sitemap: https://rithinitiative.org/sitemap.xml

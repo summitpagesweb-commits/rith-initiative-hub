@@ -10,7 +10,7 @@ interface PageMetaProps {
   jsonLd?: Record<string, unknown>;
 }
 
-const BASE_URL = "https://therithinitiative.org";
+const BASE_URL = "https://rithinitiative.org";
 const DEFAULT_OG_IMAGE = `${BASE_URL}/og-image.png`;
 const BASE_KEYWORDS = "Indian American nonprofit, Indian culture Virginia, Indian arts foundation, Indian heritage, South Asian cultural organization";
 
