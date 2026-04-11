@@ -5,6 +5,7 @@ import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
 import { SectionDivider } from "@/components/shared/SectionDivider";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { Heart, Users, Globe, BookOpen } from "lucide-react";
+import { createBreadcrumbSchema, createWebPageSchema } from "@/lib/seo";
 import missionCelebrationImage from "@/assets/mission-celebration.jpg";
 import ourStoryFoundingImage from "@/assets/our-story-founding.jpg";
 
@@ -44,13 +45,27 @@ const boardMembers = [
 const advisoryMembers = [{ name: "Priti Patil" }, { name: "Niraj Verma" }];
 
 export default function About() {
+  const pageTitle = "About Us";
+  const pageDescription = "Learn about The Rith Initiative, a 501(c)(3) Indian American nonprofit exploring Indian wisdom, arts, and culture through community programming in Virginia.";
+  const aboutPageSchema = createWebPageSchema({
+    title: `${pageTitle} | The Rith Initiative`,
+    description: pageDescription,
+    path: "/about",
+    type: "AboutPage",
+  });
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "About", path: "/about" },
+  ]);
+
   return (
     <Layout>
       <PageMeta
-        title="About Us"
-        description="Learn about The Rith Initiative, a 501(c)(3) Indian American nonprofit exploring Indian wisdom, arts, and culture through community programming in Virginia."
+        title={pageTitle}
+        description={pageDescription}
         keywords="Indian American nonprofit about, Indian cultural organization Virginia, 501c3 Indian foundation, Indian heritage mission"
         path="/about"
+        jsonLd={[aboutPageSchema, breadcrumbSchema]}
       />
       {/* Hero Section */}
       <section className="section-padding bg-gradient-to-b from-secondary/30 to-background">

@@ -8,6 +8,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ShoppingBag, ExternalLink, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { SITE_URL, createBreadcrumbSchema, createWebPageSchema } from "@/lib/seo";
 
 interface ShopItem {
   id: string;
@@ -23,6 +24,9 @@ export default function Shop() {
   const [items, setItems] = useState<ShopItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null);
+
+  const pageTitle = "Shop";
+  const pageDescription = "Browse Indian cultural merchandise and artisan products from The Rith Initiative. Support Indian American arts and heritage with your purchase.";
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -45,13 +49,40 @@ export default function Shop() {
     fetchItems();
   }, []);
 
+  const shopPageSchema = createWebPageSchema({
+    title: `${pageTitle} | The Rith Initiative`,
+    description: pageDescription,
+    path: "/shop",
+    type: "CollectionPage",
+  });
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Shop", path: "/shop" },
+  ]);
+  const productSchemas = items.slice(0, 20).map((item) => ({
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: item.title,
+    ...(item.description ? { description: item.description } : {}),
+    ...(item.image_url ? { image: item.image_url } : {}),
+    ...(item.category ? { category: item.category } : {}),
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "USD",
+      price: Number(item.price).toFixed(2),
+      availability: "https://schema.org/InStock",
+      ...(item.purchase_link ? { url: item.purchase_link } : { url: `${SITE_URL}/shop` }),
+    },
+  }));
+
   return (
     <Layout>
       <PageMeta
-        title="Shop"
-        description="Browse Indian cultural merchandise and artisan products from The Rith Initiative. Support Indian American arts and heritage with your purchase."
+        title={pageTitle}
+        description={pageDescription}
         keywords="Indian cultural merchandise, Indian artisan products, Indian American shop, support Indian arts, Indian heritage gifts"
         path="/shop"
+        jsonLd={[shopPageSchema, breadcrumbSchema, ...productSchemas]}
       />
       {/* Hero Section */}
       <section className="section-padding bg-gradient-to-b from-secondary/30 to-background">

@@ -3,10 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#334A73" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="icon" href="/favicon.png" type="image/png" sizes="500x500" />
     <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
 
     <!-- Primary Meta Tags -->
     <title>The Rith Initiative | Indian American Cultural Nonprofit in Virginia</title>
@@ -21,6 +27,7 @@
     />
     <meta name="author" content="The Rith Initiative" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="geo.region" content="US-VA" />
     <meta name="geo.placename" content="Virginia" />
 
@@ -33,6 +40,7 @@
       content="A 501(c)(3) Indian American nonprofit fostering conscious living through Indian arts, cultural events, and community programming in Virginia."
     />
     <meta property="og:image" content="https://rithinitiative.org/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="The Rith Initiative - Exploring Indian Wisdom & Culture" />
@@ -53,6 +61,44 @@
 
     <!-- Canonical -->
     <link rel="canonical" href="https://rithinitiative.org/" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "NonprofitOrganization",
+            "@id": "https://rithinitiative.org/#organization",
+            "name": "The Rith Initiative",
+            "alternateName": "Rith Initiative",
+            "url": "https://rithinitiative.org",
+            "logo": "https://rithinitiative.org/og-image.png",
+            "description": "A 501(c)(3) Indian American nonprofit fostering conscious living through Indian arts, cultural events, festivals, and community programming in Virginia.",
+            "foundingDate": "2024",
+            "address": {
+              "@type": "PostalAddress",
+              "addressRegion": "VA",
+              "addressCountry": "US"
+            },
+            "sameAs": [
+              "https://www.instagram.com/rithinitiative/",
+              "https://www.facebook.com/p/The-Rith-Initiative-61580213405598/"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://rithinitiative.org/#website",
+            "url": "https://rithinitiative.org",
+            "name": "The Rith Initiative",
+            "inLanguage": "en-US",
+            "publisher": {
+              "@id": "https://rithinitiative.org/#organization"
+            }
+          }
+        ]
+      }
+    </script>
   </head>
 
   <body>

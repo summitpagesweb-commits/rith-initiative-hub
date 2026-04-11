@@ -3,33 +3,43 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Suspense, lazy } from "react";
 import { AuthProvider } from "@/hooks/useAuth";
 import { HelmetProvider } from "react-helmet-async";
 import { ScrollToTop } from "@/components/shared/ScrollToTop";
-import Index from "./pages/Index";
-import About from "./pages/About";
-import Events from "./pages/Events";
-import Donate from "./pages/Donate";
-import Stories from "./pages/Stories";
-import Shop from "./pages/Shop";
-import Contact from "./pages/Contact";
-import NotFound from "./pages/NotFound";
-import AdminLogin from "./pages/AdminLogin";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminHome from "./pages/admin/AdminHome";
-import AdminEvents from "./pages/admin/AdminEvents";
-import AdminEventForm from "./pages/admin/AdminEventForm";
-import AdminPosts from "./pages/admin/AdminPosts";
-import AdminPostForm from "./pages/admin/AdminPostForm";
-import AdminUpdates from "./pages/admin/AdminUpdates";
-import AdminUpdateForm from "./pages/admin/AdminUpdateForm";
-import AdminGallery from "./pages/admin/AdminGallery";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminSubscribers from "./pages/admin/AdminSubscribers";
-import AdminShop from "./pages/admin/AdminShop";
-import AdminShopItemForm from "./pages/admin/AdminShopItemForm";
 
 const queryClient = new QueryClient();
+
+const Index = lazy(() => import("./pages/Index"));
+const About = lazy(() => import("./pages/About"));
+const Events = lazy(() => import("./pages/Events"));
+const Donate = lazy(() => import("./pages/Donate"));
+const Stories = lazy(() => import("./pages/Stories"));
+const Shop = lazy(() => import("./pages/Shop"));
+const Contact = lazy(() => import("./pages/Contact"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminHome = lazy(() => import("./pages/admin/AdminHome"));
+const AdminEvents = lazy(() => import("./pages/admin/AdminEvents"));
+const AdminEventForm = lazy(() => import("./pages/admin/AdminEventForm"));
+const AdminPosts = lazy(() => import("./pages/admin/AdminPosts"));
+const AdminPostForm = lazy(() => import("./pages/admin/AdminPostForm"));
+const AdminUpdates = lazy(() => import("./pages/admin/AdminUpdates"));
+const AdminUpdateForm = lazy(() => import("./pages/admin/AdminUpdateForm"));
+const AdminGallery = lazy(() => import("./pages/admin/AdminGallery"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminSubscribers = lazy(() => import("./pages/admin/AdminSubscribers"));
+const AdminShop = lazy(() => import("./pages/admin/AdminShop"));
+const AdminShopItemForm = lazy(() => import("./pages/admin/AdminShopItemForm"));
+
+function RouteLoadingFallback() {
+  return (
+    <div className="min-h-[40vh] flex items-center justify-center" aria-live="polite" aria-busy="true">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    </div>
+  );
+}
 
 const App = () => (
   <HelmetProvider>
@@ -40,39 +50,41 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/events" element={<Events />} />
-            <Route path="/stories" element={<Stories />} />
-            <Route path="/shop" element={<Shop />} />
-            <Route path="/donate" element={<Donate />} />
-            <Route path="/contact" element={<Contact />} />
-            
-            {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminDashboard />}>
-              <Route index element={<AdminHome />} />
-              <Route path="events" element={<AdminEvents />} />
-              <Route path="events/new" element={<AdminEventForm />} />
-              <Route path="events/:id" element={<AdminEventForm />} />
-              <Route path="updates" element={<AdminUpdates />} />
-              <Route path="updates/new" element={<AdminUpdateForm />} />
-              <Route path="updates/:id" element={<AdminUpdateForm />} />
-              <Route path="posts" element={<AdminPosts />} />
-              <Route path="posts/new" element={<AdminPostForm />} />
-              <Route path="posts/:id" element={<AdminPostForm />} />
-              <Route path="gallery" element={<AdminGallery />} />
-              <Route path="users" element={<AdminUsers />} />
-              <Route path="subscribers" element={<AdminSubscribers />} />
-              <Route path="shop" element={<AdminShop />} />
-              <Route path="shop/new" element={<AdminShopItemForm />} />
-              <Route path="shop/:id" element={<AdminShopItemForm />} />
-            </Route>
-            
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<RouteLoadingFallback />}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/stories" element={<Stories />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/donate" element={<Donate />} />
+              <Route path="/contact" element={<Contact />} />
+              
+              {/* Admin Routes */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin" element={<AdminDashboard />}>
+                <Route index element={<AdminHome />} />
+                <Route path="events" element={<AdminEvents />} />
+                <Route path="events/new" element={<AdminEventForm />} />
+                <Route path="events/:id" element={<AdminEventForm />} />
+                <Route path="updates" element={<AdminUpdates />} />
+                <Route path="updates/new" element={<AdminUpdateForm />} />
+                <Route path="updates/:id" element={<AdminUpdateForm />} />
+                <Route path="posts" element={<AdminPosts />} />
+                <Route path="posts/new" element={<AdminPostForm />} />
+                <Route path="posts/:id" element={<AdminPostForm />} />
+                <Route path="gallery" element={<AdminGallery />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="subscribers" element={<AdminSubscribers />} />
+                <Route path="shop" element={<AdminShop />} />
+                <Route path="shop/new" element={<AdminShopItemForm />} />
+                <Route path="shop/:id" element={<AdminShopItemForm />} />
+              </Route>
+              
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

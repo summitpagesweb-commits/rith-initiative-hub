@@ -6,6 +6,7 @@ import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import { Heart, Gift, Users, BookOpen, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
+import { SITE_URL, createBreadcrumbSchema, createWebPageSchema } from "@/lib/seo";
 
 const DONATION_LINK = "https://www.paypal.com/donate?hosted_button_id=LDD3U2Q5B59QE";
 
@@ -33,13 +34,43 @@ const impactAreas = [
 ];
 
 export default function Donate() {
+  const pageTitle = "Donate";
+  const pageDescription = "Support The Rith Initiative, an Indian American 501(c)(3) nonprofit preserving Indian culture and arts in Virginia. Your tax-deductible donation makes a difference.";
+  const donatePageSchema = createWebPageSchema({
+    title: `${pageTitle} | The Rith Initiative`,
+    description: pageDescription,
+    path: "/donate",
+    type: "WebPage",
+  });
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Donate", path: "/donate" },
+  ]);
+  const donateActionSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Donate to The Rith Initiative",
+    url: `${SITE_URL}/donate`,
+    description: pageDescription,
+    potentialAction: {
+      "@type": "DonateAction",
+      recipient: {
+        "@type": "NonprofitOrganization",
+        name: "The Rith Initiative",
+        url: SITE_URL,
+      },
+      target: DONATION_LINK,
+    },
+  };
+
   return (
     <Layout>
       <PageMeta
-        title="Donate"
-        description="Support The Rith Initiative, an Indian American 501(c)(3) nonprofit preserving Indian culture and arts in Virginia. Your tax-deductible donation makes a difference."
+        title={pageTitle}
+        description={pageDescription}
         keywords="donate Indian nonprofit, support Indian culture, Indian American charity, tax deductible donation Indian arts, Indian heritage foundation donate"
         path="/donate"
+        jsonLd={[donatePageSchema, breadcrumbSchema, donateActionSchema]}
       />
       {/* Hero Section */}
       <section className="section-padding bg-gradient-to-b from-secondary/30 to-background">

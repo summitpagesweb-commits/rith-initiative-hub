@@ -10,6 +10,7 @@ import { Calendar, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MediaLightbox } from "@/components/shared/MediaLightbox";
+import { SITE_URL, createBreadcrumbSchema, createWebPageSchema } from "@/lib/seo";
 
 interface Event {
   id: string;
@@ -111,13 +112,50 @@ export default function Events() {
     }
   };
 
+  const pageTitle = "Events & Programs";
+  const pageDescription = "Discover upcoming Indian cultural events, festivals, Diwali celebrations, and community gatherings hosted by The Rith Initiative in Virginia.";
+  const eventsPageSchema = createWebPageSchema({
+    title: `${pageTitle} | The Rith Initiative`,
+    description: pageDescription,
+    path: "/events",
+    type: "CollectionPage",
+  });
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Events", path: "/events" },
+  ]);
+  const eventSchemas = upcomingEvents.slice(0, 10).map((event) => ({
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: event.title,
+    startDate: event.start_date,
+    ...(event.end_date ? { endDate: event.end_date } : {}),
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    ...(event.location
+      ? {
+          location: {
+            "@type": "Place",
+            name: event.location,
+          },
+        }
+      : {}),
+    organizer: {
+      "@type": "Organization",
+      name: "The Rith Initiative",
+      url: SITE_URL,
+    },
+    ...(event.registration_link ? { url: event.registration_link } : { url: `${SITE_URL}/events` }),
+  }));
+
   return (
     <Layout>
       <PageMeta
-        title="Events & Programs"
-        description="Discover upcoming Indian cultural events, festivals, Diwali celebrations, and community gatherings hosted by The Rith Initiative in Virginia."
+        title={pageTitle}
+        description={pageDescription}
         keywords="Indian cultural events Virginia, Indian festivals, Diwali celebration Virginia, Indian American community events, Indian dance performance, Indian music event"
         path="/events"
+        jsonLd={[eventsPageSchema, breadcrumbSchema, ...eventSchemas]}
       />
       {/* Hero Section */}
       <section className="section-padding bg-gradient-to-b from-secondary/30 to-background">

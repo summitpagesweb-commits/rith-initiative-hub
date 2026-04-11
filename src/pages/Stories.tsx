@@ -11,6 +11,7 @@ import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { SITE_URL, createBreadcrumbSchema, createWebPageSchema } from "@/lib/seo";
 
 interface BlogPost {
   id: string;
@@ -242,13 +243,40 @@ function CTASection() {
 }
 
 const Stories = () => {
+  const pageTitle = "Stories & Insights";
+  const pageDescription = "Read stories, articles, and cultural insights celebrating Indian American heritage, traditions, and wisdom from The Rith Initiative community in Virginia.";
+  const storiesPageSchema = createWebPageSchema({
+    title: `${pageTitle} | The Rith Initiative`,
+    description: pageDescription,
+    path: "/stories",
+    type: "Blog",
+  });
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Stories", path: "/stories" },
+  ]);
+  const blogSchema = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "The Rith Initiative Stories",
+    description: pageDescription,
+    url: `${SITE_URL}/stories`,
+    inLanguage: "en-US",
+    publisher: {
+      "@type": "Organization",
+      name: "The Rith Initiative",
+      url: SITE_URL,
+    },
+  };
+
   return (
     <Layout>
       <PageMeta
-        title="Stories & Insights"
-        description="Read stories, articles, and cultural insights celebrating Indian American heritage, traditions, and wisdom from The Rith Initiative community in Virginia."
+        title={pageTitle}
+        description={pageDescription}
         keywords="Indian American stories, Indian cultural insights, Indian heritage articles, South Asian community stories, Indian wisdom blog"
         path="/stories"
+        jsonLd={[storiesPageSchema, breadcrumbSchema, blogSchema]}
       />
       <HeroSection />
       <SectionDivider />

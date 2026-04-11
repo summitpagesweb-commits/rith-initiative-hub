@@ -64,6 +64,8 @@ export function Header() {
                 src={logo} 
                 alt="The Rith Initiative Logo" 
                 className="h-16 md:h-20 w-auto transition-transform group-hover:scale-105"
+                fetchPriority="high"
+                decoding="async"
               />
             </Link>
 

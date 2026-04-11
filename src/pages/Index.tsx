@@ -10,6 +10,7 @@ import { PageMeta } from "@/components/shared/PageMeta";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { createWebPageSchema, organizationSchema, websiteSchema } from "@/lib/seo";
 import communityGatheringImage from "@/assets/community-gathering.jpg";
 import heroCulturalEventImage from "@/assets/hero-cultural-event.jpg";
 
@@ -69,7 +70,9 @@ function HeroSection() {
                 <img
                   src={heroCulturalEventImage}
                   alt="Community members creating traditional Rangoli art with the message: Rith means cosmic rhythms, calling us to listen deeply to the echoes of our heritage, the voices around us and the possibilities before us"
-                  className="rounded-2xl shadow-elevated w-full h-auto object-cover" />
+                  className="rounded-2xl shadow-elevated w-full h-auto object-cover"
+                  fetchPriority="high"
+                  decoding="async" />
 
               </div>
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-primary/20 rounded-full blur-2xl" />
@@ -106,7 +109,9 @@ function VisionPreview() {
             <img
               src={communityGatheringImage}
               alt="Community gathering at Virginia Historical Society"
-              className="rounded-2xl shadow-soft w-full h-auto object-cover" />
+              className="rounded-2xl shadow-soft w-full h-auto object-cover"
+              loading="lazy"
+              decoding="async" />
 
           </ScrollReveal>
           <ScrollReveal variant="slide-right" className="order-1 lg:order-2">
@@ -506,39 +511,21 @@ function GalleryPreview() {
 }
 
 const Index = () => {
-  const orgJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "NonprofitOrganization",
-    "name": "The Rith Initiative",
-    "alternateName": "Rith Initiative",
-    "url": "https://rithinitiative.org",
-    "logo": "https://rithinitiative.org/og-image.png",
-    "description": "A 501(c)(3) Indian American nonprofit fostering conscious living through Indian arts, cultural events, festivals, and community programming in Virginia.",
-    "foundingDate": "2024",
-    "areaServed": {
-      "@type": "State",
-      "name": "Virginia",
-      "containedInPlace": { "@type": "Country", "name": "United States" }
-    },
-    "address": {
-      "@type": "PostalAddress",
-      "addressRegion": "VA",
-      "addressCountry": "US"
-    },
-    "knowsAbout": ["Indian culture", "Indian arts", "Indian American heritage", "South Asian traditions", "Cultural programming", "Community events"],
-    "sameAs": [
-      "https://www.instagram.com/rithinitiative/",
-      "https://www.facebook.com/p/The-Rith-Initiative-61580213405598/"
-    ]
-  };
+  const homeTitle = "The Rith Initiative | Indian American Cultural Nonprofit in Virginia";
+  const homeDescription = "A 501(c)(3) Indian American nonprofit fostering conscious living through Indian arts, cultural events, festivals, and community programming in Virginia.";
+  const homePageSchema = createWebPageSchema({
+    title: homeTitle,
+    description: homeDescription,
+    path: "/",
+  });
 
   return (
     <Layout>
       <PageMeta
-        title="The Rith Initiative | Indian American Cultural Nonprofit in Virginia"
-        description="A 501(c)(3) Indian American nonprofit fostering conscious living through Indian arts, cultural events, festivals, and community programming in Virginia."
+        title={homeTitle}
+        description={homeDescription}
         keywords="Indian American community Virginia, Indian cultural events, Indian festivals, Diwali, conscious living, Indian wisdom, Indian dance, Indian music"
-        jsonLd={orgJsonLd} />
+        jsonLd={[organizationSchema, websiteSchema, homePageSchema]} />
 
       <HeroSection />
       <SectionDivider />
