@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Calendar, MapPin, Edit, Archive, Trash2, RotateCcw } from 'lucide-react';
 import { format } from 'date-fns';
+import { splitEventsByTimeline } from '@/lib/events';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -110,13 +111,8 @@ export default function AdminEvents() {
     }
   };
 
-  const now = new Date();
-  const upcomingEvents = events.filter(
-    (e) => new Date(e.start_date) >= now && !e.is_archived
-  );
-  const pastEvents = events.filter(
-    (e) => new Date(e.start_date) < now && !e.is_archived
-  );
+  const activeEvents = events.filter((e) => !e.is_archived);
+  const { upcoming: upcomingEvents, past: pastEvents } = splitEventsByTimeline(activeEvents, new Date());
   const archivedEvents = events.filter((e) => e.is_archived);
 
   if (isLoading) {

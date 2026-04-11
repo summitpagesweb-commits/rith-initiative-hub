@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { createWebPageSchema, organizationSchema, websiteSchema } from "@/lib/seo";
+import { splitEventsByTimeline } from "@/lib/events";
 import communityGatheringImage from "@/assets/community-gathering.jpg";
 import heroCulturalEventImage from "@/assets/hero-cultural-event.jpg";
 
@@ -18,6 +19,7 @@ interface Event {
   id: string;
   title: string;
   start_date: string;
+  end_date: string | null;
   time: string | null;
   location: string | null;
 }
@@ -259,19 +261,15 @@ function EventsPreviewSection() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const now = new Date().toISOString();
-
-        // Fetch upcoming events
         const { data, error } = await supabase.
         from("events").
-        select("id, title, start_date, time, location").
-        gte("start_date", now).
+        select("id, title, start_date, end_date, time, location").
         eq("is_archived", false).
-        order("start_date", { ascending: true }).
-        limit(2);
+        order("start_date", { ascending: true });
 
         if (error) throw error;
-        setEvents(data || []);
+        const { upcoming } = splitEventsByTimeline(data || [], new Date());
+        setEvents(upcoming.slice(0, 2));
 
         // Fetch random media from all events for the photo slots
         const { data: mediaData, error: mediaError } = await supabase.

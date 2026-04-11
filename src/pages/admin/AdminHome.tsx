@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, Bell, Plus, ArrowRight } from 'lucide-react';
+import { splitEventsByTimeline } from '@/lib/events';
 
 export default function AdminHome() {
   const [stats, setStats] = useState({
@@ -17,20 +18,14 @@ export default function AdminHome() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const now = new Date().toISOString();
-
-        // Fetch events stats — use head:true so we only get the count, not all rows
-        const { count: upcomingEvents } = await supabase
+        const { data: events, error: eventsError } = await supabase
           .from('events')
-          .select('*', { count: 'exact', head: true })
-          .gte('start_date', now)
-          .eq('is_archived', false);
+          .select('start_date, end_date, is_archived');
 
-        const { count: pastEvents } = await supabase
-          .from('events')
-          .select('*', { count: 'exact', head: true })
-          .lt('start_date', now)
-          .eq('is_archived', false);
+        if (eventsError) throw eventsError;
+
+        const activeEvents = (events || []).filter((event) => !event.is_archived);
+        const { upcoming: upcomingEvents, past: pastEvents } = splitEventsByTimeline(activeEvents, new Date());
 
         // Fetch updates stats
         const { count: publishedUpdates } = await supabase
@@ -46,8 +41,8 @@ export default function AdminHome() {
           .eq('is_archived', false);
 
         setStats({
-          upcomingEvents: upcomingEvents ?? 0,
-          pastEvents: pastEvents ?? 0,
+          upcomingEvents: upcomingEvents.length,
+          pastEvents: pastEvents.length,
           publishedUpdates: publishedUpdates ?? 0,
           draftUpdates: draftUpdates ?? 0,
         });

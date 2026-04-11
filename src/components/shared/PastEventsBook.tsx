@@ -47,8 +47,10 @@ interface PastEventsBookProps {
 
 export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsBookProps) {
   const isMobile = useIsMobile();
+  const FLIP_DURATION_MS = 600;
   const [currentSpread, setCurrentSpread] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
+  const [flipDirection, setFlipDirection] = useState<"next" | "prev" | null>(null);
   const [flippedCards, setFlippedCards] = useState<Set<number>>(new Set());
   const [mobileFlippedCards, setMobileFlippedCards] = useState<Set<string>>(new Set());
 
@@ -69,33 +71,39 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
   const nextSpread = () => {
     if (canGoNext && !isFlipping) {
       setIsFlipping(true);
+      setFlipDirection("next");
       setFlippedCards(new Set()); // Reset flipped cards when changing spread
       setTimeout(() => {
         setCurrentSpread(prev => prev + 1);
         setIsFlipping(false);
-      }, 400);
+        setFlipDirection(null);
+      }, FLIP_DURATION_MS);
     }
   };
 
   const prevSpread = () => {
     if (canGoPrev && !isFlipping) {
       setIsFlipping(true);
+      setFlipDirection("prev");
       setFlippedCards(new Set()); // Reset flipped cards when changing spread
       setTimeout(() => {
         setCurrentSpread(prev => prev - 1);
         setIsFlipping(false);
-      }, 400);
+        setFlipDirection(null);
+      }, FLIP_DURATION_MS);
     }
   };
 
   const goToSpread = (index: number) => {
     if (!isFlipping && index !== currentSpread) {
       setIsFlipping(true);
+      setFlipDirection(index > currentSpread ? "next" : "prev");
       setFlippedCards(new Set()); // Reset flipped cards when changing spread
       setTimeout(() => {
         setCurrentSpread(index);
         setIsFlipping(false);
-      }, 400);
+        setFlipDirection(null);
+      }, FLIP_DURATION_MS);
     }
   };
 
@@ -443,6 +451,7 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
       <Carousel
         opts={{
           align: "center",
+          containScroll: false,
           loop: false,
         }}
         className="w-full"
@@ -585,7 +594,7 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
 
   // Desktop Book View
   const renderDesktopView = () => (
-    <div className="relative w-full max-w-5xl mx-auto">
+    <div className="relative w-full max-w-5xl mx-auto perspective-[2000px]">
       {/* Book Container */}
       <div className="relative">
         {/* Book Shadow */}
@@ -597,7 +606,9 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
         {/* Book Pages Container - lighter cream/white tones */}
         <div className={`relative flex bg-gradient-to-b from-stone-50 to-stone-100/80 rounded-lg shadow-2xl border-4 md:border-8 border-stone-300 min-h-[550px] md:min-h-[650px] transition-opacity duration-200 ${isFlipping ? 'opacity-90' : 'opacity-100'}`}>
           {/* Left Page */}
-          <div className="w-1/2 bg-gradient-to-br from-white via-stone-50 to-stone-100/50 border-r border-stone-200/50 relative overflow-hidden">
+          <div
+            className={`w-1/2 bg-gradient-to-br from-white via-stone-50 to-stone-100/50 border-r border-stone-200/50 relative overflow-hidden ${isFlipping && flipDirection === 'prev' ? 'animate-page-flip-reverse z-30' : ''}`}
+          >
             {/* Page texture lines */}
             <div className="absolute inset-0 opacity-[0.02]" style={{
               backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 24px, currentColor 25px)',
@@ -624,7 +635,7 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
 
           {/* Right Page */}
           <div 
-            className="w-1/2 bg-gradient-to-bl from-white via-stone-50 to-stone-100/50 relative overflow-hidden"
+            className={`w-1/2 bg-gradient-to-bl from-white via-stone-50 to-stone-100/50 relative overflow-hidden ${isFlipping && flipDirection === 'next' ? 'animate-page-flip z-30' : ''}`}
           >
             {/* Page texture lines */}
             <div className="absolute inset-0 opacity-[0.02]" style={{

@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MediaLightbox } from "@/components/shared/MediaLightbox";
 import { SITE_URL, createBreadcrumbSchema, createWebPageSchema } from "@/lib/seo";
+import { splitEventsByTimeline } from "@/lib/events";
 
 interface Event {
   id: string;
@@ -45,31 +46,22 @@ export default function Events() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const now = new Date().toISOString();
-
-        // Fetch upcoming events
-        const { data: upcoming, error: upcomingError } = await supabase
+        const { data: events, error: eventsError } = await supabase
           .from('events')
           .select('*')
-          .gte('start_date', now)
           .eq('is_archived', false)
           .order('start_date', { ascending: true });
 
-        if (upcomingError) throw upcomingError;
+        if (eventsError) throw eventsError;
 
-        // Fetch past events
-        const { data: past, error: pastError } = await supabase
-          .from('events')
-          .select('*')
-          .lt('start_date', now)
-          .eq('is_archived', false)
-          .order('start_date', { ascending: false });
-
-        if (pastError) throw pastError;
-
-        const allEvents = [...(upcoming || []), ...(past || [])];
-        setUpcomingEvents(upcoming || []);
-        setPastEvents(past || []);
+        const allEvents = events || [];
+        const { upcoming, past } = splitEventsByTimeline(allEvents, new Date());
+        setUpcomingEvents(upcoming);
+        setPastEvents(
+          [...past].sort(
+            (a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
+          )
+        );
 
         // Fetch media for all events
         if (allEvents.length > 0) {
