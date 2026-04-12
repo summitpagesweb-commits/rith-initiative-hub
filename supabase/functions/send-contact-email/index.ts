@@ -1,11 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const CONTACT_EMAIL = Deno.env.get("CONTACT_EMAIL") || "rithinitiative@gmail.com";
-const FROM_EMAIL = Deno.env.get("FROM_EMAIL") || "The Rith Initiative <onboarding@resend.dev>";
+const DEFAULT_CONTACT_EMAIL = "rithinitiative@gmail.com";
+const DEFAULT_FROM_EMAIL = "The Rith Initiative <onboarding@resend.dev>";
+const RESEND_API_URL = "https://api.resend.com/emails";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
@@ -49,19 +50,66 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+async function sendEmail(
+  resendApiKey: string,
+  body: {
+    from: string;
+    to: string[];
+    subject: string;
+    html: string;
+    reply_to?: string;
+  },
+): Promise<void> {
+  const response = await fetch(RESEND_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${resendApiKey}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    return;
+  }
+
+  const errorText = await response.text();
+  let resendError = errorText;
+
+  try {
+    const parsed = JSON.parse(errorText);
+    resendError = parsed.message || parsed.error || errorText;
+  } catch {
+    // Keep raw response text as fallback
+  }
+
+  throw new Error(`Resend error (${response.status}): ${resendError}`);
+}
+
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    return new Response(
+      JSON.stringify({ error: "Method not allowed" }),
+      {
+        status: 405,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      },
+    );
+  }
+
   // Rate limiting by IP
   const clientIp =
+    req.headers.get("cf-connecting-ip") ||
     req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
     req.headers.get("x-real-ip") ||
     "unknown";
 
-  if (isRateLimited(clientIp)) {
+  if (clientIp !== "unknown" && isRateLimited(clientIp)) {
     return new Response(
       JSON.stringify({ error: "Too many requests. Please try again later." }),
       {
@@ -72,7 +120,32 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { name, email, subject, message }: ContactEmailRequest = await req.json();
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    const contactEmail = Deno.env.get("CONTACT_EMAIL") || DEFAULT_CONTACT_EMAIL;
+    const fromEmail = Deno.env.get("FROM_EMAIL") || DEFAULT_FROM_EMAIL;
+
+    if (!resendApiKey) {
+      console.error("Missing RESEND_API_KEY secret");
+      return new Response(
+        JSON.stringify({ error: "Email service is not configured correctly." }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        },
+      );
+    }
+
+    const {
+      name: rawName,
+      email: rawEmail,
+      subject: rawSubject,
+      message: rawMessage,
+    }: ContactEmailRequest = await req.json();
+
+    const name = rawName?.trim();
+    const email = rawEmail?.trim();
+    const subject = rawSubject?.trim();
+    const message = rawMessage?.trim();
 
     console.log("Received contact form submission:", { name, email, subject });
 
@@ -116,17 +189,12 @@ const handler = async (req: Request): Promise<Response> => {
     const safeMessage = escapeHtml(message).replace(/\n/g, "<br>");
 
     // Send notification email to the organization
-    const notificationResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: [CONTACT_EMAIL],
-        subject: `Contact Form: ${safeSubject}`,
-        html: `
+    await sendEmail(resendApiKey, {
+      from: fromEmail,
+      to: [contactEmail],
+      reply_to: email,
+      subject: `Contact Form: ${subject}`,
+      html: `
           <h2>New Contact Form Submission</h2>
           <p><strong>From:</strong> ${safeName} (${safeEmail})</p>
           <p><strong>Subject:</strong> ${safeSubject}</p>
@@ -135,26 +203,14 @@ const handler = async (req: Request): Promise<Response> => {
           <hr>
           <p style="color: #666; font-size: 12px;">This message was sent from the contact form on The Rith Initiative website.</p>
         `,
-      }),
     });
-
-    if (!notificationResponse.ok) {
-      const error = await notificationResponse.text();
-      console.error("Failed to send notification email:", error);
-      throw new Error(`Failed to send notification email: ${error}`);
-    }
 
     console.log("Notification email sent successfully");
 
     // Send confirmation email to the user
-    const confirmationResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
+    try {
+      await sendEmail(resendApiKey, {
+        from: fromEmail,
         to: [email],
         subject: "Thank you for contacting The Rith Initiative",
         html: `
@@ -169,15 +225,11 @@ const handler = async (req: Request): Promise<Response> => {
             If you have any urgent questions, please email us at rithinitiative@gmail.com
           </p>
         `,
-      }),
-    });
-
-    if (!confirmationResponse.ok) {
-      const error = await confirmationResponse.text();
-      console.error("Failed to send confirmation email:", error);
-      // Don't throw here - the notification was sent, just log the error
-    } else {
+      });
       console.log("Confirmation email sent successfully");
+    } catch (error) {
+      console.error("Failed to send confirmation email:", error);
+      // Intentionally non-blocking. Admin notification already succeeded.
     }
 
     return new Response(
