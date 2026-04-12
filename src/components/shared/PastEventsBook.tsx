@@ -43,9 +43,15 @@ interface PastEventsBookProps {
   events: PastEvent[];
   eventMedia: Record<string, MediaItem[]>;
   onMediaClick: (eventId: string, index: number) => void;
+  browseInstruction?: string;
 }
 
-export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsBookProps) {
+export function PastEventsBook({
+  events,
+  eventMedia,
+  onMediaClick,
+  browseInstruction = "Use the arrows to browse through past events",
+}: PastEventsBookProps) {
   const isMobile = useIsMobile();
   const FLIP_DURATION_MS = 600;
   const [currentSpread, setCurrentSpread] = useState(0);
@@ -830,7 +836,7 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
       {/* Instructions */}
       <div className="text-center mt-6 text-muted-foreground text-sm space-y-1">
         <p>Click on any event card to flip and see details</p>
-        <p>Use the arrows to browse through past events</p>
+        <p>{browseInstruction}</p>
       </div>
     </div>
   );

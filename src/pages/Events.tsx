@@ -190,6 +190,7 @@ export default function Events() {
                 events={upcomingEvents}
                 eventMedia={eventMedia}
                 onMediaClick={openMediaLightbox}
+                browseInstruction="Use the arrows to browse through upcoming events"
               />
             </ScrollReveal>
           ) : (
@@ -227,6 +228,7 @@ export default function Events() {
                 events={pastEvents}
                 eventMedia={eventMedia}
                 onMediaClick={openMediaLightbox}
+                browseInstruction="Use the arrows to browse through past events"
               />
             </ScrollReveal>
           )}

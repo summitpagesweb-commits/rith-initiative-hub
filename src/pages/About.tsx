@@ -1,9 +1,11 @@
+import { useEffect, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageMeta } from "@/components/shared/PageMeta";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { PlaceholderImage } from "@/components/shared/PlaceholderImage";
 import { SectionDivider } from "@/components/shared/SectionDivider";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
+import { supabase } from "@/integrations/supabase/client";
 import { Heart, Users, Globe, BookOpen } from "lucide-react";
 import { createBreadcrumbSchema, createWebPageSchema } from "@/lib/seo";
 import missionCelebrationImage from "@/assets/mission-celebration.jpg";
@@ -36,15 +38,110 @@ const values = [
   },
 ];
 
-const boardMembers = [
+interface TeamMember {
+  name: string;
+  role?: string | null;
+  photo_url?: string | null;
+}
+
+const fallbackBoardMembers: TeamMember[] = [
   { name: "Ruchi Gupta", role: "President" },
   { name: "Prabir Mehta", role: "Vice President" },
   { name: "Sumeet Gupta", role: "Treasurer" },
 ];
 
-const advisoryMembers = [{ name: "Priti Patil" }, { name: "Niraj Verma" }];
+const fallbackAdvisoryMembers: TeamMember[] = [{ name: "Priti Patil" }, { name: "Niraj Verma" }];
+
+function TeamMemberCard({ member }: { member: TeamMember }) {
+  return (
+    <div className="text-center">
+      {member.photo_url ? (
+        <img
+          src={member.photo_url}
+          alt={member.name}
+          className="w-full aspect-square rounded-2xl mb-4 shadow-soft object-cover"
+        />
+      ) : (
+        <PlaceholderImage
+          aspectRatio="square"
+          label={member.name}
+          className="w-full rounded-2xl mb-4 shadow-soft"
+        />
+      )}
+      <h4 className="font-heading text-lg font-semibold text-foreground">{member.name}</h4>
+      {member.role && <p className="text-muted-foreground text-sm">{member.role}</p>}
+    </div>
+  );
+}
+
+function TeamMembersGrid({ members }: { members: TeamMember[] }) {
+  return (
+    <div className="flex flex-wrap justify-center gap-8">
+      {members.map((member, index) => (
+        <ScrollReveal
+          key={`${member.name}-${index}`}
+          variant="fade-up"
+          delay={index * 100}
+          className="w-full max-w-[260px]"
+        >
+          <TeamMemberCard member={member} />
+        </ScrollReveal>
+      ))}
+    </div>
+  );
+}
 
 export default function About() {
+  const [boardMembers, setBoardMembers] = useState<TeamMember[]>(fallbackBoardMembers);
+  const [advisoryMembers, setAdvisoryMembers] = useState<TeamMember[]>(fallbackAdvisoryMembers);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchTeamMembers = async () => {
+      const { data, error } = await supabase
+        .from("team_members")
+        .select("name, role, section, photo_url, display_order")
+        .order("display_order", { ascending: true });
+
+      if (error) {
+        console.error("Error fetching team members:", error);
+        return;
+      }
+
+      const teamRows = data || [];
+
+      const board = teamRows
+        .filter((member) => member.section === "board")
+        .map((member) => ({
+          name: member.name,
+          role: member.role,
+          photo_url: member.photo_url,
+        }));
+
+      const advisory = teamRows
+        .filter((member) => member.section === "advisory")
+        .map((member) => ({
+          name: member.name,
+          role: member.role,
+          photo_url: member.photo_url,
+        }));
+
+      if (!isMounted) {
+        return;
+      }
+
+      setBoardMembers(board);
+      setAdvisoryMembers(advisory);
+    };
+
+    fetchTeamMembers();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const pageTitle = "About Us";
   const pageDescription = "Learn about The Rith Initiative, a 501(c)(3) Indian American nonprofit exploring Indian wisdom, arts, and culture through community programming in Virginia.";
   const aboutPageSchema = createWebPageSchema({
@@ -207,21 +304,7 @@ export default function About() {
             <ScrollReveal variant="fade-up">
               <h3 className="font-heading text-xl font-semibold text-foreground text-center mb-8">Board</h3>
             </ScrollReveal>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
-              {boardMembers.map((member, index) => (
-                <ScrollReveal key={index} variant="fade-up" delay={index * 100}>
-                  <div className="text-center">
-                    <PlaceholderImage
-                      aspectRatio="square"
-                      label={member.name}
-                      className="w-full max-w-[260px] mx-auto rounded-2xl mb-4 shadow-soft"
-                    />
-                    <h4 className="font-heading text-lg font-semibold text-foreground">{member.name}</h4>
-                    <p className="text-muted-foreground text-sm">{member.role}</p>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
+            <TeamMembersGrid members={boardMembers} />
           </div>
 
           {/* Advisory */}
@@ -229,20 +312,7 @@ export default function About() {
             <ScrollReveal variant="fade-up">
               <h3 className="font-heading text-xl font-semibold text-foreground text-center mb-8">Advisory</h3>
             </ScrollReveal>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-              {advisoryMembers.map((member, index) => (
-                <ScrollReveal key={index} variant="fade-up" delay={index * 100}>
-                  <div className="text-center">
-                    <PlaceholderImage
-                      aspectRatio="square"
-                      label={member.name}
-                      className="w-full max-w-[260px] mx-auto rounded-2xl mb-4 shadow-soft"
-                    />
-                    <h4 className="font-heading text-lg font-semibold text-foreground">{member.name}</h4>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
+            <TeamMembersGrid members={advisoryMembers} />
           </div>
         </div>
       </section>

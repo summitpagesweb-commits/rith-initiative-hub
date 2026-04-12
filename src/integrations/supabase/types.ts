@@ -480,6 +480,42 @@ export type Database = {
           },
         ]
       }
+      team_members: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          name: string
+          photo_url: string | null
+          role: string | null
+          section: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          name: string
+          photo_url?: string | null
+          role?: string | null
+          section: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          name?: string
+          photo_url?: string | null
+          role?: string | null
+          section?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       updates: {
         Row: {
           created_at: string

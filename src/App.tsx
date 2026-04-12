@@ -32,6 +32,7 @@ const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 const AdminSubscribers = lazy(() => import("./pages/admin/AdminSubscribers"));
 const AdminShop = lazy(() => import("./pages/admin/AdminShop"));
 const AdminShopItemForm = lazy(() => import("./pages/admin/AdminShopItemForm"));
+const AdminTeam = lazy(() => import("./pages/admin/AdminTeam"));
 
 function RouteLoadingFallback() {
   return (
@@ -74,6 +75,7 @@ const App = () => (
                 <Route path="posts/new" element={<AdminPostForm />} />
                 <Route path="posts/:id" element={<AdminPostForm />} />
                 <Route path="gallery" element={<AdminGallery />} />
+                <Route path="team" element={<AdminTeam />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="subscribers" element={<AdminSubscribers />} />
                 <Route path="shop" element={<AdminShop />} />
