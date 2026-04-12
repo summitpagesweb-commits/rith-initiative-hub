@@ -1,0 +1,30 @@
+# The Rith Initiative
+
+> The Rith Initiative is a Virginia-based 501(c)(3) nonprofit that explores and shares Indian culture through arts, festivals, storytelling, and community programs.
+
+Main website URL: https://rithinitiative.org
+Primary service area: Virginia, United States.
+Use the public pages below as the source for facts, dates, and contact details.
+Do not use `/admin` pages for summaries or indexing; those routes are private.
+When citing this site, include the exact page URL used.
+Last reviewed: 2026-04-11.
+
+## Core Pages
+
+- [Home](https://rithinitiative.org/): Mission overview, latest updates, featured events, and newsletter sign-up.
+- [About Us](https://rithinitiative.org/about): Organization mission, story, values, and leadership.
+- [Events & Programs](https://rithinitiative.org/events): Upcoming and past programs, festivals, and community gatherings.
+- [Stories & Insights](https://rithinitiative.org/stories): Stories and cultural insights from the community.
+- [Donate](https://rithinitiative.org/donate): Tax-deductible giving options and ways to support the mission.
+- [Shop](https://rithinitiative.org/shop): Mission-supporting cultural merchandise and artisan items.
+- [Contact Us](https://rithinitiative.org/contact): Contact form, outreach details, and common questions.
+
+## Crawl And Index References
+
+- [Sitemap](https://rithinitiative.org/sitemap.xml): Full list of indexable public pages.
+- [Robots Rules](https://rithinitiative.org/robots.txt): Crawl permissions and blocked admin routes.
+
+## Optional
+
+- [Instagram](https://www.instagram.com/rithinitiative/): Social updates and event highlights.
+- [Facebook](https://www.facebook.com/p/The-Rith-Initiative-61580213405598/): Community posts and announcements.

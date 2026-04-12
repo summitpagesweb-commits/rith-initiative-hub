@@ -72,15 +72,6 @@ export function PageMeta({
       {articlePublishedTime && <meta property="article:published_time" content={articlePublishedTime} />}
       {articleModifiedTime && <meta property="article:modified_time" content={articleModifiedTime} />}
 
-      {/* Twitter */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:site" content="@therithinitiative" />
-      <meta name="twitter:url" content={canonicalUrl} />
-      <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={ogImage} />
-      <meta name="twitter:image:alt" content={ogImageAlt} />
-
       {/* JSON-LD */}
       {schemas.map((schema, index) => (
         <script key={`schema-${index}`} type="application/ld+json">{JSON.stringify(schema)}</script>
