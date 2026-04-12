@@ -557,8 +557,17 @@ export type Database = {
         Returns: {
           created_at: string
           email: string
-          full_name: string
+          full_name: string | null
           user_id: string
+        }[]
+      }
+      get_admin_invitations: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          invited_by_email: string | null
         }[]
       }
       has_role: {
@@ -569,6 +578,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin_or_moderator: { Args: { _user_id: string }; Returns: boolean }
+      remove_email_subscriber: { Args: { _subscriber_id: string }; Returns: Json }
       remove_admin_by_email: { Args: { _email: string }; Returns: Json }
     }
     Enums: {

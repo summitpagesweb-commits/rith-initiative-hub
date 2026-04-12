@@ -44,21 +44,65 @@ export default function AdminUsers() {
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [cancellingEmail, setCancellingEmail] = useState<string | null>(null);
 
+  const loadAdministrators = async (): Promise<Admin[]> => {
+    const adminsResult = await supabase.rpc('get_all_admins');
+
+    if (!adminsResult.error) {
+      return adminsResult.data || [];
+    }
+
+    console.warn('get_all_admins RPC failed, falling back to table queries:', adminsResult.error);
+
+    const rolesResult = await supabase
+      .from('user_roles')
+      .select('user_id, created_at')
+      .eq('role', 'admin')
+      .order('created_at', { ascending: true });
+
+    if (rolesResult.error) throw rolesResult.error;
+
+    const roleRows = rolesResult.data || [];
+    if (roleRows.length === 0) return [];
+
+    const profileResult = await supabase
+      .from('profiles')
+      .select('user_id, email, full_name')
+      .in('user_id', roleRows.map((row) => row.user_id));
+
+    if (profileResult.error) throw profileResult.error;
+
+    const profileByUserId = new Map(
+      (profileResult.data || []).map((profile) => [profile.user_id, profile])
+    );
+
+    return roleRows.map((roleRow) => {
+      const profile = profileByUserId.get(roleRow.user_id);
+      return {
+        user_id: roleRow.user_id,
+        email: profile?.email || '(email unavailable)',
+        full_name: profile?.full_name || null,
+        created_at: roleRow.created_at,
+      };
+    });
+  };
+
   const fetchAdmins = async () => {
     try {
-      const [adminsResult, invitesResult] = await Promise.all([
-        supabase.rpc('get_all_admins'),
-        supabase.rpc('get_admin_invitations'),
-      ]);
-
-      if (adminsResult.error) throw adminsResult.error;
-
-      setAdmins(adminsResult.data || []);
-      // Invitations are best-effort — don't crash the page if the function isn't ready yet
-      setInvitations(invitesResult.error ? [] : (invitesResult.data || []));
+      const adminRows = await loadAdministrators();
+      setAdmins(adminRows);
     } catch (error) {
       console.error('Error fetching admins:', error);
       toast.error('Failed to load administrators');
+      setAdmins([]);
+    }
+
+    try {
+      const invitesResult = await supabase.rpc('get_admin_invitations');
+      // Invitations are best-effort — don't crash the page if the function isn't ready yet
+      setInvitations(invitesResult.error ? [] : (invitesResult.data || []));
+    } catch (error) {
+      console.warn('Error fetching admin invitations:', error);
+      setInvitations([]);
     } finally {
       setIsLoading(false);
     }
