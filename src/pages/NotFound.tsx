@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
+import { PageMeta } from "@/components/shared/PageMeta";
 
 const NotFound = () => {
   const location = useLocation();
@@ -13,6 +14,13 @@ const NotFound = () => {
 
   return (
     <Layout>
+      <PageMeta
+        title="Page Not Found"
+        description="The page you are looking for could not be found."
+        path={location.pathname}
+        noindex
+        nofollow
+      />
       <section className="section-padding min-h-[60vh] flex items-center">
         <div className="container-narrow text-center">
           <h1 className="font-heading text-6xl md:text-8xl font-bold text-primary mb-4">

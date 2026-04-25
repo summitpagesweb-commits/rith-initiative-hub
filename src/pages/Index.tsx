@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Calendar, Heart, Users, ExternalLink } from "lucide-react";
+import { ArrowRight, Heart, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { SectionHeading } from "@/components/shared/SectionHeading";
@@ -10,6 +10,8 @@ import { PageMeta } from "@/components/shared/PageMeta";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { createWebPageSchema, organizationSchema, websiteSchema } from "@/lib/seo";
+import { splitEventsByTimeline } from "@/lib/events";
 import communityGatheringImage from "@/assets/community-gathering.jpg";
 import heroCulturalEventImage from "@/assets/hero-cultural-event.jpg";
 
@@ -17,8 +19,10 @@ interface Event {
   id: string;
   title: string;
   start_date: string;
+  end_date: string | null;
   time: string | null;
   location: string | null;
+  featured_image_url: string | null;
 }
 
 interface Update {
@@ -69,7 +73,9 @@ function HeroSection() {
                 <img
                   src={heroCulturalEventImage}
                   alt="Community members creating traditional Rangoli art with the message: Rith means cosmic rhythms, calling us to listen deeply to the echoes of our heritage, the voices around us and the possibilities before us"
-                  className="rounded-2xl shadow-elevated w-full h-auto object-cover" />
+                  className="rounded-2xl shadow-elevated w-full h-auto object-cover"
+                  fetchPriority="high"
+                  decoding="async" />
 
               </div>
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-primary/20 rounded-full blur-2xl" />
@@ -106,7 +112,9 @@ function VisionPreview() {
             <img
               src={communityGatheringImage}
               alt="Community gathering at Virginia Historical Society"
-              className="rounded-2xl shadow-soft w-full h-auto object-cover" />
+              className="rounded-2xl shadow-soft w-full h-auto object-cover"
+              loading="lazy"
+              decoding="async" />
 
           </ScrollReveal>
           <ScrollReveal variant="slide-right" className="order-1 lg:order-2">
@@ -248,37 +256,63 @@ function UpdatesPreviewSection() {
 // Events Preview Section
 function EventsPreviewSection() {
   const [events, setEvents] = useState<Event[]>([]);
-  const [eventPhotos, setEventPhotos] = useState<{url: string;title: string | null;}[]>([]);
+  const [eventPhotos, setEventPhotos] = useState<{url: string | null;title: string | null;}[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const now = new Date().toISOString();
-
-        // Fetch upcoming events
         const { data, error } = await supabase.
         from("events").
-        select("id, title, start_date, time, location").
-        gte("start_date", now).
+        select("id, title, start_date, end_date, time, location, featured_image_url").
         eq("is_archived", false).
-        order("start_date", { ascending: true }).
-        limit(2);
+        order("start_date", { ascending: true });
 
         if (error) throw error;
-        setEvents(data || []);
+        const { upcoming } = splitEventsByTimeline(data || [], new Date());
+        const displayedUpcoming = upcoming.slice(0, 2);
+        setEvents(displayedUpcoming);
 
-        // Fetch random media from all events for the photo slots
-        const { data: mediaData, error: mediaError } = await supabase.
-        from("media").
-        select("url, title").
-        eq("entity_type", "event").
-        eq("media_type", "image");
+        if (displayedUpcoming.length > 0) {
+          const eventIds = displayedUpcoming.map((event) => event.id);
 
-        if (!mediaError && mediaData && mediaData.length > 0) {
-          // Shuffle and pick 2 random images
-          const shuffled = [...mediaData].sort(() => 0.5 - Math.random());
-          setEventPhotos(shuffled.slice(0, 2));
+          const { data: mediaData, error: mediaError } = await supabase.
+          from("media").
+          select("entity_id, url, title, display_order, created_at").
+          eq("entity_type", "event").
+          eq("media_type", "image").
+          in("entity_id", eventIds).
+          order("display_order", { ascending: true }).
+          order("created_at", { ascending: true });
+
+          if (!mediaError) {
+            const firstMediaByEvent = new Map<string, {url: string;title: string | null;}>();
+            (mediaData || []).forEach((media) => {
+              if (!firstMediaByEvent.has(media.entity_id)) {
+                firstMediaByEvent.set(media.entity_id, {
+                  url: media.url,
+                  title: media.title,
+                });
+              }
+            });
+
+            setEventPhotos(
+              displayedUpcoming.map((event) => {
+                const mediaForEvent = firstMediaByEvent.get(event.id);
+                return {
+                  url: event.featured_image_url || mediaForEvent?.url || null,
+                  title: mediaForEvent?.title || event.title,
+                };
+              }));
+          } else {
+            setEventPhotos(
+              displayedUpcoming.map((event) => ({
+                url: event.featured_image_url || null,
+                title: event.title,
+              })));
+          }
+        } else {
+          setEventPhotos([]);
         }
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -306,22 +340,17 @@ function EventsPreviewSection() {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div> :
               events.length > 0 ?
-              <div className="space-y-6">
+                <div className="space-y-6">
                   {events.map((event, index) =>
                 <ScrollReveal key={event.id} variant="fade-up" delay={index * 100}>
                       <div className="p-6 rounded-xl bg-card border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300">
-                        <div className="flex items-start gap-4">
-                          <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <Calendar className="w-7 h-7 text-primary" />
-                          </div>
-                          <div>
-                            <h4 className="font-heading text-lg font-semibold text-foreground mb-1">{event.title}</h4>
-                            <p className="text-primary font-medium text-sm">
-                              {format(new Date(event.start_date), "MMMM d, yyyy")}
-                              {event.time && ` • ${event.time}`}
-                            </p>
-                            {event.location && <p className="text-muted-foreground text-sm">{event.location}</p>}
-                          </div>
+                        <div>
+                          <h4 className="font-heading text-lg font-semibold text-foreground mb-1">{event.title}</h4>
+                          <p className="text-primary font-medium text-sm">
+                            {format(new Date(event.start_date), "MMMM d, yyyy")}
+                            {event.time && ` • ${event.time}`}
+                          </p>
+                          {event.location && <p className="text-muted-foreground text-sm">{event.location}</p>}
                         </div>
                       </div>
                     </ScrollReveal>
@@ -342,42 +371,49 @@ function EventsPreviewSection() {
             </div>
           </ScrollReveal>
           <ScrollReveal variant="slide-right" delay={100}>
-            <div className="grid grid-cols-2 gap-4">
-              {eventPhotos.length >= 2 ?
-              <>
-                  <div className="aspect-[3/4] rounded-xl overflow-hidden bg-secondary/30">
-                    <img
+            {events.length === 1 ?
+            <div className="max-w-sm mx-auto">
+                {eventPhotos[0]?.url ?
+              <div className="aspect-[3/4] w-full flex items-center justify-center">
+                    <div className="inline-flex max-w-full max-h-full rounded-xl overflow-hidden border border-border/50 bg-secondary/20">
+                      <img
                     src={eventPhotos[0].url}
                     alt={eventPhotos[0].title || "Event photo"}
-                    className="w-full h-full object-cover" />
+                    className="block w-auto h-auto max-w-full max-h-full object-contain" />
+                    </div>
+                  </div> :
+              <PlaceholderImage
+                aspectRatio="portrait"
+                label={`${events[0].title} image`}
+                className="rounded-xl" />
+              }
+              </div> :
+            <div className="grid grid-cols-2 gap-4">
+                {eventPhotos[0]?.url ?
+              <div className="aspect-[3/4] w-full flex items-center justify-center">
+                    <div className="inline-flex max-w-full max-h-full rounded-xl overflow-hidden border border-border/50 bg-secondary/20">
+                      <img
+                    src={eventPhotos[0].url}
+                    alt={eventPhotos[0].title || "Event photo"}
+                    className="block w-auto h-auto max-w-full max-h-full object-contain" />
+                    </div>
+                  </div> :
+              <PlaceholderImage aspectRatio="portrait" label={events[0]?.title ? `${events[0].title} image` : "Event photo 1"} className="rounded-xl" />
+              }
 
-                  </div>
-                  <div className="aspect-[3/4] rounded-xl overflow-hidden bg-secondary/30 mt-8">
-                    <img
+                {eventPhotos[1]?.url ?
+              <div className="aspect-[3/4] w-full flex items-center justify-center mt-8">
+                    <div className="inline-flex max-w-full max-h-full rounded-xl overflow-hidden border border-border/50 bg-secondary/20">
+                      <img
                     src={eventPhotos[1].url}
                     alt={eventPhotos[1].title || "Event photo"}
-                    className="w-full h-full object-cover" />
-
-                  </div>
-                </> :
-              eventPhotos.length === 1 ?
-              <>
-                  <div className="aspect-[3/4] rounded-xl overflow-hidden bg-secondary/30">
-                    <img
-                    src={eventPhotos[0].url}
-                    alt={eventPhotos[0].title || "Event photo"}
-                    className="w-full h-full object-cover" />
-
-                  </div>
-                  <PlaceholderImage aspectRatio="portrait" label="Event photo 2" className="rounded-xl mt-8" />
-                </> :
-
-              <>
-                  <PlaceholderImage aspectRatio="portrait" label="Event photo 1" className="rounded-xl" />
-                  <PlaceholderImage aspectRatio="portrait" label="Event photo 2" className="rounded-xl mt-8" />
-                </>
+                    className="block w-auto h-auto max-w-full max-h-full object-contain" />
+                    </div>
+                  </div> :
+              <PlaceholderImage aspectRatio="portrait" label={events[1]?.title ? `${events[1].title} image` : "Event photo 2"} className="rounded-xl mt-8" />
               }
-            </div>
+              </div>
+            }
           </ScrollReveal>
         </div>
       </div>
@@ -506,39 +542,21 @@ function GalleryPreview() {
 }
 
 const Index = () => {
-  const orgJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "NonprofitOrganization",
-    "name": "The Rith Initiative",
-    "alternateName": "Rith Initiative",
-    "url": "https://therithinitiative.org",
-    "logo": "https://therithinitiative.org/og-image.png",
-    "description": "A 501(c)(3) Indian American nonprofit fostering conscious living through Indian arts, cultural events, festivals, and community programming in Virginia.",
-    "foundingDate": "2024",
-    "areaServed": {
-      "@type": "State",
-      "name": "Virginia",
-      "containedInPlace": { "@type": "Country", "name": "United States" }
-    },
-    "address": {
-      "@type": "PostalAddress",
-      "addressRegion": "VA",
-      "addressCountry": "US"
-    },
-    "knowsAbout": ["Indian culture", "Indian arts", "Indian American heritage", "South Asian traditions", "Cultural programming", "Community events"],
-    "sameAs": [
-      "https://www.instagram.com/rithinitiative/",
-      "https://www.facebook.com/p/The-Rith-Initiative-61580213405598/"
-    ]
-  };
+  const homeTitle = "The Rith Initiative | Indian American Cultural Nonprofit in Virginia";
+  const homeDescription = "A 501(c)(3) Indian American nonprofit fostering conscious living through Indian arts, cultural events, festivals, and community programming in Virginia.";
+  const homePageSchema = createWebPageSchema({
+    title: homeTitle,
+    description: homeDescription,
+    path: "/",
+  });
 
   return (
     <Layout>
       <PageMeta
-        title="The Rith Initiative | Indian American Cultural Nonprofit in Virginia"
-        description="A 501(c)(3) Indian American nonprofit fostering conscious living through Indian arts, cultural events, festivals, and community programming in Virginia."
+        title={homeTitle}
+        description={homeDescription}
         keywords="Indian American community Virginia, Indian cultural events, Indian festivals, Diwali, conscious living, Indian wisdom, Indian dance, Indian music"
-        jsonLd={orgJsonLd} />
+        jsonLd={[organizationSchema, websiteSchema, homePageSchema]} />
 
       <HeroSection />
       <SectionDivider />

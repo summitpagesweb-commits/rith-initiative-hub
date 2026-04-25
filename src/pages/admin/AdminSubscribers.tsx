@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,11 +33,14 @@ interface Subscriber {
   source: string | null;
 }
 
+const SUBSCRIBERS_QUERY_KEY = ['admin', 'subscribers'] as const;
+
 export default function AdminSubscribers() {
   const [searchTerm, setSearchTerm] = useState('');
+  const queryClient = useQueryClient();
 
-  const { data: subscribers = [], isLoading, refetch } = useQuery({
-    queryKey: ['subscribers'],
+  const { data: subscribers = [], isLoading } = useQuery({
+    queryKey: SUBSCRIBERS_QUERY_KEY,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('email_subscribers')
@@ -46,6 +49,48 @@ export default function AdminSubscribers() {
 
       if (error) throw error;
       return data as Subscriber[];
+    },
+  });
+
+  const deleteSubscriberMutation = useMutation({
+    mutationFn: async ({ id }: Pick<Subscriber, 'id' | 'email'>) => {
+      const { data, error } = await supabase.rpc('remove_email_subscriber', {
+        _subscriber_id: id,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      const result = data as { success?: boolean; error?: string } | null;
+      if (!result?.success) {
+        throw new Error(result?.error || 'Failed to delete subscriber');
+      }
+
+      return id;
+    },
+    onMutate: async ({ id }) => {
+      await queryClient.cancelQueries({ queryKey: SUBSCRIBERS_QUERY_KEY });
+
+      const previousSubscribers = queryClient.getQueryData<Subscriber[]>(SUBSCRIBERS_QUERY_KEY) || [];
+
+      queryClient.setQueryData<Subscriber[]>(SUBSCRIBERS_QUERY_KEY, (current = []) =>
+        current.filter((subscriber) => subscriber.id !== id)
+      );
+
+      return { previousSubscribers };
+    },
+    onError: (error, _variables, context) => {
+      if (context?.previousSubscribers) {
+        queryClient.setQueryData(SUBSCRIBERS_QUERY_KEY, context.previousSubscribers);
+      }
+      toast.error(error instanceof Error ? error.message : 'Failed to delete subscriber');
+    },
+    onSuccess: () => {
+      toast.success('Subscriber removed');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: SUBSCRIBERS_QUERY_KEY });
     },
   });
 
@@ -84,19 +129,8 @@ export default function AdminSubscribers() {
     toast.success('Subscribers exported successfully');
   };
 
-  const handleDelete = async (id: string) => {
-    const { error } = await supabase
-      .from('email_subscribers')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      toast.error('Failed to delete subscriber');
-      return;
-    }
-
-    toast.success('Subscriber removed');
-    refetch();
+  const handleDelete = (subscriber: Pick<Subscriber, 'id' | 'email'>) => {
+    deleteSubscriberMutation.mutate(subscriber);
   };
 
   return (
@@ -149,42 +183,56 @@ export default function AdminSubscribers() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredSubscribers.map((subscriber) => (
-                <TableRow key={subscriber.id}>
-                  <TableCell className="font-medium">{subscriber.email}</TableCell>
-                  <TableCell>
-                    {format(new Date(subscriber.subscribed_at), 'MMM d, yyyy h:mm a')}
-                  </TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-secondary text-secondary-foreground">
-                      {subscriber.source || 'unknown'}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                          <Trash2 size={16} />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Remove subscriber?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This will remove {subscriber.email} from the subscriber list. This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDelete(subscriber.id)}>
-                            Remove
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {filteredSubscribers.map((subscriber) => {
+                const isDeletingSubscriber =
+                  deleteSubscriberMutation.isPending &&
+                  deleteSubscriberMutation.variables?.id === subscriber.id;
+
+                return (
+                  <TableRow key={subscriber.id}>
+                    <TableCell className="font-medium">{subscriber.email}</TableCell>
+                    <TableCell>
+                      {format(new Date(subscriber.subscribed_at), 'MMM d, yyyy h:mm a')}
+                    </TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-secondary text-secondary-foreground">
+                        {subscriber.source || 'unknown'}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive"
+                            disabled={isDeletingSubscriber}
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Remove subscriber?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will remove {subscriber.email} from the subscriber list. This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(subscriber)}
+                              disabled={isDeletingSubscriber}
+                            >
+                              {isDeletingSubscriber ? 'Removing...' : 'Remove'}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         )}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,14 +12,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Trash2, GripVertical } from 'lucide-react';
+import { Plus, Trash2, ListPlus } from 'lucide-react';
+
+export type QuestionFieldType = 'multiple_choice' | 'checkbox' | 'short_answer' | 'long_answer';
 
 export interface FormField {
   id?: string;
-  field_type: 'multiple_choice' | 'date' | 'text' | 'checkbox';
+  field_type: 'section' | QuestionFieldType;
   label: string;
   description?: string;
   options?: string[];
+  allow_other?: boolean;
   is_required: boolean;
   display_order: number;
 }
@@ -37,15 +40,101 @@ interface FormBuilderProps {
   onFormChange: (form: FormData | null) => void;
 }
 
-const FIELD_TYPES = [
-  { value: 'multiple_choice', label: 'Multiple Choice' },
-  { value: 'date', label: 'Date Picker' },
-  { value: 'text', label: 'Text Input' },
-  { value: 'checkbox', label: 'Checkbox' },
+export interface FormBuilderHandle {
+  getFormData: () => FormData | null;
+}
+
+interface SectionGroup {
+  section: FormField;
+  sectionIndex: number;
+  sectionNumber: number;
+  questions: Array<{ field: FormField; index: number }>;
+}
+
+const QUESTION_TYPES: Array<{ value: QuestionFieldType; label: string }> = [
+  { value: 'multiple_choice', label: 'Multiple choice' },
+  { value: 'checkbox', label: 'Checkboxes' },
+  { value: 'short_answer', label: 'Short answer' },
+  { value: 'long_answer', label: 'Long answer' },
 ];
 
-export function FormBuilder({ postId, onFormChange }: FormBuilderProps) {
+type StoredOptions = string[] | { choices?: string[]; allow_other?: boolean } | null;
+
+const parseStoredOptions = (options: StoredOptions | unknown) => {
+  if (typeof options === 'string') {
+    try {
+      return parseStoredOptions(JSON.parse(options));
+    } catch {
+      return { choices: [], allowOther: false };
+    }
+  }
+
+  if (Array.isArray(options)) {
+    return { choices: options.filter((option): option is string => typeof option === 'string'), allowOther: false };
+  }
+
+  if (options && typeof options === 'object') {
+    const optionConfig = options as { choices?: unknown; allow_other?: unknown };
+    return {
+      choices: Array.isArray(optionConfig.choices)
+        ? optionConfig.choices.filter((option): option is string => typeof option === 'string')
+        : [],
+      allowOther: optionConfig.allow_other === true,
+    };
+  }
+
+  return { choices: [], allowOther: false };
+};
+
+const normalizeFieldType = (fieldType: string): FormField['field_type'] => {
+  if (fieldType === 'text' || fieldType === 'date') return 'short_answer';
+  if (fieldType === 'section' || fieldType === 'multiple_choice' || fieldType === 'checkbox' || fieldType === 'long_answer') {
+    return fieldType;
+  }
+  return 'short_answer';
+};
+
+const isChoiceField = (fieldType: FormField['field_type']) =>
+  fieldType === 'multiple_choice' || fieldType === 'checkbox';
+
+const createSection = (displayOrder: number): FormField => ({
+  field_type: 'section',
+  label: '',
+  description: '',
+  is_required: false,
+  display_order: displayOrder,
+});
+
+const createQuestion = (displayOrder: number): FormField => ({
+  field_type: 'short_answer',
+  label: '',
+  description: '',
+  is_required: false,
+  display_order: displayOrder,
+});
+
+const reorderFields = (fields: FormField[]) =>
+  fields.map((field, index) => ({ ...field, display_order: index }));
+
+const ensureSectionLayout = (fields: FormField[]) => {
+  if (fields.length === 0) return fields;
+  if (fields[0].field_type === 'section') return fields;
+
+  return [
+    {
+      ...createSection(0),
+      label: 'Section 1',
+    },
+    ...fields,
+  ];
+};
+
+export const FormBuilder = forwardRef<FormBuilderHandle, FormBuilderProps>(function FormBuilder(
+  { postId, onFormChange },
+  ref
+) {
   const [hasForm, setHasForm] = useState(false);
+  const [isFetchingForm, setIsFetchingForm] = useState(Boolean(postId));
   const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
@@ -53,25 +142,27 @@ export function FormBuilder({ postId, onFormChange }: FormBuilderProps) {
     fields: [],
   });
 
-  // Fetch existing form when editing
   useEffect(() => {
     if (postId) {
       fetchExistingForm();
+    } else {
+      setIsFetchingForm(false);
     }
   }, [postId]);
 
-  // Notify parent of changes
   useEffect(() => {
-    if (hasForm) {
-      onFormChange(formData);
-    } else {
-      onFormChange(null);
-    }
-  }, [hasForm, formData, onFormChange]);
+    if (isFetchingForm) return;
+    onFormChange(hasForm ? formData : null);
+  }, [hasForm, formData, isFetchingForm, onFormChange]);
+
+  useImperativeHandle(ref, () => ({
+    getFormData: () => (hasForm ? formData : null),
+  }), [formData, hasForm]);
 
   const fetchExistingForm = async () => {
     if (!postId) return;
 
+    setIsFetchingForm(true);
     const { data: form, error } = await supabase
       .from('blog_post_forms')
       .select('*')
@@ -80,34 +171,52 @@ export function FormBuilder({ postId, onFormChange }: FormBuilderProps) {
 
     if (error) {
       console.error('Error fetching form:', error);
+      setIsFetchingForm(false);
       return;
     }
 
     if (form) {
-      // Fetch fields
-      const { data: fields } = await supabase
+      const { data: fields, error: fieldsError } = await supabase
         .from('blog_form_fields')
         .select('*')
         .eq('form_id', form.id)
         .order('display_order', { ascending: true });
+
+      if (fieldsError) {
+        console.error('Error fetching form fields:', fieldsError);
+      }
 
       setFormData({
         id: form.id,
         title: form.title,
         description: form.description || '',
         is_active: form.is_active,
-        fields: (fields || []).map(f => ({
-          id: f.id,
-          field_type: f.field_type as FormField['field_type'],
-          label: f.label,
-          description: f.description || undefined,
-          options: f.options as string[] || undefined,
-          is_required: f.is_required,
-          display_order: f.display_order || 0,
-        })),
+        fields: reorderFields(ensureSectionLayout((fields || []).map((field) => {
+          const parsedOptions = parseStoredOptions(field.options);
+          const fieldType = normalizeFieldType(field.field_type);
+          return {
+            id: field.id,
+            field_type: fieldType,
+            label: field.label,
+            description: field.description || undefined,
+            options: parsedOptions.choices,
+            allow_other: parsedOptions.allowOther,
+            is_required: fieldType === 'section' ? false : field.is_required,
+            display_order: field.display_order || 0,
+          };
+        }))),
       });
       setHasForm(true);
     }
+
+    setIsFetchingForm(false);
+  };
+
+  const updateFields = (updater: (fields: FormField[]) => FormField[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      fields: reorderFields(updater(prev.fields)),
+    }));
   };
 
   const handleEnableForm = () => {
@@ -130,92 +239,114 @@ export function FormBuilder({ postId, onFormChange }: FormBuilderProps) {
     });
   };
 
-  const addField = () => {
-    setFormData(prev => ({
-      ...prev,
-      fields: [
-        ...prev.fields,
-        {
-          field_type: 'text',
-          label: '',
-          is_required: false,
-          display_order: prev.fields.length,
-        },
-      ],
-    }));
+  const addSection = () => {
+    updateFields((fields) => [...fields, createSection(fields.length)]);
+  };
+
+  const addQuestionToSection = (sectionIndex: number) => {
+    updateFields((fields) => {
+      let insertAt = sectionIndex + 1;
+      while (insertAt < fields.length && fields[insertAt].field_type !== 'section') {
+        insertAt += 1;
+      }
+      const nextFields = [...fields];
+      nextFields.splice(insertAt, 0, createQuestion(insertAt));
+      return nextFields;
+    });
   };
 
   const removeField = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      fields: prev.fields
-        .filter((_, i) => i !== index)
-        .map((f, i) => ({ ...f, display_order: i })),
-    }));
+    updateFields((fields) => fields.filter((_, fieldIndex) => fieldIndex !== index));
+  };
+
+  const removeSection = (sectionIndex: number) => {
+    updateFields((fields) => {
+      const endIndex = fields.findIndex((field, index) => index > sectionIndex && field.field_type === 'section');
+      const removeUntil = endIndex === -1 ? fields.length : endIndex;
+      return fields.filter((_, index) => index < sectionIndex || index >= removeUntil);
+    });
   };
 
   const updateField = (index: number, updates: Partial<FormField>) => {
-    setFormData(prev => ({
-      ...prev,
-      fields: prev.fields.map((f, i) => 
-        i === index ? { ...f, ...updates } : f
-      ),
-    }));
+    updateFields((fields) => fields.map((field, fieldIndex) => (
+      fieldIndex === index ? { ...field, ...updates } : field
+    )));
   };
 
-  const moveField = (fromIndex: number, toIndex: number) => {
-    if (fromIndex === toIndex) return;
-    setFormData(prev => {
-      const newFields = [...prev.fields];
-      const [moved] = newFields.splice(fromIndex, 1);
-      newFields.splice(toIndex, 0, moved);
-      return {
-        ...prev,
-        fields: newFields.map((f, i) => ({ ...f, display_order: i })),
-      };
+  const updateQuestionType = (index: number, fieldType: QuestionFieldType) => {
+    updateField(index, {
+      field_type: fieldType,
+      options: isChoiceField(fieldType) ? [''] : undefined,
+      allow_other: false,
     });
   };
 
   const updateOption = (fieldIndex: number, optionIndex: number, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      fields: prev.fields.map((f, i) => {
-        if (i !== fieldIndex) return f;
-        const options = [...(f.options || [])];
-        options[optionIndex] = value;
-        return { ...f, options };
-      }),
+    updateFields((fields) => fields.map((field, index) => {
+      if (index !== fieldIndex) return field;
+      const options = [...(field.options || [])];
+      options[optionIndex] = value;
+      return { ...field, options };
     }));
   };
 
   const addOption = (fieldIndex: number) => {
-    setFormData(prev => ({
-      ...prev,
-      fields: prev.fields.map((f, i) => {
-        if (i !== fieldIndex) return f;
-        return { ...f, options: [...(f.options || []), ''] };
-      }),
-    }));
+    updateFields((fields) => fields.map((field, index) => (
+      index === fieldIndex ? { ...field, options: [...(field.options || []), ''] } : field
+    )));
   };
 
   const removeOption = (fieldIndex: number, optionIndex: number) => {
-    setFormData(prev => ({
-      ...prev,
-      fields: prev.fields.map((f, i) => {
-        if (i !== fieldIndex) return f;
-        return { ...f, options: (f.options || []).filter((_, oi) => oi !== optionIndex) };
-      }),
-    }));
+    updateFields((fields) => fields.map((field, index) => (
+      index === fieldIndex
+        ? { ...field, options: (field.options || []).filter((_, optionIndexToKeep) => optionIndexToKeep !== optionIndex) }
+        : field
+    )));
   };
+
+  const getSections = (): SectionGroup[] => {
+    const sections: SectionGroup[] = [];
+
+    formData.fields.forEach((field, index) => {
+      if (field.field_type === 'section') {
+        sections.push({
+          section: field,
+          sectionIndex: index,
+          sectionNumber: sections.length + 1,
+          questions: [],
+        });
+        return;
+      }
+
+      if (sections.length > 0) {
+        sections[sections.length - 1].questions.push({ field, index });
+      }
+    });
+
+    return sections;
+  };
+
+  const sections = getSections();
+
+  if (isFetchingForm) {
+    return (
+      <div className="space-y-4">
+        <div>
+          <h3 className="font-medium text-foreground">Interactive Form</h3>
+          <p className="text-sm text-muted-foreground">Loading attached survey...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!hasForm) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div>
             <h3 className="font-medium text-foreground">Interactive Form</h3>
             <p className="text-sm text-muted-foreground">
-              Add a form for readers to interact with
+              Add a survey for readers to complete.
             </p>
           </div>
           <Button type="button" variant="outline" onClick={handleEnableForm}>
@@ -228,9 +359,12 @@ export function FormBuilder({ postId, onFormChange }: FormBuilderProps) {
   }
 
   return (
-    <div className="space-y-6 p-4 rounded-lg border border-border bg-secondary/20">
-      <div className="flex items-center justify-between">
-        <h3 className="font-medium text-foreground">Interactive Form</h3>
+    <div className="space-y-6 rounded-lg border border-border bg-secondary/20 p-4">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h3 className="font-medium text-foreground">Interactive Form</h3>
+          <p className="text-sm text-muted-foreground">Build the survey in sections.</p>
+        </div>
         <Button
           type="button"
           variant="ghost"
@@ -242,177 +376,219 @@ export function FormBuilder({ postId, onFormChange }: FormBuilderProps) {
         </Button>
       </div>
 
-      <div className="space-y-4">
-        <div className="grid sm:grid-cols-2 gap-4">
+      <div className="rounded-lg border border-border bg-background p-4 space-y-4">
+        <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-start">
           <div className="space-y-2">
             <Label htmlFor="form_title">Form Title</Label>
             <Input
               id="form_title"
               value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              placeholder="e.g., Quick Survey"
+              onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+              placeholder="e.g., Community Feedback Survey"
             />
           </div>
-          <div className="flex items-center gap-3 pt-6">
+          <div className="flex items-center gap-3 rounded-md bg-secondary/40 p-3 sm:mt-6">
             <Switch
               id="form_active"
               checked={formData.is_active}
-              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
+              onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, is_active: checked }))}
             />
             <Label htmlFor="form_active">Form Active</Label>
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="form_description">Form Description (optional)</Label>
+          <Label htmlFor="form_description">Description (optional)</Label>
           <Textarea
             id="form_description"
             value={formData.description}
-            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+            onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
             placeholder="Brief instructions for users..."
             rows={2}
           />
         </div>
       </div>
 
-      {/* Form Fields */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Label className="text-base">Form Fields</Label>
-          <Button type="button" variant="outline" size="sm" onClick={addField}>
-            <Plus size={14} className="mr-1" />
-            Add Field
+        <div className="flex items-center justify-between gap-3">
+          <Label className="text-base">Sections</Label>
+          <Button type="button" variant="outline" size="sm" onClick={addSection}>
+            <ListPlus size={14} className="mr-1" />
+            Add Section
           </Button>
         </div>
 
-        {formData.fields.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-4 text-center border border-dashed rounded-lg">
-            No fields yet. Click "Add Field" to get started.
-          </p>
+        {sections.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-border bg-background px-4 py-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              Add a section first, then add questions inside it.
+            </p>
+          </div>
         ) : (
-          <div className="space-y-4">
-            {formData.fields.map((field, index) => (
-              <div
-                key={field.id || index}
-                draggable
-                onDragStart={(e) => {
-                  e.dataTransfer.effectAllowed = 'move';
-                  e.dataTransfer.setData('text/plain', index.toString());
-                  (e.target as HTMLElement).classList.add('opacity-50');
-                }}
-                onDragEnd={(e) => {
-                  (e.target as HTMLElement).classList.remove('opacity-50');
-                }}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.dataTransfer.dropEffect = 'move';
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
-                  moveField(fromIndex, index);
-                }}
-                className="p-4 rounded-lg border border-border bg-background space-y-4"
-              >
-                <div className="flex items-start gap-2">
-                  <GripVertical size={20} className="text-muted-foreground mt-2 flex-shrink-0 cursor-grab active:cursor-grabbing" />
-                  <div className="flex-1 space-y-4">
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Field Type</Label>
-                        <Select
-                          value={field.field_type}
-                          onValueChange={(value) => updateField(index, { 
-                            field_type: value as FormField['field_type'],
-                            options: (value === 'multiple_choice' || value === 'checkbox') ? [''] : undefined,
-                          })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {FIELD_TYPES.map(type => (
-                              <SelectItem key={type.value} value={type.value}>
-                                {type.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Label</Label>
-                        <Input
-                          value={field.label}
-                          onChange={(e) => updateField(index, { label: e.target.value })}
-                          placeholder="Question or field name"
-                        />
-                      </div>
-                    </div>
+          <div className="space-y-5">
+            {sections.map((section) => (
+              <div key={section.section.id || section.sectionIndex} className="rounded-lg border-2 border-primary/20 bg-background">
+                <div className="border-b border-border bg-primary/5 p-4">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <span className="text-xs font-medium uppercase text-primary">
+                      Section {section.sectionNumber} of {sections.length}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeSection(section.sectionIndex)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 size={14} className="mr-1" />
+                      Delete Section
+                    </Button>
+                  </div>
 
+                  <div className="space-y-3">
                     <div className="space-y-2">
-                      <Label>Description (optional)</Label>
+                      <Label>Section Title</Label>
                       <Input
-                        value={field.description || ''}
-                        onChange={(e) => updateField(index, { description: e.target.value })}
-                        placeholder="Help text for this field"
+                        value={section.section.label}
+                        onChange={(e) => updateField(section.sectionIndex, { label: e.target.value })}
+                        placeholder="Section title"
                       />
                     </div>
+                    <div className="space-y-2">
+                      <Label>Section Description (optional)</Label>
+                      <Textarea
+                        value={section.section.description || ''}
+                        onChange={(e) => updateField(section.sectionIndex, { description: e.target.value })}
+                        placeholder="Short intro for this section"
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                </div>
 
-                    {(field.field_type === 'multiple_choice' || field.field_type === 'checkbox') && (
-                      <div className="space-y-2">
-                        <Label>{field.field_type === 'checkbox' ? 'Checkbox Options' : 'Options'}</Label>
-                        <p className="text-xs text-muted-foreground">
-                          {field.field_type === 'checkbox' 
-                            ? 'Users can select multiple options' 
-                            : 'Users can select one option'}
-                        </p>
-                        <div className="space-y-2">
-                          {(field.options || []).map((option, optionIndex) => (
-                            <div key={optionIndex} className="flex gap-2">
-                              <Input
-                                value={option}
-                                onChange={(e) => updateOption(index, optionIndex, e.target.value)}
-                                placeholder={`Option ${optionIndex + 1}`}
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => removeOption(index, optionIndex)}
-                              >
-                                <Trash2 size={14} />
-                              </Button>
-                            </div>
-                          ))}
+                <div className="space-y-3 p-4">
+                  {section.questions.length === 0 ? (
+                    <div className="rounded-md border border-dashed border-border px-4 py-6 text-center">
+                      <p className="text-sm text-muted-foreground">No questions in this section yet.</p>
+                    </div>
+                  ) : (
+                    section.questions.map(({ field, index }, questionIndex) => (
+                      <div key={field.id || index} className="rounded-md border border-border bg-secondary/20 p-4 space-y-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <span className="text-xs font-medium uppercase text-muted-foreground">
+                            Question {questionIndex + 1}
+                          </span>
                           <Button
                             type="button"
                             variant="ghost"
-                            size="sm"
-                            onClick={() => addOption(index)}
+                            size="icon"
+                            onClick={() => removeField(index)}
+                            className="h-8 w-8 text-destructive hover:text-destructive"
                           >
-                            <Plus size={14} className="mr-1" />
-                            Add Option
+                            <Trash2 size={15} />
                           </Button>
                         </div>
-                      </div>
-                    )}
 
-                    <div className="flex items-center gap-3">
-                      <Switch
-                        checked={field.is_required}
-                        onCheckedChange={(checked) => updateField(index, { is_required: checked })}
-                      />
-                      <Label>Required field</Label>
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeField(index)}
-                    className="text-destructive hover:text-destructive flex-shrink-0"
-                  >
-                    <Trash2 size={16} />
+                        <div className="grid gap-4 sm:grid-cols-[1fr_220px]">
+                          <div className="space-y-2">
+                            <Label>Question</Label>
+                            <Input
+                              value={field.label}
+                              onChange={(e) => updateField(index, { label: e.target.value })}
+                              placeholder="Question text"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Question Type</Label>
+                            <Select
+                              value={field.field_type as QuestionFieldType}
+                              onValueChange={(value) => updateQuestionType(index, value as QuestionFieldType)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {QUESTION_TYPES.map((type) => (
+                                  <SelectItem key={type.value} value={type.value}>
+                                    {type.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Description (optional)</Label>
+                          <Input
+                            value={field.description || ''}
+                            onChange={(e) => updateField(index, { description: e.target.value })}
+                            placeholder="Help text for this question"
+                          />
+                        </div>
+
+                        {isChoiceField(field.field_type) && (
+                          <div className="space-y-3">
+                            <div>
+                              <Label>{field.field_type === 'checkbox' ? 'Checkbox Options' : 'Multiple Choice Options'}</Label>
+                              <p className="text-xs text-muted-foreground">
+                                {field.field_type === 'checkbox'
+                                  ? 'Users can select more than one answer.'
+                                  : 'Users can select one answer.'}
+                              </p>
+                            </div>
+                            <div className="space-y-2">
+                              {(field.options || []).map((option, optionIndex) => (
+                                <div key={optionIndex} className="flex gap-2">
+                                  <Input
+                                    value={option}
+                                    onChange={(e) => updateOption(index, optionIndex, e.target.value)}
+                                    placeholder={`Option ${optionIndex + 1}`}
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => removeOption(index, optionIndex)}
+                                  >
+                                    <Trash2 size={14} />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="flex flex-wrap items-center gap-3">
+                              <Button type="button" variant="ghost" size="sm" onClick={() => addOption(index)}>
+                                <Plus size={14} className="mr-1" />
+                                Add Option
+                              </Button>
+                              <div className="flex items-center gap-3 rounded-md bg-background p-3">
+                                <Switch
+                                  checked={field.allow_other || false}
+                                  onCheckedChange={(checked) => updateField(index, { allow_other: checked })}
+                                />
+                                <div>
+                                  <Label>Allow "Other"</Label>
+                                  <p className="text-xs text-muted-foreground">Adds an Other option with a text field.</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-3">
+                          <Switch
+                            checked={field.is_required}
+                            onCheckedChange={(checked) => updateField(index, { is_required: checked })}
+                          />
+                          <Label>Required question</Label>
+                        </div>
+                      </div>
+                    ))
+                  )}
+
+                  <Button type="button" variant="outline" size="sm" onClick={() => addQuestionToSection(section.sectionIndex)}>
+                    <Plus size={14} className="mr-1" />
+                    Add Question to Section {section.sectionNumber}
                   </Button>
                 </div>
               </div>
@@ -422,4 +598,4 @@ export function FormBuilder({ postId, onFormChange }: FormBuilderProps) {
       </div>
     </div>
   );
-}
+});

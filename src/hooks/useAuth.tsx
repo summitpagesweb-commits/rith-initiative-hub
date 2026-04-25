@@ -7,6 +7,7 @@ interface AuthContextType {
   session: Session | null;
   isAdmin: boolean;
   isLoading: boolean;
+  isCheckingAdmin: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -19,6 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(false);
 
   const checkAdminRole = async (userId: string) => {
     try {
@@ -46,14 +48,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
-        // Defer admin check with setTimeout to avoid deadlock
+
+        // Defer admin check with setTimeout to avoid Supabase internal deadlock
         if (session?.user) {
+          setIsCheckingAdmin(true);
           setTimeout(() => {
-            checkAdminRole(session.user.id).then(setIsAdmin);
+            checkAdminRole(session.user.id).then((result) => {
+              setIsAdmin(result);
+              setIsCheckingAdmin(false);
+            });
           }, 0);
         } else {
           setIsAdmin(false);
+          setIsCheckingAdmin(false);
         }
       }
     );
@@ -62,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (session?.user) {
         checkAdminRole(session.user.id).then((isAdminUser) => {
           setIsAdmin(isAdminUser);
@@ -85,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/admin/login`;
     
     const { error } = await supabase.auth.signUp({
       email,
@@ -105,10 +112,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setSession(null);
     setIsAdmin(false);
+    setIsCheckingAdmin(false);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isAdmin, isLoading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, session, isAdmin, isLoading, isCheckingAdmin, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

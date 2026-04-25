@@ -10,7 +10,7 @@ const footerLinks = {
     { href: "/shop", label: "Shop" },
     { href: "/donate", label: "Donate" },
     { href: "/contact", label: "Contact" },
-    { href: "/admin/login", label: "Admin" },
+    { href: "/admin/login", label: "Admin", rel: "nofollow" },
   ],
   social: [
     { icon: Instagram, href: "https://instagram.com/rithinitiative", label: "Instagram" },
@@ -30,6 +30,8 @@ export function Footer() {
                 src={footerLogo} 
                 alt="The Rith Initiative Logo" 
                 className="w-12 h-12 object-contain"
+                loading="lazy"
+                decoding="async"
               />
               <span className="font-heading text-xl font-semibold">
                 The Rith Initiative
@@ -63,6 +65,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     to={link.href}
+                    rel={link.rel}
                     className="text-background/70 hover:text-primary transition-colors"
                   >
                     {link.label}

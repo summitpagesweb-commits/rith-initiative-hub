@@ -24,6 +24,7 @@ interface FormField {
   id: string;
   label: string;
   field_type: string;
+  options: unknown;
 }
 
 interface FormSubmission {
@@ -69,7 +70,7 @@ export function FormSubmissionsViewer({ postId, postTitle }: FormSubmissionsView
     const [fieldsRes, submissionsRes] = await Promise.all([
       supabase
         .from('blog_form_fields')
-        .select('id, label, field_type')
+        .select('id, label, field_type, options')
         .eq('form_id', form.id)
         .order('display_order', { ascending: true }),
       supabase
@@ -123,16 +124,42 @@ export function FormSubmissionsViewer({ postId, postTitle }: FormSubmissionsView
     }
   };
 
-  const formatValue = (value: string | boolean, fieldType: string): string => {
+  const allowsOther = (options: unknown): boolean => {
+    if (typeof options === 'string') {
+      try {
+        return allowsOther(JSON.parse(options));
+      } catch {
+        return false;
+      }
+    }
+
+    return Boolean(options && typeof options === 'object' && !Array.isArray(options) && (options as { allow_other?: unknown }).allow_other === true);
+  };
+
+  const formatValue = (submission: FormSubmission, field: FormField): string => {
+    const value = submission.responses[field.id];
+
     if (typeof value === 'boolean') {
       return value ? 'Yes' : 'No';
     }
-    if (fieldType === 'date' && value) {
+    if (field.field_type === 'date' && value) {
       try {
         return format(new Date(value), 'PPP');
       } catch {
         return String(value);
       }
+    }
+    if (field.field_type === 'multiple_choice' && value === '__other__' && allowsOther(field.options)) {
+      return `Other: ${submission.responses[`${field.id}__other`] || ''}`;
+    }
+    if (field.field_type === 'checkbox' && value === '__other__' && allowsOther(field.options)) {
+      return `Other: ${submission.responses[`${field.id}__other`] || ''}`;
+    }
+    if (field.field_type === 'checkbox' && typeof value === 'string' && value.includes('|||')) {
+      return value
+        .split('|||')
+        .map((option) => option === '__other__' && allowsOther(field.options) ? `Other: ${submission.responses[`${field.id}__other`] || ''}` : option)
+        .join(', ');
     }
     return String(value);
   };
@@ -218,14 +245,14 @@ export function FormSubmissionsViewer({ postId, postTitle }: FormSubmissionsView
                       <TableRow key={`${submission.id}-details`}>
                         <TableCell colSpan={5} className="bg-muted/30 p-4">
                           <div className="space-y-2">
-                            {fields.map((field) => (
+                            {fields.filter(field => field.field_type !== 'section').map((field) => (
                               <div key={field.id} className="flex gap-2">
                                 <span className="font-medium text-sm min-w-32">
                                   {field.label}:
                                 </span>
                                 <span className="text-sm text-muted-foreground">
                                   {submission.responses[field.id] !== undefined
-                                    ? formatValue(submission.responses[field.id], field.field_type)
+                                    ? formatValue(submission, field)
                                     : '—'}
                                 </span>
                               </div>

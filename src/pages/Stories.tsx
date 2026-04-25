@@ -11,6 +11,7 @@ import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { SITE_URL, createBreadcrumbSchema, createWebPageSchema } from "@/lib/seo";
 
 interface BlogPost {
   id: string;
@@ -43,37 +44,65 @@ function HeroSection() {
   );
 }
 
+const POSTS_PER_PAGE = 9;
+
 function StoriesSection() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(0);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  const fetchPosts = async (pageIndex: number, append: boolean) => {
+    try {
+      // Fetch one extra item to detect if more pages exist
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('id, title, content, excerpt, author_name, category, published_at, created_at')
+        .eq('is_published', true)
+        .eq('is_archived', false)
+        .order('published_at', { ascending: false, nullsFirst: false })
+        .range(pageIndex * POSTS_PER_PAGE, pageIndex * POSTS_PER_PAGE + POSTS_PER_PAGE);
+
+      if (error) throw error;
+      const fetched = data || [];
+      const more = fetched.length > POSTS_PER_PAGE;
+      const page = more ? fetched.slice(0, POSTS_PER_PAGE) : fetched;
+      setPosts(prev => append ? [...prev, ...page] : page);
+      setHasMore(more);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('blog_posts')
-          .select('id, title, content, excerpt, author_name, category, published_at, created_at')
-          .eq('is_published', true)
-          .eq('is_archived', false)
-          .order('published_at', { ascending: false });
-
-        if (error) throw error;
-        setPosts(data || []);
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-      } finally {
-        setIsLoading(false);
-      }
+    const load = async () => {
+      setIsLoading(true);
+      await fetchPosts(0, false);
+      setIsLoading(false);
     };
-
-    fetchPosts();
+    load();
   }, []);
 
+  // Reset pagination when category filter changes
+  useEffect(() => {
+    setPage(0);
+  }, [selectedCategory]);
+
+  const handleLoadMore = async () => {
+    setIsLoadingMore(true);
+    const nextPage = page + 1;
+    setPage(nextPage);
+    await fetchPosts(nextPage, true);
+    setIsLoadingMore(false);
+  };
+
+  // All unique categories from loaded posts (for filtering)
   const categories = Array.from(new Set(posts.map(p => p.category).filter(Boolean))) as string[];
-  const filteredPosts = selectedCategory 
+  const filteredPosts = selectedCategory
     ? posts.filter(p => p.category === selectedCategory)
     : posts;
 
@@ -115,34 +144,60 @@ function StoriesSection() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : filteredPosts.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredPosts.map((post, index) => (
-              <ScrollReveal key={post.id} variant="fade-up" delay={index * 100}>
-                <article 
-                  className="group bg-card rounded-2xl overflow-hidden border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300 cursor-pointer h-full"
-                  onClick={() => handlePostClick(post)}
+          <>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredPosts.map((post, index) => (
+                <ScrollReveal key={post.id} variant="fade-up" delay={(index % POSTS_PER_PAGE) * 100}>
+                  <article
+                    className="group bg-card rounded-2xl overflow-hidden border border-border/50 shadow-soft hover:shadow-elevated transition-all duration-300 cursor-pointer h-full"
+                    onClick={() => handlePostClick(post)}
+                  >
+                    <PlaceholderImage aspectRatio="video" label="Blog post image" className="rounded-none" />
+                    <div className="p-6">
+                      {post.category && (
+                        <span className="text-xs font-medium text-primary uppercase tracking-wide">
+                          {post.category}
+                        </span>
+                      )}
+                      <p className="text-sm text-muted-foreground mt-1 mb-2">
+                        {format(new Date(post.published_at || post.created_at), 'MMMM d, yyyy')}
+                      </p>
+                      <h3 className="font-heading text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
+                        {post.title}
+                      </h3>
+                      {post.excerpt && (
+                        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">{post.excerpt}</p>
+                      )}
+                    </div>
+                  </article>
+                </ScrollReveal>
+              ))}
+            </div>
+
+            {/* Load More */}
+            {hasMore && !selectedCategory && (
+              <div className="flex justify-center mt-12">
+                <Button
+                  variant="subtle"
+                  size="lg"
+                  onClick={handleLoadMore}
+                  disabled={isLoadingMore}
                 >
-                  <PlaceholderImage aspectRatio="video" label="Blog post image" className="rounded-none" />
-                  <div className="p-6">
-                    {post.category && (
-                      <span className="text-xs font-medium text-primary uppercase tracking-wide">
-                        {post.category}
-                      </span>
-                    )}
-                    <p className="text-sm text-muted-foreground mt-1 mb-2">
-                      {format(new Date(post.published_at || post.created_at), 'MMMM d, yyyy')}
-                    </p>
-                    <h3 className="font-heading text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
-                      {post.title}
-                    </h3>
-                    {post.excerpt && (
-                      <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">{post.excerpt}</p>
-                    )}
-                  </div>
-                </article>
-              </ScrollReveal>
-            ))}
-          </div>
+                  {isLoadingMore ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      Load More Stories
+                      <ArrowRight size={16} />
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-12 bg-card rounded-2xl border border-border/50">
             <p className="text-muted-foreground mb-4">No stories yet. Check back soon!</p>
@@ -155,7 +210,7 @@ function StoriesSection() {
           </div>
         )}
 
-        <BlogDetailModal 
+        <BlogDetailModal
           post={selectedPost}
           open={isModalOpen}
           onOpenChange={setIsModalOpen}
@@ -188,13 +243,40 @@ function CTASection() {
 }
 
 const Stories = () => {
+  const pageTitle = "Stories & Insights";
+  const pageDescription = "Read stories, articles, and cultural insights celebrating Indian American heritage, traditions, and wisdom from The Rith Initiative community in Virginia.";
+  const storiesPageSchema = createWebPageSchema({
+    title: `${pageTitle} | The Rith Initiative`,
+    description: pageDescription,
+    path: "/stories",
+    type: "Blog",
+  });
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Stories", path: "/stories" },
+  ]);
+  const blogSchema = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "The Rith Initiative Stories",
+    description: pageDescription,
+    url: `${SITE_URL}/stories`,
+    inLanguage: "en-US",
+    publisher: {
+      "@type": "Organization",
+      name: "The Rith Initiative",
+      url: SITE_URL,
+    },
+  };
+
   return (
     <Layout>
       <PageMeta
-        title="Stories & Insights"
-        description="Read stories, articles, and cultural insights celebrating Indian American heritage, traditions, and wisdom from The Rith Initiative community in Virginia."
+        title={pageTitle}
+        description={pageDescription}
         keywords="Indian American stories, Indian cultural insights, Indian heritage articles, South Asian community stories, Indian wisdom blog"
         path="/stories"
+        jsonLd={[storiesPageSchema, breadcrumbSchema, blogSchema]}
       />
       <HeroSection />
       <SectionDivider />

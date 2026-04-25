@@ -480,6 +480,42 @@ export type Database = {
           },
         ]
       }
+      team_members: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          name: string
+          photo_url: string | null
+          role: string | null
+          section: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          name: string
+          photo_url?: string | null
+          role?: string | null
+          section: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          name?: string
+          photo_url?: string | null
+          role?: string | null
+          section?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       updates: {
         Row: {
           created_at: string
@@ -557,8 +593,17 @@ export type Database = {
         Returns: {
           created_at: string
           email: string
-          full_name: string
+          full_name: string | null
           user_id: string
+        }[]
+      }
+      get_admin_invitations: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          invited_by_email: string | null
         }[]
       }
       has_role: {
@@ -569,6 +614,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin_or_moderator: { Args: { _user_id: string }; Returns: boolean }
+      remove_email_subscriber: { Args: { _subscriber_id: string }; Returns: Json }
       remove_admin_by_email: { Args: { _email: string }; Returns: Json }
     }
     Enums: {

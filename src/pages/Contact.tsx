@@ -14,10 +14,30 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { createBreadcrumbSchema, createWebPageSchema } from "@/lib/seo";
 
 const socialLinks = [
   { icon: Instagram, href: "https://www.instagram.com/rithinitiative/", label: "Instagram" },
   { icon: Facebook, href: "https://www.facebook.com/p/The-Rith-Initiative-61580213405598/", label: "Facebook" },
+];
+
+const faqItems = [
+  {
+    q: "How can I volunteer with The Rith Initiative?",
+    a: "We welcome volunteers for our events and programs! The best way to get involved is to reach out through our contact form above or send us an email at rithinitiative@gmail.com. Let us know your interests and availability, and we'll connect you with upcoming opportunities.",
+  },
+  {
+    q: "Are donations tax-deductible?",
+    a: "Yes! The Rith Initiative is a registered 501(c)(3) nonprofit organization. All donations are tax-deductible to the fullest extent allowed by law. You will receive a receipt for your records.",
+  },
+  {
+    q: "How can I stay updated on upcoming events?",
+    a: "Follow us on Instagram and Facebook to stay in the loop! You can also sign up for our newsletter to receive updates directly in your inbox about upcoming events, programs, and community gatherings.",
+  },
+  {
+    q: "Do you offer programs for children?",
+    a: "Yes, we offer family-friendly events and programs that welcome participants of all ages. Our festivals and cultural celebrations are designed to be engaging and educational for children while celebrating Indian heritage and traditions.",
+  },
 ];
 
 export default function Contact() {
@@ -28,13 +48,15 @@ export default function Contact() {
     message: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const pageTitle = "Contact Us";
+  const pageDescription = "Get in touch with The Rith Initiative for Indian cultural event inquiries, volunteer opportunities, partnerships, or community collaboration in Virginia.";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+      const { error } = await supabase.functions.invoke('send-contact-email', {
         body: {
           name: formData.name,
           email: formData.email,
@@ -45,7 +67,7 @@ export default function Contact() {
 
       if (error) {
         console.error("Error sending message:", error);
-        toast.error("Failed to send message. Please try again.");
+        toast.error(error.message || "Failed to send message. Please try again.");
         return;
       }
 
@@ -66,13 +88,37 @@ export default function Contact() {
     }));
   };
 
+  const contactPageSchema = createWebPageSchema({
+    title: `${pageTitle} | The Rith Initiative`,
+    description: pageDescription,
+    path: "/contact",
+    type: "ContactPage",
+  });
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Contact", path: "/contact" },
+  ]);
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((faq) => ({
+      "@type": "Question",
+      name: faq.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.a,
+      },
+    })),
+  };
+
   return (
     <Layout>
       <PageMeta
-        title="Contact Us"
-        description="Get in touch with The Rith Initiative for Indian cultural event inquiries, volunteer opportunities, partnerships, or community collaboration in Virginia."
+        title={pageTitle}
+        description={pageDescription}
         keywords="contact Indian nonprofit Virginia, Indian cultural event inquiry, volunteer Indian American organization, Indian community partnership"
         path="/contact"
+        jsonLd={[contactPageSchema, breadcrumbSchema, faqSchema]}
       />
       {/* Hero Section */}
       <section className="section-padding bg-gradient-to-b from-secondary/30 to-background">
@@ -252,24 +298,7 @@ export default function Contact() {
           </ScrollReveal>
           <ScrollReveal variant="fade-up" delay={100}>
             <Accordion type="single" collapsible className="space-y-4">
-              {[
-                {
-                  q: "How can I volunteer with The Rith Initiative?",
-                  a: "We welcome volunteers for our events and programs! The best way to get involved is to reach out through our contact form above or send us an email at rithinitiative@gmail.com. Let us know your interests and availability, and we'll connect you with upcoming opportunities."
-                },
-                {
-                  q: "Are donations tax-deductible?",
-                  a: "Yes! The Rith Initiative is a registered 501(c)(3) nonprofit organization. All donations are tax-deductible to the fullest extent allowed by law. You will receive a receipt for your records."
-                },
-                {
-                  q: "How can I stay updated on upcoming events?",
-                  a: "Follow us on Instagram and Facebook to stay in the loop! You can also sign up for our newsletter to receive updates directly in your inbox about upcoming events, programs, and community gatherings."
-                },
-                {
-                  q: "Do you offer programs for children?",
-                  a: "Yes, we offer family-friendly events and programs that welcome participants of all ages. Our festivals and cultural celebrations are designed to be engaging and educational for children while celebrating Indian heritage and traditions."
-                }
-              ].map((faq, index) => (
+              {faqItems.map((faq, index) => (
                 <AccordionItem 
                   key={index} 
                   value={`faq-${index}`}

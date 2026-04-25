@@ -1,0 +1,21 @@
+{
+  "name": "The Rith Initiative",
+  "short_name": "Rith Initiative",
+  "description": "Indian American cultural nonprofit fostering conscious living through arts, events, and community programming in Virginia.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f8fb",
+  "theme_color": "#334A73",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "500x500",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}

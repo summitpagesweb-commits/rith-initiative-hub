@@ -43,12 +43,20 @@ interface PastEventsBookProps {
   events: PastEvent[];
   eventMedia: Record<string, MediaItem[]>;
   onMediaClick: (eventId: string, index: number) => void;
+  browseInstruction?: string;
 }
 
-export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsBookProps) {
+export function PastEventsBook({
+  events,
+  eventMedia,
+  onMediaClick,
+  browseInstruction = "Use the arrows to browse through past events",
+}: PastEventsBookProps) {
   const isMobile = useIsMobile();
+  const FLIP_DURATION_MS = 600;
   const [currentSpread, setCurrentSpread] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
+  const [flipDirection, setFlipDirection] = useState<"next" | "prev" | null>(null);
   const [flippedCards, setFlippedCards] = useState<Set<number>>(new Set());
   const [mobileFlippedCards, setMobileFlippedCards] = useState<Set<string>>(new Set());
 
@@ -62,6 +70,22 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
   const currentEventsPair = spreads[currentSpread] || [];
   const leftEvent = currentEventsPair[0];
   const rightEvent = currentEventsPair[1];
+  const targetSpread =
+    flipDirection === "next"
+      ? Math.min(currentSpread + 1, totalSpreads - 1)
+      : flipDirection === "prev"
+        ? Math.max(currentSpread - 1, 0)
+        : currentSpread;
+  const targetEventsPair = spreads[targetSpread] || [];
+  const targetLeftEvent = targetEventsPair[0];
+  const targetRightEvent = targetEventsPair[1];
+
+  // Keep the opposite/static page on the current spread while turning.
+  // Only pre-swap the page that's hidden beneath the turning sheet.
+  const displayedLeftEvent = isFlipping && flipDirection === "prev" ? targetLeftEvent : leftEvent;
+  const displayedRightEvent = isFlipping && flipDirection === "next" ? targetRightEvent : rightEvent;
+  const displayedLeftPageNumber = (isFlipping && flipDirection === "prev" ? targetSpread : currentSpread) * 2 + 1;
+  const displayedRightPageNumber = (isFlipping && flipDirection === "next" ? targetSpread : currentSpread) * 2 + 2;
 
   const canGoNext = currentSpread < totalSpreads - 1;
   const canGoPrev = currentSpread > 0;
@@ -69,33 +93,39 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
   const nextSpread = () => {
     if (canGoNext && !isFlipping) {
       setIsFlipping(true);
+      setFlipDirection("next");
       setFlippedCards(new Set()); // Reset flipped cards when changing spread
       setTimeout(() => {
         setCurrentSpread(prev => prev + 1);
         setIsFlipping(false);
-      }, 400);
+        setFlipDirection(null);
+      }, FLIP_DURATION_MS);
     }
   };
 
   const prevSpread = () => {
     if (canGoPrev && !isFlipping) {
       setIsFlipping(true);
+      setFlipDirection("prev");
       setFlippedCards(new Set()); // Reset flipped cards when changing spread
       setTimeout(() => {
         setCurrentSpread(prev => prev - 1);
         setIsFlipping(false);
-      }, 400);
+        setFlipDirection(null);
+      }, FLIP_DURATION_MS);
     }
   };
 
   const goToSpread = (index: number) => {
     if (!isFlipping && index !== currentSpread) {
       setIsFlipping(true);
+      setFlipDirection(index > currentSpread ? "next" : "prev");
       setFlippedCards(new Set()); // Reset flipped cards when changing spread
       setTimeout(() => {
         setCurrentSpread(index);
         setIsFlipping(false);
-      }, 400);
+        setFlipDirection(null);
+      }, FLIP_DURATION_MS);
     }
   };
 
@@ -348,6 +378,61 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
     );
   };
 
+  const renderStaticEventCard = (event: PastEvent | undefined, side: "left" | "right") => {
+    if (!event) {
+      return (
+        <div className="h-full flex flex-col items-center justify-center p-6 text-center relative">
+          <div className="relative mb-6">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
+              <BookOpen className="w-10 h-10 text-primary/40" />
+            </div>
+            <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-primary/30 animate-pulse" />
+          </div>
+          <div className="text-muted-foreground/60 text-lg font-heading mb-2">
+            More memories coming soon...
+          </div>
+          <p className="text-muted-foreground/40 text-sm max-w-[200px]">
+            Stay tuned for our upcoming events and celebrations
+          </p>
+          <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-primary/20 rounded-tl-lg" />
+          <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-primary/20 rounded-tr-lg" />
+          <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-primary/20 rounded-bl-lg" />
+          <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-primary/20 rounded-br-lg" />
+        </div>
+      );
+    }
+
+    return (
+      <div className="h-full p-2 sm:p-4 md:p-6">
+        <div className="h-full flex flex-col">
+          {event.featured_image_url ? (
+            <div className="flex-1 flex items-start justify-center overflow-hidden rounded-lg bg-secondary/20 p-1 sm:p-2">
+              <img
+                src={event.featured_image_url}
+                alt={event.title}
+                className="w-auto h-full max-w-full object-contain rounded-lg shadow-md"
+              />
+            </div>
+          ) : (
+            <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg">
+              <div className="text-center p-2 sm:p-4">
+                <Calendar className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-2 sm:mb-3 text-primary/40" />
+                <p className="text-muted-foreground font-heading text-xs sm:text-base">{event.title}</p>
+              </div>
+            </div>
+          )}
+          <div className={`mt-1.5 sm:mt-3 pt-1.5 sm:pt-3 border-t border-border/30 ${side === "left" ? "text-left" : "text-right"}`}>
+            <p className="text-[10px] sm:text-sm font-medium text-foreground truncate">{event.title}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
+              {format(new Date(event.start_date), "MMMM d, yyyy")}
+            </p>
+            <p className="text-[10px] sm:text-xs text-primary mt-0.5 sm:mt-1 italic">Click to see details →</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Custom arrow button component
   const NavigationArrow = ({ 
     direction, 
@@ -428,6 +513,30 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
     );
   };
 
+  const renderPageSurface = (
+    event: PastEvent | undefined,
+    cardIndex: number,
+    side: "left" | "right",
+    pageNumber: number,
+    staticCard = false,
+  ) => (
+    <>
+      <div
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 24px, currentColor 25px)",
+        }}
+      />
+      <div
+        className={`absolute ${side === "left" ? "right-0 bg-gradient-to-l" : "left-0 bg-gradient-to-r"} top-0 bottom-0 w-4 from-black/5 to-transparent`}
+      />
+      {staticCard ? renderStaticEventCard(event, side) : renderEventCard(event, cardIndex, side)}
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs text-muted-foreground/50 font-body italic">
+        {pageNumber}
+      </div>
+    </>
+  );
+
   if (events.length === 0) {
     return (
       <div className="text-center py-12 bg-card rounded-2xl border border-border/50">
@@ -443,6 +552,7 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
       <Carousel
         opts={{
           align: "center",
+          containScroll: false,
           loop: false,
         }}
         className="w-full"
@@ -585,7 +695,7 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
 
   // Desktop Book View
   const renderDesktopView = () => (
-    <div className="relative w-full max-w-5xl mx-auto">
+    <div className="relative w-full max-w-5xl mx-auto perspective-[2000px]">
       {/* Book Container */}
       <div className="relative">
         {/* Book Shadow */}
@@ -595,22 +705,10 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
         <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-3 sm:w-4 md:w-6 bg-gradient-to-r from-stone-400 via-stone-300 to-stone-400 z-20 rounded-sm shadow-md" />
         
         {/* Book Pages Container - lighter cream/white tones */}
-        <div className={`relative flex bg-gradient-to-b from-stone-50 to-stone-100/80 rounded-lg shadow-2xl border-4 md:border-8 border-stone-300 min-h-[550px] md:min-h-[650px] transition-opacity duration-200 ${isFlipping ? 'opacity-90' : 'opacity-100'}`}>
+        <div className="relative flex bg-gradient-to-b from-stone-50 to-stone-100/80 rounded-lg shadow-2xl border-4 md:border-8 border-stone-300 min-h-[550px] md:min-h-[650px]">
           {/* Left Page */}
           <div className="w-1/2 bg-gradient-to-br from-white via-stone-50 to-stone-100/50 border-r border-stone-200/50 relative overflow-hidden">
-            {/* Page texture lines */}
-            <div className="absolute inset-0 opacity-[0.02]" style={{
-              backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 24px, currentColor 25px)',
-            }} />
-            {/* Page edge shadow */}
-            <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-black/5 to-transparent" />
-            
-            {renderEventCard(leftEvent, 0, 'left')}
-            
-            {/* Page number - left */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs text-muted-foreground/50 font-body italic">
-              {currentSpread * 2 + 1}
-            </div>
+            {renderPageSurface(displayedLeftEvent, 0, "left", displayedLeftPageNumber)}
             
             {/* Navigation - Previous */}
             <div className="absolute left-2 top-1/2 -translate-y-1/2">
@@ -626,19 +724,7 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
           <div 
             className="w-1/2 bg-gradient-to-bl from-white via-stone-50 to-stone-100/50 relative overflow-hidden"
           >
-            {/* Page texture lines */}
-            <div className="absolute inset-0 opacity-[0.02]" style={{
-              backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 24px, currentColor 25px)',
-            }} />
-            {/* Page edge shadow */}
-            <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-black/5 to-transparent" />
-            
-            {renderEventCard(rightEvent, 1, 'right')}
-            
-            {/* Page number - right */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs text-muted-foreground/50 font-body italic">
-              {currentSpread * 2 + 2}
-            </div>
+            {renderPageSurface(displayedRightEvent, 1, "right", displayedRightPageNumber)}
             
             {/* Navigation - Next */}
             <div 
@@ -666,6 +752,62 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
               </div>
             )}
           </div>
+
+          {/* Animated turning sheet for next spread */}
+          {isFlipping && flipDirection === "next" && (
+            <div
+              className="pointer-events-none absolute inset-y-0 left-1/2 w-1/2 z-50 animate-page-flip"
+              style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
+            >
+              {/* Front face: current right page */}
+              <div
+                className="absolute inset-0 bg-gradient-to-bl from-white via-stone-50 to-stone-100/50 overflow-hidden"
+                style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
+              >
+                {renderPageSurface(rightEvent, 100, "right", currentSpread * 2 + 2, true)}
+              </div>
+
+              {/* Back face: target left page */}
+              <div
+                className="absolute inset-0 bg-gradient-to-br from-white via-stone-50 to-stone-100/50 border-r border-stone-200/50 overflow-hidden"
+                style={{
+                  backfaceVisibility: "hidden",
+                  WebkitBackfaceVisibility: "hidden",
+                  transform: "rotateY(180deg)",
+                }}
+              >
+                {renderPageSurface(targetLeftEvent, 101, "left", targetSpread * 2 + 1, true)}
+              </div>
+            </div>
+          )}
+
+          {/* Animated turning sheet for previous spread */}
+          {isFlipping && flipDirection === "prev" && (
+            <div
+              className="pointer-events-none absolute inset-y-0 left-0 w-1/2 z-50 animate-page-flip-reverse"
+              style={{ transformStyle: "preserve-3d", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
+            >
+              {/* Front face: current left page */}
+              <div
+                className="absolute inset-0 bg-gradient-to-br from-white via-stone-50 to-stone-100/50 border-r border-stone-200/50 overflow-hidden"
+                style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
+              >
+                {renderPageSurface(leftEvent, 102, "left", currentSpread * 2 + 1, true)}
+              </div>
+
+              {/* Back face: target right page */}
+              <div
+                className="absolute inset-0 bg-gradient-to-bl from-white via-stone-50 to-stone-100/50 overflow-hidden"
+                style={{
+                  backfaceVisibility: "hidden",
+                  WebkitBackfaceVisibility: "hidden",
+                  transform: "rotateY(180deg)",
+                }}
+              >
+                {renderPageSurface(targetRightEvent, 103, "right", targetSpread * 2 + 2, true)}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -694,7 +836,7 @@ export function PastEventsBook({ events, eventMedia, onMediaClick }: PastEventsB
       {/* Instructions */}
       <div className="text-center mt-6 text-muted-foreground text-sm space-y-1">
         <p>Click on any event card to flip and see details</p>
-        <p>Use the arrows to browse through past events</p>
+        <p>{browseInstruction}</p>
       </div>
     </div>
   );

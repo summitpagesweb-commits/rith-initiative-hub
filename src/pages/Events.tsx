@@ -10,6 +10,8 @@ import { Calendar, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MediaLightbox } from "@/components/shared/MediaLightbox";
+import { SITE_URL, createBreadcrumbSchema, createWebPageSchema } from "@/lib/seo";
+import { splitEventsByTimeline } from "@/lib/events";
 
 interface Event {
   id: string;
@@ -44,31 +46,22 @@ export default function Events() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const now = new Date().toISOString();
-
-        // Fetch upcoming events
-        const { data: upcoming, error: upcomingError } = await supabase
+        const { data: events, error: eventsError } = await supabase
           .from('events')
           .select('*')
-          .gte('start_date', now)
           .eq('is_archived', false)
           .order('start_date', { ascending: true });
 
-        if (upcomingError) throw upcomingError;
+        if (eventsError) throw eventsError;
 
-        // Fetch past events
-        const { data: past, error: pastError } = await supabase
-          .from('events')
-          .select('*')
-          .lt('start_date', now)
-          .eq('is_archived', false)
-          .order('start_date', { ascending: false });
-
-        if (pastError) throw pastError;
-
-        const allEvents = [...(upcoming || []), ...(past || [])];
-        setUpcomingEvents(upcoming || []);
-        setPastEvents(past || []);
+        const allEvents = events || [];
+        const { upcoming, past } = splitEventsByTimeline(allEvents, new Date());
+        setUpcomingEvents(upcoming);
+        setPastEvents(
+          [...past].sort(
+            (a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
+          )
+        );
 
         // Fetch media for all events
         if (allEvents.length > 0) {
@@ -111,13 +104,50 @@ export default function Events() {
     }
   };
 
+  const pageTitle = "Events & Programs";
+  const pageDescription = "Discover upcoming Indian cultural events, festivals, Diwali celebrations, and community gatherings hosted by The Rith Initiative in Virginia.";
+  const eventsPageSchema = createWebPageSchema({
+    title: `${pageTitle} | The Rith Initiative`,
+    description: pageDescription,
+    path: "/events",
+    type: "CollectionPage",
+  });
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Events", path: "/events" },
+  ]);
+  const eventSchemas = upcomingEvents.slice(0, 10).map((event) => ({
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: event.title,
+    startDate: event.start_date,
+    ...(event.end_date ? { endDate: event.end_date } : {}),
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    ...(event.location
+      ? {
+          location: {
+            "@type": "Place",
+            name: event.location,
+          },
+        }
+      : {}),
+    organizer: {
+      "@type": "Organization",
+      name: "The Rith Initiative",
+      url: SITE_URL,
+    },
+    ...(event.registration_link ? { url: event.registration_link } : { url: `${SITE_URL}/events` }),
+  }));
+
   return (
     <Layout>
       <PageMeta
-        title="Events & Programs"
-        description="Discover upcoming Indian cultural events, festivals, Diwali celebrations, and community gatherings hosted by The Rith Initiative in Virginia."
+        title={pageTitle}
+        description={pageDescription}
         keywords="Indian cultural events Virginia, Indian festivals, Diwali celebration Virginia, Indian American community events, Indian dance performance, Indian music event"
         path="/events"
+        jsonLd={[eventsPageSchema, breadcrumbSchema, ...eventSchemas]}
       />
       {/* Hero Section */}
       <section className="section-padding bg-gradient-to-b from-secondary/30 to-background">
@@ -160,6 +190,7 @@ export default function Events() {
                 events={upcomingEvents}
                 eventMedia={eventMedia}
                 onMediaClick={openMediaLightbox}
+                browseInstruction="Use the arrows to browse through upcoming events"
               />
             </ScrollReveal>
           ) : (
@@ -197,6 +228,7 @@ export default function Events() {
                 events={pastEvents}
                 eventMedia={eventMedia}
                 onMediaClick={openMediaLightbox}
+                browseInstruction="Use the arrows to browse through past events"
               />
             </ScrollReveal>
           )}
