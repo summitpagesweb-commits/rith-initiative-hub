@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { CalendarIcon, CheckCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Textarea } from '@/components/ui/textarea';
 
 interface FormField {
   id: string;
@@ -18,6 +19,7 @@ interface FormField {
   label: string;
   description: string | null;
   options: string[] | null;
+  allow_other: boolean;
   is_required: boolean;
   display_order: number;
 }
@@ -41,6 +43,35 @@ const getSessionId = () => {
     localStorage.setItem('blog_session_id', sessionId);
   }
   return sessionId;
+};
+
+const parseFieldOptions = (options: unknown): Pick<FormField, 'options' | 'allow_other'> => {
+  if (typeof options === 'string') {
+    try {
+      return parseFieldOptions(JSON.parse(options));
+    } catch {
+      return { options: null, allow_other: false };
+    }
+  }
+
+  if (Array.isArray(options)) {
+    return {
+      options: options.filter((option): option is string => typeof option === 'string'),
+      allow_other: false,
+    };
+  }
+
+  if (options && typeof options === 'object') {
+    const optionConfig = options as { choices?: unknown; allow_other?: unknown };
+    return {
+      options: Array.isArray(optionConfig.choices)
+        ? optionConfig.choices.filter((option): option is string => typeof option === 'string')
+        : [],
+      allow_other: optionConfig.allow_other === true,
+    };
+  }
+
+  return { options: null, allow_other: false };
 };
 
 export function BlogFormDisplay({ postId }: BlogFormDisplayProps) {
@@ -85,7 +116,7 @@ export function BlogFormDisplay({ postId }: BlogFormDisplayProps) {
     if (fieldsData) {
       setFields(fieldsData.map(f => ({
         ...f,
-        options: f.options as string[] | null,
+        ...parseFieldOptions(f.options),
       })));
     }
 
@@ -127,12 +158,32 @@ export function BlogFormDisplay({ postId }: BlogFormDisplayProps) {
 
     // Validate required fields
     for (const field of fields) {
+      if (field.field_type === 'section') continue;
+
       if (field.is_required) {
         const value = responses[field.id];
         if (value === undefined || value === '' || value === false) {
           toast({
             title: 'Required field missing',
             description: `Please complete the field: ${field.label}`,
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        if (field.field_type === 'multiple_choice' && value === '__other__' && !String(responses[`${field.id}__other`] || '').trim()) {
+          toast({
+            title: 'Required field missing',
+            description: `Please enter an Other response for: ${field.label}`,
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        if (field.field_type === 'checkbox' && typeof value === 'string' && value.split('|||').includes('__other__') && !String(responses[`${field.id}__other`] || '').trim()) {
+          toast({
+            title: 'Required field missing',
+            description: `Please enter an Other response for: ${field.label}`,
             variant: 'destructive',
           });
           return;
@@ -239,7 +290,18 @@ export function BlogFormDisplay({ postId }: BlogFormDisplayProps) {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {fields.map((field) => (
-          <div key={field.id} className="space-y-2">
+          <div key={field.id} className={field.field_type === 'section' ? 'pt-4 first:pt-0' : 'space-y-2'}>
+            {field.field_type === 'section' ? (
+              <div className="border-t border-border pt-5 first:border-t-0 first:pt-0">
+                <h4 className="font-heading text-base font-semibold text-foreground">
+                  {field.label}
+                </h4>
+                {field.description && (
+                  <p className="text-sm text-muted-foreground mt-1">{field.description}</p>
+                )}
+              </div>
+            ) : (
+            <>
             <Label className="flex items-center gap-1">
               {field.label}
               {field.is_required && <span className="text-destructive">*</span>}
@@ -248,7 +310,7 @@ export function BlogFormDisplay({ postId }: BlogFormDisplayProps) {
               <p className="text-xs text-muted-foreground">{field.description}</p>
             )}
 
-            {field.field_type === 'text' && (
+            {(field.field_type === 'text' || field.field_type === 'short_answer') && (
               <Input
                 value={(responses[field.id] as string) || ''}
                 onChange={(e) => handleInputChange(field.id, e.target.value)}
@@ -256,10 +318,20 @@ export function BlogFormDisplay({ postId }: BlogFormDisplayProps) {
               />
             )}
 
+            {field.field_type === 'long_answer' && (
+              <Textarea
+                value={(responses[field.id] as string) || ''}
+                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                placeholder="Your answer"
+                rows={4}
+              />
+            )}
+
             {field.field_type === 'multiple_choice' && field.options && (
               <RadioGroup
                 value={(responses[field.id] as string) || ''}
                 onValueChange={(value) => handleInputChange(field.id, value)}
+                className="space-y-2"
               >
                 {field.options.map((option, idx) => (
                   <div key={idx} className="flex items-center space-x-2">
@@ -269,6 +341,25 @@ export function BlogFormDisplay({ postId }: BlogFormDisplayProps) {
                     </Label>
                   </div>
                 ))}
+                {field.allow_other && (
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="__other__" id={`${field.id}-other`} />
+                      <Label htmlFor={`${field.id}-other`} className="font-normal cursor-pointer">
+                        Other
+                      </Label>
+                    </div>
+                    <Input
+                      value={(responses[`${field.id}__other`] as string) || ''}
+                      onChange={(e) => {
+                        handleInputChange(`${field.id}__other`, e.target.value);
+                        handleInputChange(field.id, '__other__');
+                      }}
+                      placeholder="Your answer"
+                      className="sm:max-w-xs"
+                    />
+                  </div>
+                )}
               </RadioGroup>
             )}
 
@@ -300,6 +391,45 @@ export function BlogFormDisplay({ postId }: BlogFormDisplayProps) {
                     </div>
                   );
                 })}
+                {field.allow_other && (() => {
+                  const selectedOptions = (responses[field.id] as string) || '';
+                  const selectedArray = selectedOptions ? selectedOptions.split('|||') : [];
+                  const isChecked = selectedArray.includes('__other__');
+
+                  return (
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`${field.id}-other`}
+                          checked={isChecked}
+                          onCheckedChange={(checked) => {
+                            let newSelected: string[];
+                            if (checked) {
+                              newSelected = [...selectedArray, '__other__'];
+                            } else {
+                              newSelected = selectedArray.filter(option => option !== '__other__');
+                            }
+                            handleInputChange(field.id, newSelected.join('|||'));
+                          }}
+                        />
+                        <Label htmlFor={`${field.id}-other`} className="font-normal cursor-pointer">
+                          Other
+                        </Label>
+                      </div>
+                      <Input
+                        value={(responses[`${field.id}__other`] as string) || ''}
+                        onChange={(e) => {
+                          handleInputChange(`${field.id}__other`, e.target.value);
+                          if (!selectedArray.includes('__other__')) {
+                            handleInputChange(field.id, [...selectedArray, '__other__'].join('|||'));
+                          }
+                        }}
+                        placeholder="Your answer"
+                        className="sm:max-w-xs"
+                      />
+                    </div>
+                  );
+                })()}
               </div>
             ) : field.field_type === 'checkbox' && (
               <div className="flex items-center space-x-2">
@@ -340,6 +470,8 @@ export function BlogFormDisplay({ postId }: BlogFormDisplayProps) {
                   />
                 </PopoverContent>
               </Popover>
+            )}
+            </>
             )}
           </div>
         ))}

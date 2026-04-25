@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Save } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MediaManager, MediaItem } from '@/components/admin/MediaManager';
-import { FormBuilder, FormData as BlogFormData } from '@/components/admin/FormBuilder';
+import { FormBuilder, FormBuilderHandle, FormData as BlogFormData } from '@/components/admin/FormBuilder';
 
 interface PostFormData {
   title: string;
@@ -32,6 +32,7 @@ export default function AdminPostForm() {
   const [isFetching, setIsFetching] = useState(isEditing);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [blogFormData, setBlogFormData] = useState<BlogFormData | null>(null);
+  const formBuilderRef = useRef<FormBuilderHandle>(null);
 
   const [formData, setFormData] = useState<PostFormData>({
     title: '',
@@ -107,9 +108,13 @@ export default function AdminPostForm() {
       return;
     }
 
+    const currentBlogFormData = formBuilderRef.current?.getFormData() ?? blogFormData;
+
     // Validate form fields if form exists
-    if (blogFormData && blogFormData.fields.length > 0) {
-      for (const field of blogFormData.fields) {
+    if (currentBlogFormData && currentBlogFormData.fields.length > 0) {
+      for (const field of currentBlogFormData.fields) {
+        if (field.field_type === 'section') continue;
+
         if (field.field_type === 'multiple_choice' || field.field_type === 'checkbox') {
           const validOptions = (field.options || []).filter(opt => opt.trim() !== '');
           if (validOptions.length === 0) {
@@ -202,36 +207,40 @@ export default function AdminPostForm() {
         }
 
         // Save form if present
-        if (postId && blogFormData) {
+        if (postId && currentBlogFormData) {
           // Check if form exists
-          const { data: existingForm } = await supabase
+          const { data: existingForm, error: existingFormError } = await supabase
             .from('blog_post_forms')
             .select('id')
             .eq('post_id', postId)
             .maybeSingle();
 
-          let formId = existingForm?.id || blogFormData.id;
+          if (existingFormError) throw existingFormError;
+
+          let formId = existingForm?.id || currentBlogFormData.id;
 
           if (formId) {
             // Update existing form
-            await supabase
+            const { error: updateFormError } = await supabase
               .from('blog_post_forms')
               .update({
-                title: blogFormData.title,
-                description: blogFormData.description || null,
-                is_active: blogFormData.is_active,
+                title: currentBlogFormData.title,
+                description: currentBlogFormData.description || null,
+                is_active: currentBlogFormData.is_active,
                 updated_at: new Date().toISOString(),
               })
               .eq('id', formId);
+
+            if (updateFormError) throw updateFormError;
           } else {
             // Create new form
             const { data: newForm, error: formError } = await supabase
               .from('blog_post_forms')
               .insert({
                 post_id: postId,
-                title: blogFormData.title,
-                description: blogFormData.description || null,
-                is_active: blogFormData.is_active,
+                title: currentBlogFormData.title,
+                description: currentBlogFormData.description || null,
+                is_active: currentBlogFormData.is_active,
                 created_by: user?.id,
               })
               .select('id')
@@ -243,48 +252,57 @@ export default function AdminPostForm() {
 
           if (formId) {
             // Get existing fields
-            const { data: existingFields } = await supabase
+            const { data: existingFields, error: existingFieldsError } = await supabase
               .from('blog_form_fields')
               .select('id')
               .eq('form_id', formId);
 
+            if (existingFieldsError) throw existingFieldsError;
+
             const existingFieldIds = new Set((existingFields || []).map(f => f.id));
-            const currentFieldIds = new Set(blogFormData.fields.filter(f => f.id).map(f => f.id));
+            const currentFieldIds = new Set(currentBlogFormData.fields.filter(f => f.id).map(f => f.id));
 
             // Delete removed fields
             const fieldsToDelete = [...existingFieldIds].filter(id => !currentFieldIds.has(id));
             if (fieldsToDelete.length > 0) {
-              await supabase.from('blog_form_fields').delete().in('id', fieldsToDelete);
+              const { error: deleteFieldsError } = await supabase.from('blog_form_fields').delete().in('id', fieldsToDelete);
+              if (deleteFieldsError) throw deleteFieldsError;
             }
 
             // Insert/update fields
-            for (const field of blogFormData.fields) {
+            for (const field of currentBlogFormData.fields) {
+              const validOptions = field.options?.filter(opt => opt.trim() !== '');
               const fieldData = {
                 form_id: formId,
                 field_type: field.field_type,
-                label: field.label,
+                label: field.label || (field.field_type === 'section' ? 'Untitled section' : 'Untitled question'),
                 description: field.description || null,
-                options: field.options || null,
-                is_required: field.is_required,
+                options: field.field_type === 'multiple_choice' || field.field_type === 'checkbox'
+                  ? JSON.stringify({ choices: validOptions || [], allow_other: field.allow_other === true })
+                  : null,
+                is_required: field.field_type === 'section' ? false : field.is_required,
                 display_order: field.display_order,
               };
 
               if (field.id) {
-                await supabase
+                const { error: updateFieldError } = await supabase
                   .from('blog_form_fields')
                   .update(fieldData)
                   .eq('id', field.id);
+                if (updateFieldError) throw updateFieldError;
               } else {
-                await supabase.from('blog_form_fields').insert([fieldData]);
+                const { error: insertFieldError } = await supabase.from('blog_form_fields').insert([fieldData]);
+                if (insertFieldError) throw insertFieldError;
               }
             }
           }
-        } else if (postId && !blogFormData) {
+        } else if (postId && !currentBlogFormData) {
           // Delete form if it was removed
-          await supabase
+          const { error: deleteFormError } = await supabase
             .from('blog_post_forms')
             .delete()
             .eq('post_id', postId);
+          if (deleteFormError) throw deleteFormError;
         }
       }
 
@@ -427,6 +445,7 @@ export default function AdminPostForm() {
           {/* Interactive Form Section */}
           <div className="pt-4 border-t border-border">
             <FormBuilder
+              ref={formBuilderRef}
               postId={id}
               onFormChange={handleFormChange}
             />
